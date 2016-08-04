@@ -1,5 +1,7 @@
 (ns trolls.core
   (:require [clojure.string :as string]
+            [clojure.repl :as repl]
+            [clojure.tools.logging :as log]
             [clansi :refer [style]]))
 
 (def state (atom {:maze []
@@ -45,10 +47,18 @@
 (defn wall? [x y maze]
   (= "#" (get-pos maze [x y])))
 
+(defn out-of-bounds? [x y maze]
+  (let [xlim (count (first maze))
+        ylim (count maze)]
+    (not
+      (and (< x xlim)
+           (< y ylim)))))
+
 (defn valid? [x y maze]
   (cond
     (= (get-pos maze [x y]) "X") false
     (wall? x y maze) false
+    (out-of-bounds? x y maze) false
     :else true))
 
 (defn- randp [xlim ylim]
@@ -93,50 +103,75 @@
     :right [(inc x) y]))
 
 (defn can-push? [x y dir maze]
-  (not
-    (-> (inc-by-dir x y dir)
-        (conj maze)
-        (#(apply valid? %)))))
+  (-> (inc-by-dir x y dir)
+      (conj maze)
+      (#(apply valid? %))))
 
 (defn push! [x y dir]
   (if (can-push? x y dir (@state :maze))
     (let [[newx newy] (inc-by-dir x y dir)]
-      (swap! state assoc :maze
-             (-> (put-char (@state :maze) x y " ")
-                 (put-char newx newy "#")))
-      (println (@state :maze))
+      (swap! state update :maze
+             #(-> (put-char % [x y] " ")
+                 (put-char [newx newy] "#")))
+      (log/info (@state :maze))
       true)
     false))
 
-(defn- move-player-to! [& coords]
-  (swap! state update-in [:locs :player] coords))
+(defn- move-player-to! [coords]
+  (log/info (str "loc: " (get-in @state [:locs :player])))
+  (swap! state assoc-in [:locs :player] coords)
+  (log/info (str "loc: " (get-in @state [:locs :player]))))
 
 (defn move-player! []
   (let [[x y dir] (get-in @state [:locs :player])
         [newx newy] (inc-by-dir x y dir)
         maze (@state :maze)]
+    (log/info (str "x: " x ", y: "y ", " dir "; newx: " newx ", newy: " newy))
     (cond
-      (not (wall? newx newy maze)) (move-player-to! newx newy dir)
-      (push! newx newy dir) (move-player-to! newx newy dir))))
+      (not (wall? newx newy maze)) (move-player-to! [newx newy dir])
+      (push! newx newy dir) (move-player-to! [newx newy dir]))))
+
+(defn get-move []
+  (if-let [m (first (read-line))]
+    m
+    ""))
 
 (defn users-move! []
-  (let [move (first (read-line))
+  (let [move (get-move)
         curdir (get-in @state [:locs :player 2])
         dir (case (clojure.string/lower-case move)
               "w" :up
               "s" :down
               "a" :left
-              "d" :right)]
-    (println (= curdir dir))
+              "d" :right
+              curdir)]
+    (log/info (= curdir dir))
     (if-not (= curdir dir)
       (swap! state assoc-in [:locs :player 2] dir)
       (move-player!))))
 
+(defn move-trolls! []
+  false)
+
+(defn win? []
+  (let [{:keys [exit locs]} @state
+        {:keys [player]} locs]
+    (= exit (take 2 player))))
+
+(defn sigint [_]
+  (println "Exiting...")
+  (System/exit 0))
+
 (defn play! []
+  (repl/set-break-handler! sigint)
   (loop []
     (draw! @state)
     (users-move!)
-    (recur)))
+    (if (win?)
+      (println "You're a winner!")
+      (do
+        (move-trolls!)
+        (recur)))))
 
 (defn -main []
   (load-maze!)
