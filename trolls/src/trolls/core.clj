@@ -4,10 +4,11 @@
             [clojure.tools.logging :as log]
             [clansi :refer [style]]))
 
-(def state (atom {:maze []
+(defonce state (atom {:maze []
                   :exit [nil nil]
                   :locs {:player [nil nil :up]
-                         :troll_1 [nil nil :down]}}))
+                         :troll_1 [nil nil :down]}
+                  :prev [nil nil]}))
 
 (defn read-in-maze [filename]
   (as-> (slurp filename) _
@@ -23,7 +24,10 @@
        (filter (fn [x] (every? #(not (nil? %)) x)))
        (first)))
 
-(defn glyph [ptype dir]
+(defn glyph
+  "Create a player/troll glyph based off
+  of player-type and direction of movement."
+  [ptype dir]
   (let [dir (case dir
               :up "^"
               :down "v"
@@ -51,34 +55,62 @@
   (let [xlim (count (first maze))
         ylim (count maze)]
     (not
-      (and (< x xlim)
-           (< y ylim)))))
+      (and (< 0 x xlim)
+           (< 0 y ylim)))))
 
-(defn valid? [x y maze]
+(defn opposites? [dir1 dir2]
+  (let [oppos {:up :down
+               :down :up
+               :left :right
+               :right :left}]
+    (= dir2 (oppos dir1))))
+
+(defn occupied?
+  ([x y locs]
+   (first (filter #(= [x y] (take 2 (second %))) locs)))
+  ([x y dir locs]
+   (first (filter #(and (= [x y] (take 2 (second %)))
+                        (opposites? dir (last (second %))))
+                  locs))))
+
+(defn valid?
+  "valid board position. Not a wall, exit,
+  occupied, and is in bounds of the board."
+  [x y maze]
   (cond
     (= (get-pos maze [x y]) "X") false
     (wall? x y maze) false
     (out-of-bounds? x y maze) false
     :else true))
 
-(defn- randp [xlim ylim]
+(defn- randp
+  "random coords within x,y limits"
+  [xlim ylim]
   [(rand-int xlim) (rand-int ylim)])
 
-(defn rand-pos [maze]
+(defn rand-pos
+  "Generate a random valid position within board"
+  [maze locs]
   (let [width (count (first maze))
         height (count maze)]
     (loop [[x y] (randp width height)]
-      (if (valid? x y maze)
+      (if (and
+            (valid? x y maze)
+            (not (occupied? x y locs)))
         [x y]
         (recur (randp width height))))))
 
-(defn rand-pos-dir [maze]
-  (conj (rand-pos maze) (rand-nth [:up :down :left :right])))
+(defn rand-pos-dir [maze locs]
+  (conj (rand-pos maze locs) (rand-nth [:up :down :left :right])))
 
 (defn init-players! [{:keys [maze trolls]
                       :or {trolls 1}}]
-  (let [locs {:player (rand-pos-dir maze)}]
-    (reduce #(assoc %1 (keyword (str "troll_" %2)) (rand-pos-dir maze)) locs (range trolls))))
+  (let [locs {:player (rand-pos-dir maze {})}]
+    (reduce #(assoc %1
+                    (keyword (str "troll_" %2))
+                    (rand-pos-dir maze %1))
+            locs
+            (range trolls))))
 
 (defn load-maze!
   "Load maze into global state"
@@ -89,9 +121,28 @@
   (->> (find-exit maze)
        (swap! state assoc :exit)))
 
+(defn clear-screen! []
+  (print (str (char 27) "[2J"))
+  (print (str (char 27) "[;H")))
+
+(defn put-header! []
+  (let [trolls "TROLLLLLS"
+        t-len (+ (count trolls) 2)
+        width (count (first (@state :maze)))
+        b-len (/ (- width t-len) 2)
+        border-left (clojure.string/join (repeat b-len ">"))
+        border-right (clojure.string/join (repeat b-len "<"))
+        border-bot (clojure.string/join (repeat (dec width) "-"))]
+    (println (str border-left " "
+                  trolls
+                  " " border-right))
+    (println border-bot)))
+
 (defn draw! [{:keys [maze locs exit] :as state}]
   (let [maze (reduce #(put-glyph %1 %2) maze locs)
         maze (put-char maze exit (style "X" :bg-green))]
+    (clear-screen!)
+    (put-header!)
     (doseq [line maze]
       (println (string/join line)))))
 
@@ -113,23 +164,23 @@
       (swap! state update :maze
              #(-> (put-char % [x y] " ")
                  (put-char [newx newy] "#")))
-      (log/info (@state :maze))
+      (log/trace (@state :maze))
       true)
     false))
 
-(defn- move-player-to! [coords]
-  (log/info (str "loc: " (get-in @state [:locs :player])))
-  (swap! state assoc-in [:locs :player] coords)
-  (log/info (str "loc: " (get-in @state [:locs :player]))))
+(defn- move-to! [character coords & [prev]]
+  (when prev
+    (swap! state assoc :prev prev))
+  (swap! state assoc-in [:locs character] coords))
 
 (defn move-player! []
   (let [[x y dir] (get-in @state [:locs :player])
         [newx newy] (inc-by-dir x y dir)
         maze (@state :maze)]
-    (log/info (str "x: " x ", y: "y ", " dir "; newx: " newx ", newy: " newy))
+    (log/trace (str "x: " x ", y: "y ", " dir "; newx: " newx ", newy: " newy))
     (cond
-      (not (wall? newx newy maze)) (move-player-to! [newx newy dir])
-      (push! newx newy dir) (move-player-to! [newx newy dir]))))
+      (not (wall? newx newy maze)) (move-to! :player [newx newy dir] [x y])
+      (push! newx newy dir) (move-to! :player [newx newy dir] [x y]))))
 
 (defn get-move []
   (if-let [m (first (read-line))]
@@ -145,18 +196,40 @@
               "a" :left
               "d" :right
               curdir)]
-    (log/info (= curdir dir))
+    (log/trace (= curdir dir))
     (if-not (= curdir dir)
       (swap! state assoc-in [:locs :player 2] dir)
       (move-player!))))
 
+(defn empty-dir [[x y _] maze]
+  (first (filter #(apply valid? (conj (inc-by-dir x y %) maze))
+                 (shuffle [:up :down :left :right]))))
+
 (defn move-trolls! []
-  false)
+  (let [{:keys [maze locs]} @state
+        trolls (remove #(= :player (first %)) locs)]
+    (log/trace trolls)
+    (doseq [[troll coords] trolls]
+           (log/trace (str "troll: " troll " " coords))
+           (if (apply valid? (conj (apply inc-by-dir coords) maze))
+             (move-to! troll (conj (apply inc-by-dir coords) (last coords)))
+             (swap! state assoc-in [:locs troll 2] (empty-dir coords maze)))
+           (log/trace (str "troll: " troll " " coords)))))
 
 (defn win? []
   (let [{:keys [exit locs]} @state
         {:keys [player]} locs]
     (= exit (take 2 player))))
+
+(defn trolled? []
+  (let [{:keys [prev locs]} @state
+        pcoords (locs :player)
+        [x y dir] pcoords
+        [lastx lasty] prev
+        trolls (remove #(= :player (first %)) locs)]
+    (log/trace trolls)
+    (or (occupied? x y trolls)
+        (occupied? lastx lasty dir trolls))))
 
 (defn sigint [_]
   (println "Exiting...")
@@ -167,12 +240,13 @@
   (loop []
     (draw! @state)
     (users-move!)
-    (if (win?)
-      (println "You're a winner!")
-      (do
-        (move-trolls!)
-        (recur)))))
+    (move-trolls!)
+    (cond
+      (win?) (println "You're a winner!")
+      (trolled?) (println "You're a loser")
+      :else (recur))))
 
 (defn -main []
   (load-maze!)
   (play!))
+
