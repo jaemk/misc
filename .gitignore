@@ -1,2 +1,5 @@
 *.swp
 *.swo
+.hgignore
+.lein-failures
+.lein-repl-history
