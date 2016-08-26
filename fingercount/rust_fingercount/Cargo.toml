@@ -1,0 +1,6 @@
+[package]
+name = "fingercount"
+version = "0.1.0"
+authors = ["James <james.kominick@gmail.com>"]
+
+[dependencies]
