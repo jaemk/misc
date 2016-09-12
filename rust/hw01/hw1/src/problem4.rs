@@ -1,7 +1,27 @@
+
 pub fn bloom(data: &Vec<&str>, hashes: [fn(&[u8]) -> u64; 3], value: &str)
         -> bool {
-    // TODO
-    unimplemented!();
+    let mut bloom = [false; 20];
+    let mut val;
+    for item in data.iter() {
+        for hash in hashes.iter() {
+            val = hash(item.as_bytes()) % 20;
+            if val <= 20 {
+                bloom[val as usize] = true;
+            }
+        }
+    }
+    if hashes.iter().all(|f| {
+        let _v = f(value.as_bytes()) % 20;
+        if _v <= 20 {
+            bloom[_v as usize]
+        } else {
+            false
+        }}) {
+        true
+    } else {
+        false
+    }
 }
 
 pub fn djb2(bytes: &[u8]) -> u64 {
