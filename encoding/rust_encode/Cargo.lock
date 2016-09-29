@@ -1,0 +1,20 @@
+[root]
+name = "encode"
+version = "0.1.0"
+dependencies = [
+ "itertools 0.5.1 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "either"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+
+[[package]]
+name = "itertools"
+version = "0.5.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+dependencies = [
+ "either 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
