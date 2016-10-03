@@ -1,4 +1,4 @@
-# [wandering finders](https://www.reddit.com/r/dailyprogrammer/comments/53ijnb/20160919_challenge_284_easy_wandering_fingers/)
+# [wandering fingers](https://www.reddit.com/r/dailyprogrammer/comments/53ijnb/20160919_challenge_284_easy_wandering_fingers/)
 
 Running rust benchmarks with `cargo bench` requires nightly.
 
