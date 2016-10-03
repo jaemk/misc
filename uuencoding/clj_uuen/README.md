@@ -5,7 +5,8 @@
 `lein run`/ `lein test`
 
 In the repl,
-```(->> "this is neat"
+```clojure
+    (->> "this is neat"
         (uuencode :filename "misc" :content)    ;; encode
         (decode))                               ;;=> "this is neat"
 ```
