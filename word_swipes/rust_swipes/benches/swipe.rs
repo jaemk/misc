@@ -40,7 +40,7 @@ fn bench_read_file_to_vec(b: &mut Bencher) {
 }
 
 #[bench]
-fn bench_search_nohash_brute1(b: &mut Bencher) {
+fn bench_search_vec_brute1(b: &mut Bencher) {
     let mut m = swipes::MatcherVec::new();
     m.load("enable1.txt");
     b.iter(|| {
@@ -49,7 +49,7 @@ fn bench_search_nohash_brute1(b: &mut Bencher) {
 }
 
 #[bench]
-fn bench_search_nohash_brute2(b: &mut Bencher) {
+fn bench_search_vec_brute2(b: &mut Bencher) {
     let mut m = swipes::MatcherVec::new();
     m.load("enable1.txt");
     b.iter(|| {

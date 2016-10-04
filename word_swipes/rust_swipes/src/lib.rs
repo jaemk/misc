@@ -8,6 +8,32 @@ use std::io::prelude::*;
 use std::fs::File;
 use std::path::Path;
 
+
+/// Checks if 'maybe's letters are contained (in proper order) in 'word'
+fn chars_match(word: &str, maybe: &str) -> bool {
+    let mut word_iter = word.chars();
+    let mut found = 0;
+    let mut prev_char = ' ';
+    let to_find = maybe.len();
+    for maybe_char in maybe.chars() {
+        loop {
+            match word_iter.next() {
+                Some(word_char) => {
+                    if maybe_char == word_char || maybe_char == prev_char {
+                        found += 1;
+                        prev_char = maybe_char;
+                        if to_find == found { return true; }
+                        break;
+                    }
+                },
+                None => { return to_find == found },
+            };
+        };
+    }
+    return false;
+}
+
+
 /// Don't save any intermediate values, just read from the file and
 /// save any matches. Break early, once the first letters are no longer matching.
 pub fn contained_by_raw(file: &str, word: &str) -> Option<Vec<String>> {
@@ -26,12 +52,10 @@ pub fn contained_by_raw(file: &str, word: &str) -> Option<Vec<String>> {
     let buf = BufReader::new(file);
 
     let mut matches = vec![];
-    let mut found_matching_first = false;  // for exiting early
+    let mut found_matching_first = false;
     for line in buf.lines() {
         let maybe = line.unwrap();
-        if maybe.len() < 5 {
-            continue;
-        }
+        if maybe.len() < 5 { continue; }
         let maybe_first_last: String;
         let maybe_first: char;
         {
@@ -44,28 +68,8 @@ pub fn contained_by_raw(file: &str, word: &str) -> Option<Vec<String>> {
         if found_matching_first && word_first != maybe_first { break; }
         if word_first_last != maybe_first_last { continue; }
         found_matching_first = true;
-        let mut word_iter = word.chars();
-        let mut next = true;
-        let to_find = maybe.len();
-        let mut found = 0;
-        let mut prev_char = ' ';
-        for maybe_char in maybe.chars() {
-            if !next { break; }
-            loop {
-                match word_iter.next() {
-                    Some(word_char) => {
-                        if maybe_char == word_char || maybe_char == prev_char {
-                            found += 1;
-                            prev_char = maybe_char;
-                            next = true;
-                            break;
-                        }
-                    },
-                    None => { next = false; break; },
-                };
-            };
-        }
-        if to_find == found {
+
+        if chars_match(word, &maybe) {
             matches.push(maybe.to_string());
         }
     }
@@ -119,30 +123,9 @@ impl MatcherHash {
         match map.get(&first_last) {
             Some(maybes) => {
                 let mut matches = vec![];
-                for m in maybes.iter() {
-                    let mut word_iter = word.chars();
-                    let mut next = true;
-                    let to_find = m.len();
-                    let mut found = 0;
-                    let mut prev_char = ' ';
-                    for maybe_char in m.chars() {
-                        if !next { break; }
-                        loop {
-                            match word_iter.next() {
-                                Some(word_char) => {
-                                    if maybe_char == word_char || maybe_char == prev_char {
-                                        found += 1;
-                                        prev_char = maybe_char;
-                                        next = true;
-                                        break;
-                                    }
-                                },
-                                None => { next = false; break; },
-                            };
-                        };
-                    }
-                    if to_find == found {
-                        matches.push(m.to_string());
+                for maybe in maybes.iter() {
+                    if chars_match(word, maybe) {
+                        matches.push(maybe.to_string());
                     }
                 }
                 Some(matches)
@@ -202,28 +185,8 @@ impl MatcherVec {
             if found_matching_first && word_first != maybe_first { break; }
             if word_first_last != maybe_first_last { continue; }
             found_matching_first = true;
-            let mut word_iter = word.chars();
-            let mut next = true;
-            let to_find = maybe.len();
-            let mut found = 0;
-            let mut prev_char = ' ';
-            for maybe_char in maybe.chars() {
-                if !next { break; }
-                loop {
-                    match word_iter.next() {
-                        Some(word_char) => {
-                            if maybe_char == word_char || maybe_char == prev_char {
-                                found += 1;
-                                prev_char = maybe_char;
-                                next = true;
-                                break;
-                            }
-                        },
-                        None => { next = false; break; },
-                    };
-                };
-            }
-            if to_find == found {
+
+            if chars_match(word, maybe) {
                 matches.push(maybe.to_string());
             }
         }

@@ -6,7 +6,7 @@ fn working() {
 }
 
 #[test]
-fn fuzzy_finds() {
+fn fuzzy_finds_hash() {
     let mut m = swipes::MatcherHash::new();
     m.load("enable1.txt");
     assert_eq!(m.contained_by("qwertyuytresdftyuioknn").unwrap(),
@@ -17,7 +17,7 @@ fn fuzzy_finds() {
 }
 
 #[test]
-fn fuzzy_nohash() {
+fn fuzzy_finds_vec() {
     let mut m = swipes::MatcherVec::new();
     m.load("enable1.txt");
     assert_eq!(m.contained_by("qwertyuytresdftyuioknn").unwrap(),
