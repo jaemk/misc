@@ -1,0 +1,7 @@
+[package]
+name = "fibrep"
+version = "0.1.0"
+authors = ["James Kominick <james.kominick@gmail.com>"]
+
+[dependencies]
+itertools = "*"

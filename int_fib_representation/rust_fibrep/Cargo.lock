@@ -1,0 +1,23 @@
+[root]
+name = "fibrep"
+version = "0.1.0"
+dependencies = [
+ "itertools 0.5.2 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "either"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+
+[[package]]
+name = "itertools"
+version = "0.5.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+dependencies = [
+ "either 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[metadata]
+"checksum either 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)" = "5845bf77d497f79416df39462df26d4a8b71dd6440246848ee63709476dbb9a6"
+"checksum itertools 0.5.2 (registry+https://github.com/rust-lang/crates.io-index)" = "1687a7b74c55b497af5e7adfd940dd9e8f922db5ffc0b6ebf88484fd1ed4b0f5"
