@@ -4,7 +4,7 @@ use itertools::Itertools;  // for iter().join
 
 pub fn into_fibs(n: i32) -> Vec<i32> {
     // track the last two fib nums up to n
-    let mut fibnums = vec![0, 1];
+    let mut fibnums: [i32; 2] = [0, 1];
     let mut next = 1;
     while next <= n {
         fibnums[0] = fibnums[1];
