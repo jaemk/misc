@@ -13,6 +13,11 @@ fn test_largest_digit() {
     assert_eq!(kaprekar::largest_digit(3333), 3);
     assert_eq!(kaprekar::largest_digit(120), 2);
 }
+#[test]
+fn test_larger_largest_digits() {
+    assert_eq!(kaprekar::largest_digit(1234560), 6);
+    assert_eq!(kaprekar::largest_digit(99999999), 9);
+}
 
 #[test]
 fn test_desc_digits() {
@@ -21,6 +26,11 @@ fn test_desc_digits() {
     assert_eq!(kaprekar::desc_digits(9800), 9800);
     assert_eq!(kaprekar::desc_digits(3333), 3333);
     assert_eq!(kaprekar::desc_digits(120), 2100);
+}
+#[test]
+fn test_larger_desc_digits() {
+    assert_eq!(kaprekar::desc_digits(33455), 55433);
+    assert_eq!(kaprekar::desc_digits(12345678), 87654321);
 }
 
 #[test]
