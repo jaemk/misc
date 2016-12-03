@@ -13,9 +13,11 @@ pub fn main() {
     let mut content = String::new();
     file.read_to_string(&mut content).expect("read error");
 
-    let code = two::eval(content);
-    println!("Bathroom code: {:?}", code);
+    let code = two::eval(&content, two::Part::One);
+    println!("Bathroom code [Part 1]: {:?}", code);
 
+    let code = two::eval(&content, two::Part::Two);
+    println!("Bathroom code [Part 2]: {:?}", code);
 }
 
 
@@ -29,6 +31,6 @@ mod test {
                      RRDDD\n\
                      LURDL\n\
                      UUUUD".to_string();
-        assert_eq!(two::eval(instr), "1985");
+        assert_eq!(two::eval(instr, two::Part::One), "1985");
     }
 }
