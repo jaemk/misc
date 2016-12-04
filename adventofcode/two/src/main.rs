@@ -31,6 +31,7 @@ mod test {
                      RRDDD\n\
                      LURDL\n\
                      UUUUD".to_string();
-        assert_eq!(two::eval(instr, two::Part::One), "1985");
+        assert_eq!(two::eval(&instr, two::Part::One), "1985");
+        assert_eq!(two::eval(&instr, two::Part::Two), "5DB3");
     }
 }

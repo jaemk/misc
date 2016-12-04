@@ -16,10 +16,11 @@ pub fn main() {
     file.read_to_string(&mut content).expect("read error");
     debug!("{:?}", content);
 
-    let part2_arg = std::env::args().nth(1).unwrap_or("".to_string());
-    let part2 = if part2_arg == "part2" { true } else { false };
-    let dist = one::eval(content, part2);
-    println!("distance: {:?}", dist);
+    let dist = one::eval(&content, one::Part::One);
+    println!("distance [Part 1]: {:?}", dist);
+
+    let dist = one::eval(&content, one::Part::Two);
+    println!("distance [Part 2]: {:?}", dist);
 }
 
 #[cfg(test)]

@@ -3,6 +3,11 @@ extern crate log;
 
 use std::collections::HashMap;
 
+#[derive(PartialEq)]
+pub enum Part {
+    One,
+    Two,
+}
 
 #[derive(Debug)]
 enum Direction {
@@ -44,7 +49,7 @@ impl Position {
             dir: Direction::North,
         }
     }
-    fn travel(&mut self, directions: String, part2: bool) {
+    fn travel(&mut self, directions: &String, part2: bool) {
         // stuff for part2
         let mut memory_lane: HashMap<String, bool> = HashMap::new();
         memory_lane.insert("0,0".to_string(), true);
@@ -83,8 +88,9 @@ impl Position {
     }
 }
 
-pub fn eval(prob: String, part2: bool) -> i32 {
+pub fn eval(prob: &String, part: Part) -> i32 {
     let mut pos = Position::new(0, 0);
+    let part2 = part == Part::Two;
     pos.travel(prob, part2);
     pos.distance()
 }

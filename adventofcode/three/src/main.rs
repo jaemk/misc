@@ -19,3 +19,4 @@ pub fn main() {
     let n = three::eval(&content, three::Part::Two);
     println!("Total valid triangles [Part 2]: {}", n);
 }
+
