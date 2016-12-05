@@ -42,12 +42,11 @@ fn filter_valid(content: &String) -> Vec<(String, u32)> {
         fill_to_cap(&mut items, buckets);
         let key = items.iter().cloned().collect::<String>();
 
-        let mut id_check = id_check.split('[');;
+        let mut id_check = id_check.split('[');
         let id = id_check.next().unwrap();
         let check = id_check.next().unwrap().chars().collect::<Vec<_>>();
         let len = check.len();
-        let cs = check[0..len-1].iter().collect::<Vec<_>>();
-        let checksum = cs.iter().cloned().cloned().collect::<String>();
+        let checksum = check[0..len-1].iter().cloned().collect::<String>();
 
         if key == checksum {
             let new = line.split('-').rev().skip(1).collect::<Vec<_>>();
