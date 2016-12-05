@@ -72,7 +72,7 @@ fn one(content: &String) -> u32 {
 pub fn cycle(c: char, n: u32) -> char {
     let start = c as u8;
     let offset = 122 - start;
-    if n as u8 <= offset {
+    if n <= offset as u32 {
         return (start + n as u8) as char;
     }
     let remaining = n - offset as u32;
