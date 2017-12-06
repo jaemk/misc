@@ -1,9 +1,10 @@
+use std::collections::HashMap;
 
 static INPUT: &'static str = include_str!("../input.txt");
 
 
 mod p1 {
-    use std::collections::HashMap;
+    use super::*;
 
     pub fn valid_passphrase(s: &str) -> bool {
         let mut map = HashMap::new();
@@ -24,7 +25,7 @@ mod p1 {
 
 
 mod p2 {
-    use std::collections::HashMap;
+    use super::*;
 
     fn freq(s: &str) -> HashMap<char, usize> {
         s.chars().fold(HashMap::new(), |mut map, c| {
