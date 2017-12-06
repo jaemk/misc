@@ -7,8 +7,6 @@ extern crate env_logger;
 mod part1;
 mod part2;
 
-use part1::step_distance;
-
 
 const INPUT: u32 = 265149;
 
@@ -21,7 +19,7 @@ enum Dir {
     Right,
 }
 impl Dir {
-    fn turn(&self) -> Self {
+    fn turn_left(&self) -> Self {
         match *self {
             Dir::Up     => Dir::Left,
             Dir::Left   => Dir::Down,
@@ -32,27 +30,17 @@ impl Dir {
 }
 
 
-fn solve_part2(value: u32) -> u32 {
-    let mem = part2::Mem::with_size(101);
-    for (_, val) in mem {
-        if val > value {
-            return val;
-        }
-    }
-    panic!("Failed solving part 2, got to value {}. Maybe increase Mem size?", value);
-}
-
-
 pub fn main() {
     init_logger().expect("log init error");
 
-    println!("d3-p1: {}", step_distance(INPUT));
-    println!("d3-p2: {}", solve_part2(INPUT));
+    println!("d3-p1: {}", part1::step_distance(INPUT));
+    println!("d3-p2: {}", part2::find_value_larger_than(INPUT));
 }
 
 
+
+/// Run with `LOG=debug cargo run` to see debug info
 fn init_logger() -> Result<(), Box<std::error::Error>> {
-    // ::std::env::set_var("LOG", "info");
     env_logger::LogBuilder::new()
         .format(|record| {
             format!("[{}] - [{}] -> {}",
@@ -73,10 +61,9 @@ mod tests {
 
     #[test]
     fn p1() {
-        init_logger().expect("log init error");
         [(1, 0), (12, 3), (23, 2), (1024, 31)].iter()
             .for_each(|&(value, steps)| {
-                assert_eq!(step_distance(value), steps, "Expected {} to be {} steps", value, steps);
+                assert_eq!(part1::step_distance(value), steps, "Expected {} to be {} steps", value, steps);
             });
     }
 
@@ -84,7 +71,8 @@ mod tests {
     fn p2() {
         [(25, 26), (747, 806), (26, 54), (1, 2)].iter()
             .for_each(|&(value, expected)| {
-                assert_eq!(solve_part2(value), expected, "Expected next largest {} for value {}", expected, value);
+                assert_eq!(part2::find_value_larger_than(value), expected,
+                           "Expected next largest {} for value {}", expected, value);
             })
     }
 }

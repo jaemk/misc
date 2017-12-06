@@ -1,6 +1,7 @@
 use {Dir};
 
 
+/// Point on the outermost spiral of memory
 #[derive(Debug, Clone)]
 struct MemPoint {
     x: u32,
@@ -23,12 +24,13 @@ impl MemPoint {
 }
 
 
+/// Outermost spiral of memory
 struct MemTrack {
     size: u32,
 }
 impl MemTrack {
     fn find_port(&self, port: u32) -> MemPoint {
-        let mut value = if self.size < 3 { 2 } else { (self.size - 2).pow(2) + 1 };
+        let mut mem_value = if self.size < 3 { 2 } else { (self.size - 2).pow(2) + 1 };
         let start_x = self.size;
         let start_y = if self.size == 1 { 1 } else { 2 };
         let mut point = MemPoint { x: start_x, y: start_y };
@@ -36,29 +38,29 @@ impl MemTrack {
         debug!("");
         debug!("Looking for: {}", port);
         debug!("square size: {}", self.size);
-        while value < port {
-            debug!("{:>4}: {:?}", value, point);
+        while mem_value < port {
+            debug!("{:>4}: {:?}", mem_value, point);
             match dir {
                 Dir::Up => {
                     if point.y < self.size { point.step(&dir); }
-                    else { dir = dir.turn(); continue }
+                    else { dir = dir.turn_left(); continue }
                 }
                 Dir::Left => {
                     if point.x > 1 { point.step(&dir); }
-                    else { dir = dir.turn(); continue }
+                    else { dir = dir.turn_left(); continue }
                 }
                 Dir::Down => {
                     if point.y > 1 { point.step(&dir); }
-                    else { dir = dir.turn(); continue }
+                    else { dir = dir.turn_left(); continue }
                 }
                 Dir::Right => {
                     if point.y < self.size { point.step(&dir); }
-                    else { dir = dir.turn(); continue }
+                    else { dir = dir.turn_left(); continue }
                 }
             }
-            value += 1;
+            mem_value += 1;
         }
-        debug!("{:>4}: {:?}", value, point);
+        debug!("{:>4}: {:?}", mem_value, point);
         point
     }
 }
@@ -69,13 +71,13 @@ pub fn step_distance(n: u32) -> u32 {
     // The size must be an odd number.
     let size = (n as f64).sqrt().ceil() as u32;
     let size = if size % 2 == 0 { size + 1 } else { size };
-    let origin = if size == 1 { 1 } else { ((size - 1) / 2)  + 1 };
-    let origin = MemPoint { x: origin, y: origin };
-    debug!("origin: {:?}", origin);
 
-    // x, y
+    // initialize the outermost spiral
     let mem = MemTrack { size };
     let point = mem.find_port(n);
+
+    let origin = if size == 1 { 1 } else { ((size - 1) / 2)  + 1 };
+    let origin = MemPoint { x: origin, y: origin };
     origin.step_distance(&point)
 }
 

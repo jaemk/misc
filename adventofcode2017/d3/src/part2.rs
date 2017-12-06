@@ -8,6 +8,7 @@ pub struct Pos {
     y: usize,
 }
 impl Pos {
+    /// Step along the spiral, returning the new dirations and x,y `Pos`
     fn step(&self, dir: &Dir, field: &Vec<Vec<u32>>, pos: &Pos) -> (Dir, Self) {
         let left_value = match *dir {
             Dir::Up     => field[pos.x-1][pos.y],
@@ -16,7 +17,7 @@ impl Pos {
             Dir::Right  => field[pos.x][pos.y+1],
         };
         let dir = if left_value == 0 {
-            dir.turn()
+            dir.turn_left()
         } else { *dir };
         let mut pos = self.clone();
         match dir {
@@ -30,8 +31,7 @@ impl Pos {
 }
 
 
-/// An iterator over the spiraling memory field with recursively
-/// growing values
+/// An iterator over the spiraling memory field with recursively growing values
 pub struct Mem {
     _size: usize,
     max_count: usize,
@@ -42,6 +42,8 @@ pub struct Mem {
     field: Vec<Vec<u32>>,
 }
 impl Mem {
+    /// Initialize a square memory field with height & width of `size`
+    /// Size must be odd so there can be an origin/center point.
     pub fn with_size(size: usize) -> Self {
         if size % 2 == 0 { panic!("size must be odd") }
         let origin = if size == 1 { 1 } else { (size / 2) - 1 };
@@ -57,6 +59,7 @@ impl Mem {
         }
     }
 
+    /// Return the sum of the surrounding memory ports
     fn count_surrounding(&self, pos: &Pos) -> u32 {
         debug!("surroundings[{:?}]: {:?}", pos,
                [
@@ -82,6 +85,7 @@ impl Mem {
     }
 }
 
+
 impl Iterator for Mem {
     type Item = (Pos, u32);
     fn next(&mut self) -> Option<Self::Item> {
@@ -101,5 +105,16 @@ impl Iterator for Mem {
         };
         Some((self.pos.clone(), value))
     }
+}
+
+
+pub fn find_value_larger_than(value: u32) -> u32 {
+    let mem = Mem::with_size(101);
+    for (_point, val) in mem {
+        if val > value {
+            return val;
+        }
+    }
+    panic!("Failed solving part 2, got to value {}. Maybe increase Mem size?", value);
 }
 
