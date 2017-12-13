@@ -15,7 +15,7 @@ struct Ring {
     inner: Vec<usize>,
 }
 impl Ring {
-    fn with_capacity(n: usize) -> Self {
+    fn with_size(n: usize) -> Self {
         Self {
             inner: (0..n).collect::<Vec<_>>(),
         }
@@ -82,10 +82,10 @@ impl<'a> RingHasher<'a> {
         for _ in 0..64 {
             self.hash_step(ring);
         }
-        let sparse = ring.chunks(16).map(|chunk| {
-            chunk.iter().fold(0, |acc, n| acc ^ n) as u8
-        }).collect::<Vec<u8>>();
-        HEXLOWER.encode(sparse.as_slice())
+        let sparse_hash = ring.chunks(16)
+            .map(|chunk| chunk.iter().fold(0, |acc, n| acc ^ n) as u8)
+            .collect::<Vec<u8>>();
+        HEXLOWER.encode(sparse_hash.as_slice())
     }
 }
 
@@ -96,7 +96,7 @@ fn part1(input: &str) -> usize {
         .map(str::trim)
         .map(|s| s.parse::<u8>().expect("Invalid int"))
         .collect::<Vec<_>>();
-    let mut ring = Ring::with_capacity(256);
+    let mut ring = Ring::with_size(256);
     let mut hasher = RingHasher::new(&lengths);
     hasher.hash_step(&mut ring);
     ring[0] * ring[1]
@@ -107,7 +107,7 @@ fn part2(input: &str) -> String {
     let mut lengths = input.as_bytes().to_vec();
     lengths.extend_from_slice(&[17, 31, 73, 47, 23]);
 
-    let mut ring = Ring::with_capacity(256);
+    let mut ring = Ring::with_size(256);
     let mut hasher = RingHasher::new(&lengths);
     hasher.knot_hash(&mut ring)
 }
@@ -126,7 +126,7 @@ mod tests {
     #[test]
     fn p1() {
         let lengths = [3, 4, 1, 5];
-        let mut ring = Ring::with_capacity(5);
+        let mut ring = Ring::with_size(5);
         let mut hasher = RingHasher::new(&lengths);
         hasher.hash_step(&mut ring);
         assert_eq!(ring[0] * ring[1], 12);
