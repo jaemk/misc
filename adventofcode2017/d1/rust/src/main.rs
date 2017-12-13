@@ -3,7 +3,7 @@ http://adventofcode.com/2017/day/1
 
 */
 
-static INPUT: &'static str = include_str!("../input.txt");
+static INPUT: &'static str = include_str!("../../input.txt");
 
 
 fn solve1(input: &str) -> u32 {
