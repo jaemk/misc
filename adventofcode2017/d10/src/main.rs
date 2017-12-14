@@ -2,92 +2,13 @@
 http://adventofcode.com/2017/day/10
 */
 extern crate data_encoding;
+extern crate d10;
 
 use data_encoding::HEXLOWER;
-use std::ops;
+use d10::{Ring, RingHasher, knot};
 
 
 static INPUT: &'static str = "225,171,131,2,35,5,0,13,1,246,54,97,255,98,254,110";
-
-
-#[derive(Debug)]
-struct Ring {
-    inner: Vec<usize>,
-}
-impl Ring {
-    fn with_size(n: usize) -> Self {
-        Self {
-            inner: (0..n).collect::<Vec<_>>(),
-        }
-    }
-
-    fn get_range(&self, mut start: usize, size: usize) -> Vec<usize> {
-        let len = self.inner.len();
-        assert!(size <= len);
-        while start >= len { start -= len; }
-        if (start + size) >= len {
-            let mut v = self.inner[start..].to_vec();
-            let n_from_front = (start + size) - len ;
-            v.extend_from_slice(&self.inner[..n_from_front]);
-            v
-        } else {
-            self.inner[start..start+size].to_vec()
-        }
-    }
-
-    fn set_range(&mut self, start: usize, buf: &[usize]) {
-        let inner_len = self.inner.len();
-        assert!(buf.len() <= inner_len);
-        for (i, val) in buf.iter().enumerate() {
-            let mut ind = start + i;
-            while ind >= inner_len { ind -= inner_len; }
-            self.inner[ind] = *val;
-        }
-    }
-}
-impl ops::Deref for Ring {
-    type Target = Vec<usize>;
-    fn deref(&self) -> &Self::Target {
-        &self.inner
-    }
-}
-
-
-struct RingHasher<'a> {
-    ind: usize,
-    skip: usize,
-    lengths: &'a [u8],
-}
-impl<'a> RingHasher<'a> {
-    fn new(lengths: &'a [u8]) -> Self {
-        Self {
-            ind: 0,
-            skip:0,
-            lengths
-        }
-    }
-
-    fn hash_step(&mut self, ring: &mut Ring) {
-        for len in self.lengths {
-            let len = *len as usize;
-            let mut slice = ring.get_range(self.ind, len);
-            slice.reverse();
-            ring.set_range(self.ind, &slice);
-            self.ind += len + self.skip;
-            self.skip += 1;
-        }
-    }
-
-    fn knot_hash(&mut self, ring: &mut Ring) -> String {
-        for _ in 0..64 {
-            self.hash_step(ring);
-        }
-        let sparse_hash = ring.chunks(16)
-            .map(|chunk| chunk.iter().fold(0, |acc, n| acc ^ n) as u8)
-            .collect::<Vec<u8>>();
-        HEXLOWER.encode(sparse_hash.as_slice())
-    }
-}
 
 
 fn part1(input: &str) -> usize {
@@ -104,12 +25,8 @@ fn part1(input: &str) -> usize {
 
 
 fn part2(input: &str) -> String {
-    let mut lengths = input.trim().as_bytes().to_vec();
-    lengths.extend_from_slice(&[17, 31, 73, 47, 23]);
-
-    let mut ring = Ring::with_size(256);
-    let mut hasher = RingHasher::new(&lengths);
-    hasher.knot_hash(&mut ring)
+    let bytes = knot::hash(input);
+    HEXLOWER.encode(bytes.as_slice())
 }
 
 
