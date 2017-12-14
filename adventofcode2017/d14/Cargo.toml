@@ -1,0 +1,7 @@
+[package]
+name = "d14"
+version = "0.1.0"
+authors = ["James Kominick <james.kominick@gmail.com>"]
+
+[dependencies]
+d10 = { path = "../d10" }
