@@ -104,7 +104,7 @@ fn part1(input: &str) -> usize {
 
 
 fn part2(input: &str) -> String {
-    let mut lengths = input.as_bytes().to_vec();
+    let mut lengths = input.trim().as_bytes().to_vec();
     lengths.extend_from_slice(&[17, 31, 73, 47, 23]);
 
     let mut ring = Ring::with_size(256);
