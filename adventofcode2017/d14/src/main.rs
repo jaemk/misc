@@ -120,9 +120,32 @@ mod part2 {
 }
 
 
+fn visualize(input: &str) -> Result<(), Box<std::error::Error>> {
+    use std::fs;
+    use std::io::Write;
+
+    print!("Writing visualization to `visual.txt` ... ");
+    std::io::stdout().flush()?;
+    let field = hash_field(input);
+    let mut s = String::with_capacity((128 * 128) + 128);
+    for row in &field {
+        for flag in row {
+            let c = if *flag { '!' } else { '_' };
+            s.push(c);
+        }
+        s.push('\n');
+    }
+    let mut f = fs::File::create("visual.txt")?;
+    f.write_all(s.as_bytes())?;
+    println!("Ok");
+    Ok(())
+}
+
+
 pub fn main() {
     println!("d14-p1: {}", part1(INPUT));
     println!("d14-p2: {}", part2::solve(INPUT));
+    visualize(INPUT).expect("Visualization failed");
 }
 
 
