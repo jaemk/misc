@@ -76,10 +76,9 @@ impl CharMap {
     }
 }
 
+
 struct DanceSquad {
-    spin_offset: usize,
     progs: Vec<char>,
-    // index: HashMap<char, usize>,
     index: CharMap,
 }
 impl std::str::FromStr for DanceSquad {
@@ -93,31 +92,18 @@ impl std::str::FromStr for DanceSquad {
                 map.set(*c, i);
                 map
             });
-        let spin_offset = 0;
-        Ok(Self { spin_offset, progs, index })
+        Ok(Self { progs, index })
     }
 }
 impl DanceSquad {
     fn crew(&self) -> String {
-        // let size = self.progs.len() as isize;
-        // let mut skip = size - (self.spin_offset as isize);
-        // while skip < 0 { skip += size }
-        // self.progs.iter().cycle().skip(skip as usize).take(size as usize).collect()
         self.progs.iter().collect()
     }
-
-    // fn spin_offset_ind_down(&self, ind: usize) -> usize {
-    //     let mut ind = (ind as isize) - (self.spin_offset as isize);
-    //     let size = self.progs.len() as isize;
-    //     while ind < 0 { ind += size }
-    //     ind as usize
-    // }
 
     fn step(&mut self, dance_move: &Move) {
         use Move::*;
         match *dance_move {
             Spin { n } => {
-                // self.spin_offset += n;
                 for _ in 0..n {
                     let last = self.progs.pop().expect("pop failed");
                     self.progs.insert(0, last);
@@ -127,15 +113,6 @@ impl DanceSquad {
                 }
             }
             Exchange { ind_a, ind_b } => {
-                // let offset_ind_a = self.spin_offset_ind_down(ind_a);
-                // let offset_ind_b = self.spin_offset_ind_down(ind_b);
-                // println!("{}, {} - {} - {}, {}", ind_a, ind_b, self.spin_offset, offset_ind_a, offset_ind_b);
-                // let a = self.progs[offset_ind_a];
-                // let b = self.progs[offset_ind_b];
-                // self.progs[offset_ind_a] = b;
-                // self.progs[offset_ind_b] = a;
-                // self.index.insert(a, ind_b);
-                // self.index.insert(b, ind_a);
                 let a = self.progs[ind_a];
                 let b = self.progs[ind_b];
                 self.progs[ind_a] = b;
@@ -144,7 +121,6 @@ impl DanceSquad {
                 self.index.set(b, ind_a);
             }
             Partner { a, b } => {
-                // println!("char-a, char-b: {}, {}", a, b);
                 let ind_a = self.index.get(&a);
                 let ind_b = self.index.get(&b);
                 self.index.set(a, ind_b);
@@ -162,17 +138,6 @@ fn part1(programs: &str, moves: &str) -> Result<String> {
     let moves = Move::parse_moves(moves)?;
     for dance_move in &moves {
         squad.step(dance_move);
-        // let crew = squad.crew();
-        // print!("{:?} - {:?}", dance_move, squad.crew());
-        // let mut chars = crew.chars().collect::<Vec<_>>();
-        // chars.sort();
-        // chars.dedup();
-        // print!(" dup: {}", chars.len() != 16);
-
-        // use std::io::Write;
-        // std::io::stdout().flush().unwrap();
-        // let mut s = String::new();
-        // std::io::stdin().read_line(&mut s).unwrap();
     }
     Ok(squad.crew())
 }
@@ -181,15 +146,23 @@ fn part1(programs: &str, moves: &str) -> Result<String> {
 fn part2(programs: &str, moves: &str) -> Result<String> {
     let mut squad = programs.parse::<DanceSquad>()?;
     let moves = Move::parse_moves(moves)?;
+    let mut cache: HashMap<String, String> = HashMap::new();
+
     let mut count = 0;
     for i in 0..1_000_000_000 {
+        if i % 1_000_000 == 0 {
+            println!("{} of 1000 rounds", count);
+            count += 1;
+        }
+        let start_crew = squad.crew();
+        if let Some(cached_after) = cache.get(&start_crew) {
+            squad = cached_after.parse::<DanceSquad>()?;
+            continue
+        }
         for dance_move in &moves {
             squad.step(dance_move);
         }
-        if i % 1_000== 0 {
-            count += 1;
-            println!("{} of 1000", count);
-        }
+        cache.insert(start_crew, squad.crew());
     }
     Ok(squad.crew())
 }
