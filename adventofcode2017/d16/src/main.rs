@@ -143,7 +143,33 @@ fn part1(programs: &str, moves: &str) -> Result<String> {
 }
 
 
-fn part2(programs: &str, moves: &str) -> Result<String> {
+fn part2_cycle(programs: &str, moves: &str) -> Result<String> {
+    let mut squad = programs.parse::<DanceSquad>()?;
+    let moves = Move::parse_moves(moves)?;
+    let mut cache: HashMap<String, (usize, String)> = HashMap::new();
+
+    let iters = 1_000_000_000;
+    for i in 0..iters {
+        let start_crew = squad.crew();
+        if let Some(&(ref index, ref cached_after)) = cache.get(&start_crew) {
+            let cycle_size = i - index;
+            let remaining = iters - i;
+            if remaining % cycle_size == 0 {
+                return Ok(start_crew)
+            }
+            squad = cached_after.parse::<DanceSquad>()?;
+            continue
+        }
+        for dance_move in &moves {
+            squad.step(dance_move);
+        }
+        cache.insert(start_crew, (i, squad.crew()));
+    }
+    Ok(squad.crew())
+}
+
+
+fn part2_brute(programs: &str, moves: &str) -> Result<String> {
     let mut squad = programs.parse::<DanceSquad>()?;
     let moves = Move::parse_moves(moves)?;
     let mut cache: HashMap<String, String> = HashMap::new();
@@ -171,7 +197,9 @@ fn part2(programs: &str, moves: &str) -> Result<String> {
 pub fn main() {
     let progs = "abcdefghijklmnop";
     println!("d16-p1: {}", part1(progs, INPUT).expect("Part1 error"));
-    println!("d16-p2: {}", part2(progs, INPUT).expect("Part2 error"));
+    println!("d16-p2 cycle-detection: {}", part2_cycle(progs, INPUT).expect("Part2 error"));
+    println!("\nBrute force Part 2:");
+    println!("d16-p2 brute force: {}", part2_brute(progs, INPUT).expect("Part2 error"));
 }
 
 
