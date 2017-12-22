@@ -104,7 +104,7 @@ fn part1(input: &str) -> Result<usize> {
 }
 
 
-fn prune_collisions(particles: &mut Vec<Option<Particle>>) {
+fn prune_collisions(particles: &mut [Option<Particle>]) {
     let mut positions = HashMap::with_capacity(particles.len());
     for particle in particles.iter() {
         if let &Some(ref particle) = particle {
