@@ -1,4 +1,6 @@
 
+mod asm;
+
 
 static INPUT: &'static str = include_str!("../input.txt");
 
@@ -182,7 +184,7 @@ fn part1(input: &str) -> Result<usize> {
 
 
 fn part2(_input: &str) -> Result<i64> {
-    unimplemented!()
+    Ok(asm::run_minimal())
 }
 
 
@@ -203,11 +205,11 @@ fn run() -> Result<()> {
     })?;
     println!("d23-p1: [{:>12}ms] {}", ms, p1);
 
-    // let (ms, p2) = time(|| {
-    //     let ans = part2(INPUT)?;
-    //     Ok(ans)
-    // })?;
-    // println!("d23-p2: [{:>12}ms] {}", ms, p2);
+    let (ms, p2) = time(|| {
+        let ans = part2(INPUT)?;
+        Ok(ans)
+    })?;
+    println!("d23-p2: [{:>12}ms] {}", ms, p2);
     Ok(())
 }
 
