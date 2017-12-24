@@ -184,7 +184,7 @@ fn part1(input: &str) -> Result<usize> {
 
 
 fn part2(_input: &str) -> Result<i64> {
-    Ok(asm::run_minimal())
+    Ok(asm::run_opt())
 }
 
 
@@ -218,15 +218,6 @@ pub fn main() {
     if let Err(e) = run() {
         eprintln!("Error: {}", e);
         std::process::exit(1);
-    }
-}
-
-
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn it_works() {
-        assert_eq!(2 + 2, 4);
     }
 }
 

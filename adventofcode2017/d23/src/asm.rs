@@ -23,12 +23,12 @@ jnz g -8   ----->   |           |
 sub d -1            |           |
 set g d             |           |
 sub g b             |           |
-jnz g -13  ----------           |
+jnz g -13  --------->           |
 jnz f 2                         |
 sub h -1                        |
 set g b                         |
 sub g c                         |
-jnz g 2  ------> mainblock      |
+jnz g 2  ------> blocking jump  |
 jnz 1 3        |                |
 sub b -17  <----                |
 jnz 1 -23   -------------------->
@@ -39,10 +39,12 @@ jnz 1 -23   -------------------->
 #[allow(unused_mut)]
 #[allow(unused_assignments)]
 pub fn _run_exact() -> i64 {
-    // init
     let mut a = 1;
-    let mut b = (84 * 100) - 100_000;
-    let c = (b - 17_000);
+    let mut b = 84;
+    let mut c = b;
+    b *= 100;
+    b -= -100_000;
+    c -= -17_000;
 
     let mut d = 0;
     let mut e = 0;
@@ -62,23 +64,23 @@ pub fn _run_exact() -> i64 {
                 if g == 0 {
                     f = 0;
                 }
-                e -= 1;
+                e -= -1;
                 g = e;
                 g -= b;
                 if g == 0 { break }
             }
-            d -= 1;
+            d -= -1;
             g = d;
             g -= b;
             if g == 0 { break }
         }
         if f == 0 {
-            h -= 1;
+            h -= -1;
         }
         g = b;
         g -= c;
         if g == 0 { break; }
-        b -= 17;
+        b -= -17;
     }
     h
 }
@@ -91,10 +93,10 @@ pub fn _run_exact() -> i64 {
 pub fn _run_annotated() -> i64 {
     // init
     // let mut a = 1;
-    // let mut b = (84 * 100) - 100_000;
-    // let c = (b - 17_000);
-    let mut b = -91600;
-    let c = -108600;
+    // let mut b = (84 * 100) - (-100_000);
+    // let c = b - (-17_000);
+    let mut b = 108400;
+    let c = 125400;
 
     let mut d = 0;
     let mut e = 0;
@@ -103,62 +105,95 @@ pub fn _run_annotated() -> i64 {
     let mut h = 0;
 
     loop {
-        f = 1; // would be set to zero by the inner most loop
-        d = 2; // d will equal -b, but it isn't used for anything
+        f = 1; // flag
+
+        d = 2;
         loop {
             e = 2;
             loop {
                 // g = d;
                 // g *= e;
                 // g -= b;
-                //
-                // e must == -45800
-                g = (2 * e) - b;
+                g = (d * e) - b;
                 if g == 0 {
                     f = 0;
                 }
-                e -= 1;
+                e -= -1;
 
-                // e must == -91600
-                g = e;
-                g -= b;
+                // g = e;
+                // g -= b;
+                g = e - b;
                 if g == 0 { break }
             }
-            d -= 1;
+            d -= -1;
+
             // g = d;
             // g -= b;
-            g = d - (-91600);
-            // d must == -91600
+            g = d - b;
             if g == 0 { break }
         }
-        //
-        // --> f is always 0 here
-        // if f == 0 {
-        //     h -= 1;
-        // }
-        h -= 1;
+        if f == 0 {
+            h -= -1;
+        }
+
         // g = b;
         // g -= c;
-        g = (b - (-108600));
-        // b must == -108600
-        // --> so h = (108600 - 91600) / 17 = 1000
-        //     and it's negative, -1000
+        g = b - c;
+
+        // main loop until b == 125400
+        // --> so: (125400 - 108400) / 17 = 1000
+        //     This section executes 1000 times and
+        //     h is only incremented if f == 0.
+        //     f is 0 when any (d * e) == b,
+        //     so when b is not prime
         if g == 0 { break; }
-        b -= 17;
+        b -= -17;
     }
     h
 }
 
 
-pub fn run_minimal() -> i64 {
-    let mut b = -91600;
+struct RangeStep(usize, usize, usize);
+impl Iterator for RangeStep {
+    type Item = usize;
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.0 < self.1 {
+            let v = self.0;
+            self.0 = self.0 + self.2;
+            Some(v)
+        } else {
+            None
+        }
+    }
+}
+
+
+pub fn _run_minimal() -> i64 {
+    let b_start = 108400;
+    let c = 125400;
     let mut h = 0;
-    loop {
-        h -= 1;
-        let g = (b - (-108600));
-        if g == 0 { break; }
-        b -= 17;
+    'b: for b in RangeStep(b_start, c+1, 17) {
+        for d in 2..b {
+            for e in 2..b {
+                if d * e == b {
+                    h += 1;
+                    continue 'b
+                }
+            }
+        }
     }
     h
+}
+
+
+pub fn run_opt() -> i64 {
+    let b = 108400;
+    let c = 125400;
+    RangeStep(b, c+1, 17).map(|b| {
+        for d in 2..b {
+            if b % d == 0 { return 1 }
+        }
+        0
+    }).sum()
 }
 
