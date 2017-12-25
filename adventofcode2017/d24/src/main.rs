@@ -1,7 +1,20 @@
+/*!
+http://adventofcode.com/2017/day/24
+*/
 use std::collections::HashSet;
 
 
 static INPUT: &'static str = include_str!("../input.txt");
+static TEST_INPUT: &'static str = r##"
+0/2
+2/2
+2/3
+3/4
+3/5
+0/1
+10/1
+9/10
+"##;
 
 
 type Error = Box<std::error::Error>;
@@ -94,7 +107,6 @@ mod part1 {
                 max = cur_strength;
             }
         } else {
-            // println!("cur: {}, comp: {:?}, possibs: {:?}", cur_strength, base, possibles);
             for comp in &possibles {
                 max = walk(max, cur_strength, used, comp, port, comps);
             }
@@ -111,19 +123,77 @@ mod part1 {
         for base in zeros.iter() {
             let port = base.other_port_value(0);
             let possibles = comps.iter().filter(|comp| comp.has_port(port)).collect::<Vec<_>>();
-            if possibles.len() == 0 {
-                max = port;
-            } else {
-                let mut used: HashSet<Comp> = HashSet::new();
-                // println!("base: {:?}, possibs: {:?}", base, possibles);
-                for comp in &possibles {
-                    let branch_max = walk(port, port, &mut used, comp, port, &comps);
-                    if branch_max > max { max = branch_max; }
+            let mut used: HashSet<Comp> = HashSet::new();
+            for comp in &possibles {
+                let branch_max = walk(port, port, &mut used, comp, port, &comps);
+                if branch_max > max { max = branch_max; }
+            }
+        }
+        Ok(max)
+    }
+}
+
+
+mod part2 {
+    use super::*;
+
+    fn walk(mut max_strength: u64, strength: u64, mut max_length: usize, length: usize,
+            used: &mut HashSet<Comp>, base: &Comp, port_in_use: u64, comps: &Components) -> (u64, usize) {
+        used.insert(base.clone());
+        let comp_strength = base.strength();
+        let cur_strength = strength + comp_strength;
+        let cur_length = length + 1;
+        let port = base.other_port_value(port_in_use);
+        let possibles = comps.iter()
+            .filter(|comp| ! used.contains(comp))
+            .filter(|comp| comp.has_port(port)).collect::<Vec<_>>();
+        if possibles.len() == 0 {
+            if cur_length > max_length {
+                max_strength = cur_strength;
+                max_length = cur_length;
+            } else if cur_length == max_length {
+                if cur_strength > max_strength {
+                    max_strength = cur_strength;
+                }
+            }
+        } else {
+            for comp in &possibles {
+                let (_max_strength, _max_length) = walk(max_strength, cur_strength,
+                                                        max_length, cur_length,
+                                                        used, comp, port, comps);
+                max_strength = _max_strength;
+                max_length = _max_length;
+            }
+        }
+        used.remove(base);
+        (max_strength, max_length)
+    }
+
+    pub fn solve(input: &str) -> Result<u64> {
+        let comps = input.parse::<Components>()?;
+        let (zeros, comps) = comps.split();
+
+        let mut max_strength = 0;
+        let mut max_length = 0;
+        for base in zeros.iter() {
+            let port = base.other_port_value(0);
+            let possibles = comps.iter().filter(|comp| comp.has_port(port)).collect::<Vec<_>>();
+            let mut used: HashSet<Comp> = HashSet::new();
+            for comp in &possibles {
+                let (branch_max_len_str, branch_max_len) = walk(port, port,
+                                                                1, 1,
+                                                                &mut used, comp, port, &comps);
+                if branch_max_len > max_length {
+                    max_strength = branch_max_len_str;
+                    max_length = branch_max_len;
+                } else if branch_max_len == max_length {
+                    if branch_max_len_str > max_strength {
+                        max_strength = branch_max_len_str;
+                    }
                 }
             }
         }
-        // println!("{}", max);
-        Ok(max)
+        Ok(max_strength)
     }
 }
 
@@ -134,16 +204,23 @@ fn time<T, F: Fn() -> Result<T>>(f: F) -> Result<(f64, T)> {
     let res = f()?;
     let elap = start.elapsed();
     let ms = elap.as_secs() as f64 * 1_000. + elap.subsec_nanos() as f64 / 1_000_000.;
+    let ms = (ms * 10_000.).round() / 10_000.;
     Ok((ms, res))
 }
 
 
 fn run() -> Result<()> {
-    let (ms, test) = time(|| Ok(part1::solve(TEST_INPUT)?))?;
-    println!("d24-ts: [{:>12}] {} == 31", ms, test);
+    let (ms, t1) = time(|| Ok(part1::solve(TEST_INPUT)?))?;
+    println!("d24-t1: [{:>12}ms] {} == 31", ms, t1);
+
+    let (ms, t2) = time(|| Ok(part2::solve(TEST_INPUT)?))?;
+    println!("d24-t2: [{:>12}ms] {} == 19", ms, t2);
 
     let (ms, p1) = time(|| Ok(part1::solve(INPUT)?))?;
-    println!("d24-p1: [{:>12}] {}", ms, p1);
+    println!("d24-p1: [{:>12}ms] {}", ms, p1);
+
+    let (ms, p2) = time(|| Ok(part2::solve(INPUT)?))?;
+    println!("d24-p2: [{:>12}ms] {}", ms, p2);
     Ok(())
 }
 
@@ -156,26 +233,20 @@ pub fn main() {
 }
 
 
-
-    static TEST_INPUT: &'static str = r##"
-0/2
-2/2
-2/3
-3/4
-3/5
-0/1
-10/1
-9/10
-"##;
-
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
     fn p1() {
-        let ans = part1(TEST_INPUT).expect("p1 failed");
+        let ans = part1::solve(TEST_INPUT).expect("p1 failed");
         assert_eq!(ans, 31, "expected strength: 31");
+    }
+
+    #[test]
+    fn p2() {
+        let ans = part2::solve(TEST_INPUT).expect("p2 failed");
+        assert_eq!(ans, 19, "expected strength: 19");
     }
 }
 
