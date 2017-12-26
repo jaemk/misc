@@ -10,8 +10,11 @@ pub fn main() {
 
     println!("d3-p1: {}", d3::part1::step_distance(INPUT as u32));
     println!("d3-p2: {}", d3::part2::vec::find_value_larger_than(INPUT));
-    println!("d3-p2: {}", d3::part2::hash::find_value_larger_than(INPUT));
-    println!("d3-p2: {}", d3::part2::vec::find_value_larger_than(1_000_000_000_000_000));
+
+    println!("\nExtra:");
+    println!("d3-p2 (input: {}, hashing): {}", INPUT, d3::part2::hash::find_value_larger_than(INPUT));
+    let one_quadrillion = 1_000_000_000_000_000;
+    println!("d3-p2 (input: {}, vecfield): {}", one_quadrillion, d3::part2::vec::find_value_larger_than(one_quadrillion));
 }
 
 
