@@ -1,8 +1,0 @@
-[package]
-name = "d6"
-version = "0.1.0"
-authors = ["James Kominick <james.kominick@gmail.com>"]
-
-[dependencies]
-log = "0.3"
-env_logger = "0.4"
