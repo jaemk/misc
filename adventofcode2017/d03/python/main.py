@@ -153,8 +153,8 @@ class Part2:
 
 def run() -> None:
     input_ = get_input()
-    print('Day2-Part1: {}'.format(Part1.solve(input_)))
-    print('Day2-Part2: {}'.format(Part2.solve(input_)))
+    print('Day3-Part1: {}'.format(Part1.solve(input_)))
+    print('Day3-Part2: {}'.format(Part2.solve(input_)))
 
 
 class TestExamples(unittest.TestCase):
