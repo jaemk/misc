@@ -104,6 +104,14 @@ fn part1(input: &str) -> Result<usize> {
 }
 
 
+fn part1_quick(input: &str) -> Result<usize> {
+    let particles = parse_particles(input)?;
+    let mut particles = particles.into_iter().filter_map(|p| p).collect::<Vec<_>>();
+    particles.sort_by(|a, b| a.accel.origin_distance().cmp(&b.accel.origin_distance()));
+    Ok(particles[0].id)
+}
+
+
 fn prune_collisions(particles: &mut [Option<Particle>]) {
     let mut positions = HashMap::with_capacity(particles.len());
     for particle in particles.iter() {
@@ -137,7 +145,8 @@ fn part2(input: &str) -> Result<usize> {
 
 
 fn run() -> Result<()> {
-    println!("d20-p1: {:?}", part1(INPUT)?);
+    println!("d20-p1-quick: {:?}", part1_quick(INPUT)?);
+    println!("d20-p1-simul: {:?}", part1(INPUT)?);
     println!("d20-p2: {:?}", part2(INPUT)?);
 
     Ok(())
