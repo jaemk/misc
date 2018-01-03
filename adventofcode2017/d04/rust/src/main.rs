@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-static INPUT: &'static str = include_str!("../input.txt");
+static INPUT: &'static str = include_str!("../../input.txt");
 
 
 mod p1 {
