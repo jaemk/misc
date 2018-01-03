@@ -1,7 +1,7 @@
 /*!
 http://adventofcode.com/2017/day/2
 */
-static INPUT: &'static str = include_str!("../input.txt");
+static INPUT: &'static str = include_str!("../../input.txt");
 
 type Result<T> = std::result::Result<T, Box<std::error::Error>>;
 
