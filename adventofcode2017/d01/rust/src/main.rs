@@ -11,6 +11,16 @@ static INPUT: &'static str = include_str!("../../input.txt");
 pub fn main() {
     println!("day1-part1: {}", d01::solve1(INPUT));
     println!("day1-part2: {}", d01::solve2(INPUT));
+
+    println!("extras...");
+    println!("day1-bench_part1_chars_nocopy:            {}", d01::solve1_nocopy(INPUT));
+    println!("day1-bench_part1_chars_nocopy_indexchain: {}", d01::solve1_indexchain(INPUT));
+    println!("day1-bench_part1_bytes_copy:              {}", d01::solve1_bytes(INPUT));
+    println!("day1-bench_part1_bytes_nocopy:            {}", d01::solve1_bytes_nocopy(INPUT));
+    println!("day1-bench_part1_bytes_nocopy_indexchain: {}", d01::solve1_bytes_indexchain(INPUT));
+    println!("day1-bench_part1_bytes_nocharcast:        {}", d01::solve1_bytes_nocast(INPUT));
+    println!("day1-bench_part1_bytes_nocopy_iterator:   {}", d01::solve1_bytes_nocopy_iterator(INPUT));
+    println!("day1-bench_part1_bytes_nocopy_iterator_nocharcast:   {}", d01::solve1_bytes_nocopy_iterator_nocharcast(INPUT));
 }
 
 

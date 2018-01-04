@@ -26,9 +26,25 @@ fn bench_part1_chars_nocopy(b: &mut Bencher) {
 
 
 #[bench]
+fn bench_part1_chars_nocopy_indexchain(b: &mut Bencher) {
+    b.iter(|| {
+        d01::solve1_indexchain(INPUT);
+    });
+}
+
+
+#[bench]
 fn bench_part1_bytes_copy(b: &mut Bencher) {
     b.iter(|| {
         d01::solve1_bytes(INPUT);
+    });
+}
+
+
+#[bench]
+fn bench_part1_bytes_copy_nocharcast(b: &mut Bencher) {
+    b.iter(|| {
+        d01::solve1_bytes_nocast(INPUT);
     });
 }
 
@@ -39,6 +55,31 @@ fn bench_part1_bytes_nocopy(b: &mut Bencher) {
         d01::solve1_bytes(INPUT);
     });
 }
+
+
+#[bench]
+fn bench_part1_bytes_nocopy_indexchain(b: &mut Bencher) {
+    b.iter(|| {
+        d01::solve1_bytes_indexchain(INPUT);
+    });
+}
+
+
+#[bench]
+fn bench_part1_bytes_nocopy_iterator(b: &mut Bencher) {
+    b.iter(|| {
+        d01::solve1_bytes_nocopy_iterator(INPUT);
+    });
+}
+
+
+#[bench]
+fn bench_part1_bytes_nocopy_iterator_nocharcast(b: &mut Bencher) {
+    b.iter(|| {
+        d01::solve1_bytes_nocopy_iterator_nocharcast(INPUT);
+    });
+}
+
 
 
 #[bench]
