@@ -9,14 +9,14 @@
 cmake_minimum_required(VERSION 3.0.0)
 
 # set project name
-project(NoName)
+project(advent)
 
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)   # artifact output dir
 set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)      # shared lib output dir
 
 # set local includes/sources
-include_directories(include)    # includes
-file(GLOB SOURCES "src/*.c")  # sources
+include_directories("include" "../../cutils")    # includes
+file(GLOB SOURCES "src/*.c" "../../cutils/*.c")  # sources
 add_executable(${PROJECT_NAME} ${SOURCES})  # output artifact
 
 ## Using pkg-config -- libnotify install via `sudo apt install libnotify-dev`
