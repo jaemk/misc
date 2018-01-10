@@ -6,8 +6,8 @@
 
 
 size_t part1(char* data) {
-    String string_ = string_from_cstr(data);
-    Str str = string_trim_whitespace(&string_);
+    Str str_ = str_from_cstr(data);
+    Str str = str_trim_whitespace(&str_);
     size_t len = str.len;
 
     size_t sum = 0;
@@ -32,8 +32,8 @@ size_t step_index(size_t curr, size_t step, size_t limit) {
 
 
 size_t part2(char* data) {
-    String s = string_from_cstr(data);
-    Str str = string_trim_whitespace(&s);
+    Str str_ = str_from_cstr(data);
+    Str str = str_trim_whitespace(&str_);
     size_t len = str.len;
     size_t half = len / 2;
     size_t sum = 0;
@@ -85,14 +85,12 @@ int main() {
     printf("\n");
 
     printf("Running main input...\n");
-    char* data = read_file("../input.txt");
-    if (data == NULL)
-        return 1;
-    printf("day1-p1: %lu\n", part1(data));
-    printf("day1-p2: %lu\n", part2(data));
+    String input = read_file("../input.txt");
+    printf("day1-p1: %lu\n", part1(string_as_cstr(&input)));
+    printf("day1-p2: %lu\n", part2(string_as_cstr(&input)));
     printf("\n");
 
-    free(data);
+    string_drop_inner(&input);
     return 0;
 }
 
