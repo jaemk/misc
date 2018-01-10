@@ -4,12 +4,6 @@
 #include <stdlib.h>
 
 
-/* Reads contents of a file into a string,
- * returning ownership of the data.
- */
-char* read_file(const char* path);
-
-
 /* String
  *
  * Growable string.
@@ -25,8 +19,8 @@ typedef struct {
  * Borrowed slice of a string
  */
 typedef struct {
-    String* source;
-    size_t start, len;
+    char* data;
+    size_t __start, len;
 } Str;
 
 /* -------------------------- */
@@ -38,12 +32,13 @@ String string_new();
 /* Construct a new empty String with the given capacity */
 String string_with_capacity(size_t cap);
 
-/* Construct a new String from a `char*` without copying any data.
- * In this case, data may not be owned by the returned String */
-String string_from_cstr(char* cstr);
-
 /* Construct a new String, copying the contents from the given `char*` */
 String string_copy_from_cstr(char* cstr);
+
+/* Reads contents of a file into a string,
+ * returning ownership of the data.
+ */
+String read_file(const char* path);
 
 /* Resize the given String with the new size */
 void string_resize(String* s, size_t new_cap);
@@ -54,8 +49,13 @@ void string_push_char(String* s, char c);
 /* Push bytes copied from a `Str` onto the end of the String, resizing if necessary */
 void string_push_str(String* s, Str* str);
 
-/* Push bytes copied from a `char*` onto the end of the String, resizing if necessary */
-void string_push_cstr(String* s, char* cstr, size_t str_len);
+/* Push as most `str_len` bytes copied from a `char*` onto the end of the String, resizing if necessary.
+ * `str_len` bytes is expected to be the size of the cstr not including the trailing nul byte.
+ */
+void string_push_cstr_bound(String* s, char* cstr, size_t str_len);
+
+/* Same as `string_push_cstr_bound` except all of the char* up to the nul byte will be pushed */
+void string_push_cstr(String* s, char* cstr);
 
 /* Index into a String */
 char string_index(String* s, size_t ind);
@@ -76,8 +76,17 @@ void string_drop_inner(String* s);
 /* -------------------------- */
 /* ----- Str functions ------ */
 /* -------------------------- */
+/* Construct a new Str from a char* without copying any data */
+Str str_from_cstr(char* cstr);
+
+/* Trim surrounding whitespace returning another borrowed Str */
+Str str_trim_whitespace(Str* s);
+
+/* Convert to an owned String, copying internal data to the new String */
+String str_to_owned_string(Str* str);
+
+/* Index into a St */
 char str_index(Str* str, size_t ind);
-char* str_as_cstr(Str* str);
 
 
 #endif

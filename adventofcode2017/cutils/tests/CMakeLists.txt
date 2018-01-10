@@ -45,3 +45,14 @@ add_custom_target(
     run
     DEPENDS .run.bin
 )
+
+add_custom_command(
+    OUTPUT .leak.bin
+    COMMAND valgrind --leak-check=yes --track-origins=yes ${EXECUTABLE_OUTPUT_PATH}/${PROJECT_NAME}
+    COMMENT "Leak checking artifact"
+)
+add_custom_target(
+    leak
+    DEPENDS .leak.bin
+)
+
