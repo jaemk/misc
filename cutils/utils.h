@@ -6,8 +6,7 @@
 
 /* String
  *
- * Growable string.
- * Owns its data unless constructed with `string_from_cstr`.
+ * Growable string, owns its data
  */
 typedef struct {
     char* __data;
@@ -140,9 +139,10 @@ void vec_push(Vec* v, void* obj);
  *
  * Example:
  * ```
- * Str str = str_from_cstr("stringy string");
+ * Str str_ = str_from_cstr("stringy string");
+ * Str* str = &str_;
  * Vec v = vec_new(sizeof(Str*));
- * vec_push(&v, &&str);
+ * vec_push(&v, &str);
  * Str* str_ref = *(Str**)vec_index_ref(&v, 0);
  * ```
  */
