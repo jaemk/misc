@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
-#include "../../../cutils/utils.h"
+#include "cutils/utils.h"
 
 
 size_t part1(char* data) {

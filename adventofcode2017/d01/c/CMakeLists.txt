@@ -15,8 +15,8 @@ set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)   # artifact output dir
 set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)      # shared lib output dir
 
 # set local includes/sources
-include_directories("include" "../../cutils")    # includes
-file(GLOB SOURCES "src/*.c" "../../cutils/*.c")  # sources
+include_directories("include")    # includes
+file(GLOB SOURCES "src/*.c" "include/*/*.c")  # sources
 add_executable(${PROJECT_NAME} ${SOURCES})  # output artifact
 
 ## Using pkg-config -- libnotify install via `sudo apt install libnotify-dev`
