@@ -23,6 +23,7 @@ typedef struct {
     size_t __start, len;
 } Str;
 
+
 /* -------------------------- */
 /* ---- String functions ---- */
 /* -------------------------- */
@@ -60,6 +61,9 @@ void string_push_cstr(String* s, char* cstr);
 /* Index into a String */
 char string_index(String* s, size_t ind);
 
+/* Return a pointer into a String at the given index*/
+char* string_index_ref(String* s, size_t ind);
+
 /* Convert String to a Str */
 Str string_as_str(String* s);
 
@@ -70,7 +74,7 @@ Str string_trim_whitespace(String* s);
 char* string_as_cstr(String* s);
 
 /* free the inner data held by a String */
-void string_drop_inner(String* s);
+void string_drop_inner(void* string_ptr);
 
 
 /* -------------------------- */
@@ -87,6 +91,69 @@ String str_to_owned_string(Str* str);
 
 /* Index into a St */
 char str_index(Str* str, size_t ind);
+
+/* Return a pointer into a Str at the given index*/
+char* str_index_ref(Str* s, size_t ind);
+
+
+/* Vec
+ * Owned array of generic data of `__item_size`
+ */
+typedef struct {
+    void* data;
+    size_t __item_size, len, cap;
+} Vec;
+
+
+/* Slice
+ * Borrowed array of generic data with `__item_size`
+ */
+typedef struct {
+    void* data;
+    size_t __item_size, len;
+} Slice;
+
+
+/* -------------------------- */
+/* ----- Vec functions ------ */
+/* -------------------------- */
+/* Construct a new empty `Vec` */
+Vec vec_new(size_t item_size);
+
+/* Construct a new empty `Vec` with the given capacity */
+Vec vec_with_capacity(size_t item_size, size_t cap);
+
+/* Resize the given `Vec` with the new capacity */
+void vec_resize(Vec* v, size_t new_cap);
+
+/* Push an object of size `Vec->__item_size` onto the given `Vec`, resizing if necessary.
+ * Note, the provided `obj` pointer is expected to point to something that is
+ * the same size as `Vec->__item_size`. The bytes behind the `obj` pointer will
+ * be `memcpy`d onto the beck of the `Vec`.
+ */
+void vec_push(Vec* v, void* obj);
+
+/* Return a pointer to an item at the given index
+ *
+ * Example:
+ * ```
+ * Str str = str_from_cstr("stringy string");
+ * Vec v = vec_new(sizeof(Str*));
+ * vec_push(&v, &&str);
+ * Str* str_ref = *(Str**)vec_index_ref(&v, 0);
+ * ```
+ */
+void* vec_index_ref(Vec* v, size_t ind);
+
+/* Free the inner data held by a `Vec` */
+void vec_drop_inner(void* vec_ptr);
+
+typedef void (*dropFn)(void*);
+
+/* Free the inner data held by a `Vec` after applying
+ * the given `drop` function to each element
+ */
+void vec_drop_inner_each(Vec* v, dropFn drop);
 
 
 #endif

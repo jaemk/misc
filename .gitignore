@@ -5,3 +5,9 @@
 .lein-repl-history
 *target/
 .mypy_cache
+cmake_install*
+CMakeFiles
+CMakeCache.txt
+Makefile
+compile_commands.json
+bin

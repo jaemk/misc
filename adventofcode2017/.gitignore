@@ -1,6 +1,0 @@
-cmake_install*
-CMakeFiles
-CMakeCache.txt
-Makefile
-compile_commands.json
-bin

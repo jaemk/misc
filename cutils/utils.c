@@ -52,10 +52,19 @@ void string_resize(String* s, size_t new_cap) {
     s->cap = new_cap;
 }
 
+size_t __inc_cap(size_t current) {
+    if (current > 8192) {
+        return current + 8192;
+    } else {
+        return current * 2;
+    }
+}
+
 void string_push_char(String* s, char c) {
     size_t avail = s->cap - s->len;
     if (avail == 0) {
-        string_resize(s, 2 * s->cap);
+        size_t new_cap = __inc_cap(s->cap);
+        string_resize(s, new_cap);
     }
     s->data[s->len] = c;
     s->len += 1;
@@ -73,7 +82,7 @@ void string_push_cstr(String* s, char* cstr) {
 void string_push_cstr_bound(String* s, char* cstr, size_t str_len) {
     size_t avail = s->cap - s->len;
     if (str_len > avail) {
-        size_t new_cap = s->cap * 2;
+        size_t new_cap = __inc_cap(s->cap);
         if (str_len > (new_cap - s->len)) {
             new_cap += str_len - (new_cap - s->len);
         }
@@ -89,7 +98,19 @@ void string_push_cstr_bound(String* s, char* cstr, size_t str_len) {
 }
 
 char string_index(String* s, size_t index) {
+    if (index >= s->len) {
+        fprintf(stderr, "Out of bounds: strlen: %lu, index: %lu", s->len, index);
+        abort();
+    }
     return s->data[index];
+}
+
+char* string_index_ref(String* s, size_t index) {
+    if (index >= s->len) {
+        fprintf(stderr, "Out of bounds: strlen: %lu, index: %lu", s->len, index);
+        abort();
+    }
+    return s->data + index;
 }
 
 Str string_as_str(String* s) {
@@ -106,7 +127,8 @@ char* string_as_cstr(String* s) {
     return s->data;
 }
 
-void string_drop_inner(String* s) {
+void string_drop_inner(void* string_ptr) {
+    String* s = (String*)string_ptr;
     if (s->data != NULL)
         free(s->data);
 }
@@ -149,10 +171,20 @@ String str_to_owned_string(Str* str) {
 }
 
 char str_index(Str* str, size_t ind) {
+    if (ind >= str->len) {
+        fprintf(stderr, "Out of bounds: strlen: %lu, index: %lu", str->len, ind);
+        abort();
+    }
     return str->data[ind+str->__start];
 }
 
-
+char* str_index_ref(Str* str, size_t ind) {
+    if (ind >= str->len) {
+        fprintf(stderr, "Out of bounds: strlen: %lu, index: %lu", str->len, ind);
+        abort();
+    }
+    return str->data + ind + str->__start;
+}
 
 String read_file(const char* path) {
     FILE* f = fopen(path, "r");
@@ -169,5 +201,73 @@ String read_file(const char* path) {
     fclose(f);
     String s = { .data=content, .len=len, .cap=len };
     return s;
+}
+
+
+/* ----------- Vec ------------- */
+
+
+Vec vec_new(size_t item_size) {
+    Vec v = { .data=NULL, .__item_size=item_size, .len=0, .cap=0 };
+    return v;
+}
+
+Vec vec_with_capacity(size_t item_size, size_t cap) {
+    void* data = malloc(cap * item_size);
+    if (data == NULL) {
+        fprintf(stderr, "Vec alloc failure\n");
+        abort();
+    }
+    Vec v = { .data=data, .__item_size=item_size, .len=0, .cap=cap };
+    return v;
+}
+
+void vec_resize(Vec* v, size_t new_cap) {
+    if (new_cap == 0)
+        new_cap = 16;
+
+    void* data = realloc(v->data, new_cap * v->__item_size);
+    if (data == NULL) {
+        fprintf(stderr, "Vec resize failure\n");
+        abort();
+    }
+    v->data = data;
+    v->cap = new_cap;
+}
+
+void vec_push(Vec* v, void* obj) {
+    size_t avail = v->cap - v->len;
+    if (avail == 0) {
+        size_t new_cap = __inc_cap(v->cap);
+        vec_resize(v, new_cap);
+    }
+    char* offset = (char*)v->data + (v->len * v->__item_size);
+    memcpy((void*)offset, obj, v->__item_size);
+    v->len++;
+}
+
+void* vec_index_ref(Vec* v, size_t ind) {
+    if (ind >= v->len) {
+        fprintf(stderr, "Out of bounds: veclen: %lu, index: %lu", v->len, ind);
+        abort();
+    }
+    char* offset = (char*)v->data + (ind * v->__item_size);
+    return (void*)offset;
+}
+
+void vec_drop_inner(void* vec_ptr) {
+    Vec* v = (Vec*)vec_ptr;
+    if (v->data != NULL)
+        free(v->data);
+}
+
+void vec_drop_inner_each(Vec* v, dropFn drop) {
+    if (v->data == NULL)
+        return;
+    for (size_t i = 0; i < v->len; i++) {
+        char* offset = (char*)v->data + (i * v->__item_size);
+        drop((void*)offset);
+    }
+    free(v->data);
 }
 
