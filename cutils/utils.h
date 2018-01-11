@@ -10,7 +10,7 @@
  * Owns its data unless constructed with `string_from_cstr`.
  */
 typedef struct {
-    char* data;
+    char* __data;
     size_t len, cap;
 } String;
 
@@ -19,9 +19,27 @@ typedef struct {
  * Borrowed slice of a string
  */
 typedef struct {
-    char* data;
+    char* __data;
     size_t __start, len;
 } Str;
+
+
+/* Vec
+ * Owned array of generic data of `__item_size`
+ */
+typedef struct {
+    void* __data;
+    size_t __item_size, len, cap;
+} Vec;
+
+
+/* Slice
+ * Borrowed array of generic data with `__item_size`
+ */
+typedef struct {
+    void* __data;
+    size_t __item_size, len;
+} Slice;
 
 
 /* -------------------------- */
@@ -86,6 +104,9 @@ Str str_from_cstr(char* cstr);
 /* Trim surrounding whitespace returning another borrowed Str */
 Str str_trim_whitespace(Str* s);
 
+/* Split str by whitespace into a `Vec` of `Str*` */
+void str_split_whitespace(Vec* v, Str* s);
+
 /* Convert to an owned String, copying internal data to the new String */
 String str_to_owned_string(Str* str);
 
@@ -94,24 +115,6 @@ char str_index(Str* str, size_t ind);
 
 /* Return a pointer into a Str at the given index*/
 char* str_index_ref(Str* s, size_t ind);
-
-
-/* Vec
- * Owned array of generic data of `__item_size`
- */
-typedef struct {
-    void* data;
-    size_t __item_size, len, cap;
-} Vec;
-
-
-/* Slice
- * Borrowed array of generic data with `__item_size`
- */
-typedef struct {
-    void* data;
-    size_t __item_size, len;
-} Slice;
 
 
 /* -------------------------- */
