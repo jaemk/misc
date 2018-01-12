@@ -27,7 +27,7 @@ add_executable(${PROJECT_NAME} ${SOURCES})  # output artifact
 #target_compile_options(${PROJECT_NAME} PUBLIC ${LIB_NOTIFY_CFLAGS_OTHER})
 
 # List all compile flags here
-set(_FLAGS "-Wall -Wextra -Werror -Warray-bounds -Wpedantic -std=c99")
+set(_FLAGS "-Wall -Wextra -Werror -Wpedantic -std=c99")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${_FLAGS}")
 
 # spit out a `compile_commands.json` file for ycm completions
