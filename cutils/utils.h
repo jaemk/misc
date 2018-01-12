@@ -1,5 +1,5 @@
-#ifndef ADVENT_UTILS_H
-#define ADVENT_UTILS_H
+#ifndef CUTILS_H
+#define CUTILS_H
 
 #include <stdlib.h>
 
