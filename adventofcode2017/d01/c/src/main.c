@@ -8,7 +8,7 @@
 size_t part1(char* data) {
     Str str_ = str_from_cstr(data);
     Str str = str_trim_whitespace(&str_);
-    size_t len = str.len;
+    size_t len = str_len(&str);
 
     size_t sum = 0;
     if (str_index(&str, 0) == str_index(&str, len-1))
@@ -34,7 +34,7 @@ size_t step_index(size_t curr, size_t step, size_t limit) {
 size_t part2(char* data) {
     Str str_ = str_from_cstr(data);
     Str str = str_trim_whitespace(&str_);
-    size_t len = str.len;
+    size_t len = str_len(&str);
     size_t half = len / 2;
     size_t sum = 0;
     for (size_t i = 0; i < len; i++) {
