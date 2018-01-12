@@ -143,7 +143,19 @@ Vec str_split_lines(Str* s);
 /* Split str by whitespace into a `Vec` of `Str*` */
 Vec str_split_whitespace(Str* s);
 
-/* Return a pointer to the inner `Str` data */
+/* Return a pointer to the inner `Str` data
+ * Note, the returned char* is not guaranteed to be
+ * a valid null-terminated c-string since the `Str`
+ * could be a slice inside of some larger `String`.
+ *
+ * To get a null-terminated c-string from a `Str`, a copy
+ * should be made and converted:
+ * ```
+ * Str* str = ...;
+ * String s = str_to_owned_string(str);
+ * char* inner = string_as_cstr(&s);
+ * ```
+ */
 const char* str_as_ptr(Str* s);
 
 /* Convert to an owned String, copying internal data to the new String */
