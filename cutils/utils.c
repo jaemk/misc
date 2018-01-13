@@ -293,6 +293,21 @@ const char* str_index_ref(Str* str, size_t ind) {
     return str->__data + ind;
 }
 
+uint8_t str_eq(Str* str1, Str* str2) {
+    if (str1 == str2)
+        return 0;
+
+    size_t len = str_len(str1);
+    if (len != str_len(str2))
+        return 1;
+
+    for (size_t i = 0; i < len; i++) {
+        if (str_index(str1, i) != str_index(str2, i))
+            return 1;
+    }
+    return 0;
+}
+
 String read_file(const char* path) {
     FILE* f = fopen(path, "r");
     if (f == NULL) {

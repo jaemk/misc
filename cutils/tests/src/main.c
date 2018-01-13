@@ -61,8 +61,13 @@ void test_new_string() {
     Str str1 = string_as_str(&s);
     ASSERT("as str, 5th",   char, str_index(&str1, 4), ==, '3', "expected: %c, got: %c");
 
+    ASSERT("content equal to itself", uint8_t, string_eq(&s, &s), ==, 0, "expected: %d, got: %d");
+    ASSERT("content equal to itself (str)", uint8_t, str_eq(&str1, &str1), ==, 0, "expected: %d, got: %d");
+
     String s2 = string_copy_from_cstr("ab1234567891234567");
-    ASSERT("content equal", uint8_t, string_eq(&s, &s2), ==, 0, "expected: %d, got: %d");
+    Str str2 = string_as_str(&s2);
+    ASSERT("content copy equal", uint8_t, string_eq(&s, &s2), ==, 0, "expected: %d, got: %d");
+    ASSERT("content copy equal (str)", uint8_t, str_eq(&str1, &str2), ==, 0, "expected: %d, got: %d");
 
     string_drop_inner(&s);
     string_drop_inner(&s2);

@@ -173,6 +173,11 @@ char str_index(Str* str, size_t ind);
 /* Return a pointer into a Str at the given index*/
 const char* str_index_ref(Str* s, size_t ind);
 
+/* Compare two `Str`s for equality, returning a non-zero value
+ * when `Str`s are unequal
+ */
+uint8_t str_eq(Str* str1, Str* str2);
+
 
 /* -------------------------- */
 /* ----- Vec functions ------ */
