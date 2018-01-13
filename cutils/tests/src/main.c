@@ -36,7 +36,7 @@ void print_vec_of_strs(Vec* v) {
 }
 
 
-void test_new_string() {
+void test_new_string_mutate() {
     printf("| --- New string:\n");
     String s = string_new();
     ASSERT("new capacity", size_t, string_cap(&s), ==, 0, "expected: %lu, got: %lu");
@@ -139,7 +139,7 @@ void test_str_split_lines() {
 
 void string_tests() {
     printf("\nString tests:\n");
-    test_new_string();
+    test_new_string_mutate();
     test_string_from_cstr();
     test_string_from_file_str_trim();
     test_str_split_whitespace();
@@ -153,9 +153,7 @@ uint8_t cmp_char_refs(void* a, void* b) {
     return 1;
 }
 
-void vec_tests() {
-    printf("\nVec tests:\n");
-
+void test_new_vec_mutate() {
     printf("| --- New vector (vec of char):\n");
     Vec v1 = vec_new(sizeof(char));
     ASSERT("new capacity",  size_t, vec_cap(&v1), ==, 0, "expected: %lu, got: %lu");
@@ -186,7 +184,9 @@ void vec_tests() {
     ASSERT("content equal to copy", uint8_t, vec_eq(&v1, &content_copy, cmp_char_refs), ==, 0, "expected: %d, got: %d");
     vec_drop_inner(&v1);
     vec_drop_inner(&content_copy);
+}
 
+void test_vec_of_objs() {
     printf("| --- New with capacity (vec of Str*):\n");
     Vec v2 = vec_with_capacity(sizeof(Str*), 40);
     Str words[] = {
@@ -213,7 +213,9 @@ void vec_tests() {
     ASSERT("Str* addresses match", uintptr_t, (uintptr_t)extra_str_ref, ==, (uintptr_t)extra_str_ptr, "expected: %lu, got: %lu");
     ASSERT("last char of last str", char, str_index(extra_str_ref, str_len(extra_str_ref)-1), ==, 'l', "expected: %c, got: %c");
     vec_drop_inner(&v2);
+}
 
+void test_vec_mutate_inner_objs() {
     printf("| --- Vec mutate through ref (vec of String*):\n");
     String s = string_copy_from_cstr("sandwich");
     String* s_ptr = &s;
@@ -226,7 +228,9 @@ void vec_tests() {
     ASSERT("last char", char, string_index(s_ptr, string_len(s_ptr)-1), ==, 'd', "expected: %c, got: %c");
     vec_drop_inner(&v3);
     string_drop_inner(s_ptr);
+}
 
+void test_vec_owned_objs_copy() {
     printf("| --- Vec owned items (vec of String):\n");
     Vec v4 = vec_new(sizeof(String));
     String s2 = string_copy_from_cstr("meatloaf");
@@ -237,7 +241,9 @@ void vec_tests() {
     vec_push(&v4, &s3);
     // drop all string backing data before dropping the vec backing data
     vec_drop_inner_each(&v4, string_drop_inner);
+}
 
+void test_vec_clearing_inner_objs() {
     printf("| --- Vec clearing (vec of String):\n");
     printf("| ----- Pusing Strings:\n");
     const char* in_strings[] = {"one", "two", "three", "four"};
@@ -253,6 +259,16 @@ void vec_tests() {
     ASSERT("length", size_t, vec_len(&v5), ==, 0, "expected: %lu, got: %lu");
     ASSERT("cap", size_t, vec_cap(&v5), ==, 4, "expected: %lu, got: %lu");
     vec_drop_inner(&v5);
+}
+
+void vec_tests() {
+    printf("\nVec tests:\n");
+
+    test_new_vec_mutate();
+    test_vec_of_objs();
+    test_vec_mutate_inner_objs();
+    test_vec_owned_objs_copy();
+    test_vec_clearing_inner_objs();
 }
 
 
