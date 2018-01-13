@@ -147,6 +147,12 @@ void string_tests() {
 }
 
 
+uint8_t cmp_char_refs(void* a, void* b) {
+    if (*(char*)a == *(char*)b)
+        return 0;
+    return 1;
+}
+
 void vec_tests() {
     printf("\nVec tests:\n");
 
@@ -169,7 +175,17 @@ void vec_tests() {
     ASSERT("new len",       size_t, vec_len(&v1), ==, 17, "expected: %lu, got: %lu");
     ASSERT("first char",    char, *(char*)vec_index_ref(&v1, 0), ==, 'j', "expected: %c, got: %c");
     ASSERT("last char",     char, *(char*)vec_index_ref(&v1, vec_len(&v1)-1), ==, '7', "expected: %c, got: %c");
+
+    ASSERT("content equal to itself", uint8_t, vec_eq(&v1, &v1, cmp_char_refs), ==, 0, "expected: %d, got: %d");
+    Vec content_copy = vec_with_capacity(sizeof(char*), 17);
+    char* content_copy_str = "j1234567891234567";
+    while (*content_copy_str) {
+        vec_push(&content_copy, content_copy_str);
+        content_copy_str++;
+    }
+    ASSERT("content equal to copy", uint8_t, vec_eq(&v1, &content_copy, cmp_char_refs), ==, 0, "expected: %d, got: %d");
     vec_drop_inner(&v1);
+    vec_drop_inner(&content_copy);
 
     printf("| --- New with capacity (vec of Str*):\n");
     Vec v2 = vec_with_capacity(sizeof(Str*), 40);

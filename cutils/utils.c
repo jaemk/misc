@@ -393,6 +393,23 @@ void vec_iter_ref(Vec* v, mapFn func) {
     }
 }
 
+uint8_t vec_eq(Vec* v1, Vec* v2, cmpEq cmp_func) {
+    if (v1 == v2)
+        return 0;
+
+    size_t len = vec_len(v1);
+    if (len != vec_len(v2))
+        return 1;
+
+    for (size_t i = 0; i < len; i++) {
+        void* a = vec_index_ref(v1, i);
+        void* b = vec_index_ref(v2, i);
+        if (cmp_func(a, b))
+            return 1;
+    }
+    return 0;
+}
+
 void vec_clear(Vec* v, mapFn drop) {
     if (v->__data == NULL)
         return;

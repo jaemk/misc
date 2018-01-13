@@ -50,6 +50,14 @@ typedef struct {
 typedef void (*mapFn)(void*);
 
 
+/* Function to compare equality of two elements, returning
+ * a non-zero value if elements are unequal.
+ * Used by containers, like `Vec`, as a way to compare
+ * equality of two `Vec`s of arbitrary elements.
+ */
+typedef uint8_t (*cmpEq)(void*, void*);
+
+
 /* -------------------------- */
 /* ---- String functions ---- */
 /* -------------------------- */
@@ -221,6 +229,12 @@ void* vec_index_ref(Vec* v, size_t ind);
 /* Apply the `func` function to each element in the `Vec`.
  */
 void vec_iter_ref(Vec* v, mapFn func);
+
+/* Compare two `Vec`s for equality, returning a non-zero value
+ * when `Vec`s are unequal. Uses `cmp_func` to check elements
+ * for equality.
+ */
+uint8_t vec_eq(Vec* v1, Vec* v2, cmpEq cmp_func);
 
 /* Apply the `drop` function to each element and then set
  * the length of the `Vec` to zero. This will not affect the current
