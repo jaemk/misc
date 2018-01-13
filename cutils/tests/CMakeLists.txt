@@ -9,7 +9,7 @@
 cmake_minimum_required(VERSION 3.0.0)
 
 # set project name
-project(advent)
+project(cutils_tests)
 
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)   # artifact output dir
 set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)      # shared lib output dir
