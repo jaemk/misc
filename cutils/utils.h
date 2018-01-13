@@ -2,6 +2,7 @@
 #define CUTILS_H
 
 #include <stdlib.h>
+#include <stdint.h>
 
 
 /* String
@@ -94,6 +95,11 @@ char string_index(String* s, size_t ind);
 
 /* Return a pointer into a String at the given index*/
 char* string_index_ref(String* s, size_t ind);
+
+/* Compare two `String`s for equality, returning a non-zero value
+ * when `String`s are unequal
+ */
+uint8_t string_eq(String* s1, String* s2);
 
 /* Convert String to a Str */
 Str string_as_str(String* s);

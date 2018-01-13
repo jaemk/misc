@@ -61,7 +61,11 @@ void test_new_string() {
     Str str1 = string_as_str(&s);
     ASSERT("as str, 5th",   char, str_index(&str1, 4), ==, '3', "expected: %c, got: %c");
 
+    String s2 = string_copy_from_cstr("ab1234567891234567");
+    ASSERT("content equal", uint8_t, string_eq(&s, &s2), ==, 0, "expected: %d, got: %d");
+
     string_drop_inner(&s);
+    string_drop_inner(&s2);
 }
 
 void test_string_from_cstr() {

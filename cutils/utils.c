@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
+#include <stdint.h>
 #include "utils.h"
 
 
@@ -123,6 +124,21 @@ char* string_index_ref(String* s, size_t index) {
         abort();
     }
     return s->__data + index;
+}
+
+uint8_t string_eq(String* s1, String* s2) {
+    if (s1 == s2)
+        return 0;
+
+    size_t len = string_len(s1);
+    if (len != string_len(s2))
+        return 1;
+
+    for (size_t i = 0; i < len; i++) {
+        if (string_index(s1, i) != string_index(s2, i))
+            return 1;
+    }
+    return 0;
 }
 
 Str string_as_str(String* s) {
