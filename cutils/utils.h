@@ -81,12 +81,12 @@ void string_push_char(String* s, char c);
 /* Push bytes copied from a `Str` onto the end of the String, resizing if necessary */
 void string_push_str(String* s, Str* str);
 
-/* Push as most `str_len` bytes copied from a `char*` onto the end of the String, resizing if necessary.
- * `str_len` bytes is expected to be the size of the cstr not including the trailing nul byte.
+/* Push at most `str_len` bytes copied from a `char*` onto the end of the String, resizing if necessary.
+ * `str_len` bytes is expected to be the size of the cstr not including the trailing null byte.
  */
 void string_push_cstr_bound(String* s, const char* cstr, size_t str_len);
 
-/* Same as `string_push_cstr_bound` except all of the char* up to the nul byte will be pushed */
+/* Same as `string_push_cstr_bound` except all of the char* up to the null byte will be pushed */
 void string_push_cstr(String* s, const char* cstr);
 
 /* Index into a String */
