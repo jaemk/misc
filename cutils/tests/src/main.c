@@ -30,6 +30,7 @@ void print_vec_of_strs(Vec* v) {
         if (i < len - 1) {
             printf(", ");
         }
+        string_drop_inner(&string);
     }
     printf("]\n");
 }
