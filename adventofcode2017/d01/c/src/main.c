@@ -90,7 +90,7 @@ int main() {
     printf("day1-p2: %lu\n", part2(string_as_cstr(&input)));
     printf("\n");
 
-    string_drop_inner(&input);
+    string_drop(&input);
     return 0;
 }
 
