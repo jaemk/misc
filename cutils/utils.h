@@ -151,9 +151,10 @@ void string_drop(void* string_ptr);
 Str str_from_cstr(const char* cstr);
 
 /* Construct a new Str from a char* and length without copying any data.
- * Allows constructing a `Str` from an arbitrary slice of chars.
+ * Allows constructing a `Str` from an arbitrary slice of chars that may
+ * not be null-terminated.
  */
-Str str_from_ptr(const char* cstr, size_t len);
+Str str_from_ptr_len(const char* cstr, size_t len);
 
 /* Return current `Str` length */
 size_t str_len(Str* s);
