@@ -137,6 +137,48 @@ void test_str_split_lines() {
     string_drop_inner(&s);
 }
 
+void test_str_split_by_match() {
+    printf("| --- String by match: ");
+    String s = string_copy_from_cstr(",a12, b,c,d,e43,f, ");
+    Vec parts = string_split_by_cstr(&s, ",");
+    print_vec_of_strs(&parts);
+    ASSERT("num parts", size_t, vec_len(&parts), ==, 8, "expected: %lu, got: %lu");
+    printf("| ------ Compare parts:\n");
+    const char* expected_parts[] = {"", "a12", " b", "c", "d", "e43", "f", " "};
+    size_t part_sizes[] = {0, 3, 2, 1, 1, 3, 1, 1};
+    for (size_t i = 0; i < 7; i++) {
+        Str* part = (Str*)vec_index_ref(&parts, i);
+        size_t part_size = part_sizes[i];
+        ASSERT("--- part size", size_t, str_len(part), ==, part_size, "expected: %lu, got: %lu");
+        const char* part_ptr = str_as_ptr(part);
+        const char* expected_part = expected_parts[i];
+        ASSERT("--- part content", int, strncmp(part_ptr, expected_part, part_size), ==, 0, "expected: %d, got: %d");
+    }
+    vec_drop_inner(&parts);
+    string_drop_inner(&s);
+}
+
+void test_str_split_by_blank_match() {
+    printf("| --- String by blank match: ");
+    String s = string_copy_from_cstr("abcdefg ");
+    Vec parts = string_split_by_cstr(&s, "");
+    print_vec_of_strs(&parts);
+    ASSERT("num parts", size_t, vec_len(&parts), ==, 8, "expected: %lu, got: %lu");
+    printf("| ------ Compare parts:\n");
+    const char* expected_parts[] = {"a", "b", "c", "d", "e", "f", "g", " "};
+    size_t part_sizes[] = {1, 1, 1, 1, 1, 1, 1, 1};
+    for (size_t i = 0; i < 7; i++) {
+        Str* part = (Str*)vec_index_ref(&parts, i);
+        size_t part_size = part_sizes[i];
+        ASSERT("--- part size", size_t, str_len(part), ==, part_size, "expected: %lu, got: %lu");
+        const char* part_ptr = str_as_ptr(part);
+        const char* expected_part = expected_parts[i];
+        ASSERT("--- part content", int, strncmp(part_ptr, expected_part, part_size), ==, 0, "expected: %d, got: %d");
+    }
+    vec_drop_inner(&parts);
+    string_drop_inner(&s);
+}
+
 void string_tests() {
     printf("\nString tests:\n");
     test_new_string_mutate();
@@ -144,6 +186,8 @@ void string_tests() {
     test_string_from_file_str_trim();
     test_str_split_whitespace();
     test_str_split_lines();
+    test_str_split_by_match();
+    test_str_split_by_blank_match();
 }
 
 

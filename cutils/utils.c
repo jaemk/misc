@@ -161,6 +161,17 @@ Vec string_split_lines(String* s) {
     return str_split_lines(&str);
 }
 
+Vec string_split_by_cstr(String* s, char* cstr_pattern) {
+    Str str = string_as_str(s);
+    Str pattern = str_from_cstr(cstr_pattern);
+    return str_split_by_str(&str, &pattern);
+}
+
+Vec string_split_by_str(String* s, Str* pattern) {
+    Str str = string_as_str(s);
+    return str_split_by_str(&str, pattern);
+}
+
 char* string_as_cstr(String* s) {
     return s->__data;
 }
@@ -263,6 +274,63 @@ Vec str_split_whitespace(Str* str) {
         Str str = str_from_ptr_len((ptr + start), (end - start));
         vec_push(&v, &str);
         start = end + 1;
+    }
+    return v;
+}
+
+Vec str_split_by_cstr(Str* s, char* cstr_pattern) {
+    Str pattern = str_from_cstr(cstr_pattern);
+    return str_split_by_str(s, &pattern);
+}
+
+Vec str_split_by_str(Str* s, Str* pattern) {
+    const char* ptr = s->__data;
+    size_t len = s->__len;
+    size_t start = 0;
+    size_t end = 0;
+
+    size_t pattern_len = str_len(pattern);
+    if (pattern_len == 0) {  /* split each character */
+        Vec v = vec_with_capacity(sizeof(Str), len);
+        for (size_t i = 0; i < len; i++) {
+            Str substr = str_from_ptr_len(ptr + i, 1);
+            vec_push(&v, &substr);
+        }
+        return v;
+    }
+
+    Vec v = vec_new(sizeof(Str));
+    char pattern_start = str_index(pattern, 0);
+    while (start < len) {
+        end = start;
+        while (end < len && *(ptr + end) != pattern_start) {
+            end++;
+        }
+        if (end >= len) {
+            break;
+        }
+
+        uint8_t match = 1;  /* match found */
+        for (size_t i = 0; i < pattern_len; i++) {
+            size_t offset = end + i;
+            if (offset >= len) {
+                match = 0;
+                break;
+            }
+            if (*(ptr + offset) != str_index(pattern, i)) {
+                match = 0;
+                break;
+            }
+        }
+        if (match) {
+            Str substr = str_from_ptr_len((ptr + start), (end - start));
+            vec_push(&v, &substr);
+        }
+        start = end + 1;
+    }
+    if (start < len) {
+        Str substr = str_from_ptr_len((ptr + start), (end - start));
+        vec_push(&v, &substr);
     }
     return v;
 }

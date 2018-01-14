@@ -121,6 +121,16 @@ Vec string_split_lines(String* s);
 /* Split String by whitespace into a `Vec` of `Str*` */
 Vec string_split_whitespace(String* s);
 
+/* Split specified `String` by the specified (`char*`)
+ * substring into a `Vec` of `Str`
+ */
+Vec string_split_by_cstr(String* s, char* cstr_pattern);
+
+/* Split specified `String` by the specified (`Str`)
+ * substring into a `Vec` of `Str`
+ */
+Vec string_split_by_str(String* s, Str* pattern);
+
 /* Convert a String to a `char*` */
 char* string_as_cstr(String* s);
 
@@ -151,11 +161,21 @@ size_t str_len(Str* s);
 /* Trim surrounding whitespace returning another borrowed Str */
 Str str_trim_whitespace(Str* s);
 
-/* Split Str by line breaks into a `Vec` of `Str*` */
+/* Split Str by line breaks into a `Vec` of `Str` */
 Vec str_split_lines(Str* s);
 
-/* Split str by whitespace into a `Vec` of `Str*` */
+/* Split str by whitespace into a `Vec` of `Str` */
 Vec str_split_whitespace(Str* s);
+
+/* Split specified `Str` by the specified (`char*`)
+ * substring into a `Vec` of `Str`
+ */
+Vec str_split_by_cstr(Str* s, char* cstr_pattern);
+
+/* Split specified `Str` by the specified (`Str`)
+ * substring into a `Vec` of `Str`
+ */
+Vec str_split_by_str(Str* s, Str* pattern);
 
 /* Return a pointer to the inner `Str` data
  * Note, the returned char* is not guaranteed to be
