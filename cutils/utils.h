@@ -124,7 +124,7 @@ Vec string_split_whitespace(String* s);
 /* Split specified `String` by the specified (`char*`)
  * substring into a `Vec` of `Str`
  */
-Vec string_split_by_cstr(String* s, char* cstr_pattern);
+Vec string_split_by_cstr(String* s, const char* cstr_pattern);
 
 /* Split specified `String` by the specified (`Str`)
  * substring into a `Vec` of `Str`
@@ -170,7 +170,7 @@ Vec str_split_whitespace(Str* s);
 /* Split specified `Str` by the specified (`char*`)
  * substring into a `Vec` of `Str`
  */
-Vec str_split_by_cstr(Str* s, char* cstr_pattern);
+Vec str_split_by_cstr(Str* s, const char* cstr_pattern);
 
 /* Split specified `Str` by the specified (`Str`)
  * substring into a `Vec` of `Str`

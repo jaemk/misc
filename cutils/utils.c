@@ -161,7 +161,7 @@ Vec string_split_lines(String* s) {
     return str_split_lines(&str);
 }
 
-Vec string_split_by_cstr(String* s, char* cstr_pattern) {
+Vec string_split_by_cstr(String* s, const char* cstr_pattern) {
     Str str = string_as_str(s);
     Str pattern = str_from_cstr(cstr_pattern);
     return str_split_by_str(&str, &pattern);
@@ -278,7 +278,7 @@ Vec str_split_whitespace(Str* str) {
     return v;
 }
 
-Vec str_split_by_cstr(Str* s, char* cstr_pattern) {
+Vec str_split_by_cstr(Str* s, const char* cstr_pattern) {
     Str pattern = str_from_cstr(cstr_pattern);
     return str_split_by_str(s, &pattern);
 }
