@@ -141,7 +141,7 @@ char* string_as_cstr(String* s);
 void string_clear(String* s);
 
 /* free the inner data held by a String */
-void string_drop_inner(void* string_ptr);
+void string_drop(void* string_ptr);
 
 
 /* -------------------------- */
@@ -265,13 +265,13 @@ void vec_clear(Vec* v, mapFn drop);
 /* Free the inner data held by a `Vec` after applying
  * the given `drop` function to each element
  */
-void vec_drop_inner_each(Vec* v, mapFn drop);
+void vec_drop_each(Vec* v, mapFn drop);
 
 /* Free the inner data held by a `Vec`
- * Use `vec_drop_inner_each` if the elements need to be cleaned
+ * Use `vec_drop_each` if the elements need to be cleaned
  * up before being cleared out, e.g. a vec of pointers.
  */
-void vec_drop_inner(void* vec_ptr);
+void vec_drop(void* vec_ptr);
 
 
 #endif

@@ -183,7 +183,7 @@ void string_clear(String* s) {
     s->__len = 0;
 }
 
-void string_drop_inner(void* string_ptr) {
+void string_drop(void* string_ptr) {
     String* s = (String*)string_ptr;
     if (s->__data == NULL)
         return;
@@ -485,7 +485,7 @@ void vec_clear(Vec* v, mapFn drop) {
     v->__len = 0;
 }
 
-void vec_drop_inner(void* vec_ptr) {
+void vec_drop(void* vec_ptr) {
     Vec* v = (Vec*)vec_ptr;
     if (v->__data == NULL)
         return;
@@ -494,7 +494,7 @@ void vec_drop_inner(void* vec_ptr) {
     v->__cap = 0;
 }
 
-void vec_drop_inner_each(Vec* v, mapFn drop) {
+void vec_drop_each(Vec* v, mapFn drop) {
     if (v->__data == NULL)
         return;
     vec_iter_ref(v, drop);

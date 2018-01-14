@@ -30,7 +30,7 @@ void print_vec_of_strs(Vec* v) {
         if (i < len - 1) {
             printf(", ");
         }
-        string_drop_inner(&string);
+        string_drop(&string);
     }
     printf("]\n");
 }
@@ -69,8 +69,8 @@ void test_new_string_mutate() {
     ASSERT("content copy equal", uint8_t, string_eq(&s, &s2), ==, 0, "expected: %d, got: %d");
     ASSERT("content copy equal (str)", uint8_t, str_eq(&str1, &str2), ==, 0, "expected: %d, got: %d");
 
-    string_drop_inner(&s);
-    string_drop_inner(&s2);
+    string_drop(&s);
+    string_drop(&s2);
 }
 
 void test_string_from_cstr() {
@@ -83,7 +83,7 @@ void test_string_from_cstr() {
     string_push_char(&s, 'J');
     ASSERT("len",       size_t, string_len(&s), ==, 22, "expected: %lu, got: %lu");
     ASSERT("capacity",  size_t, string_cap(&s), ==, 42, "expected: %lu, got: %lu");
-    string_drop_inner(&s);
+    string_drop(&s);
 }
 
 void test_string_from_file_str_trim() {
@@ -93,7 +93,7 @@ void test_string_from_file_str_trim() {
     Str str = string_trim_whitespace(&s);
     ASSERT("first char",    char, str_index(&str, 0), ==, 's', "expected: %c, got: %c");
     ASSERT("last char",     char, str_index(&str, str_len(&str)-1), ==, 'g', "expected: %c, got %c");
-    string_drop_inner(&s);
+    string_drop(&s);
 }
 
 void test_str_split_whitespace() {
@@ -112,8 +112,8 @@ void test_str_split_whitespace() {
         const char* expected_frag = expected_frags[i];
         ASSERT("--- fragment content", int, strncmp(frag_ptr, expected_frag, frag_size), ==, 0, "expected: %d, got: %d");
     }
-    vec_drop_inner(&fragments);
-    string_drop_inner(&s);
+    vec_drop(&fragments);
+    string_drop(&s);
 }
 
 void test_str_split_lines() {
@@ -133,8 +133,8 @@ void test_str_split_lines() {
         const char* expected_line = expected_lines[i];
         ASSERT("--- line content", int, strncmp(line_ptr, expected_line, line_size), ==, 0, "expected: %d, got: %d");
     }
-    vec_drop_inner(&lines);
-    string_drop_inner(&s);
+    vec_drop(&lines);
+    string_drop(&s);
 }
 
 void test_str_split_by_match() {
@@ -154,8 +154,8 @@ void test_str_split_by_match() {
         const char* expected_part = expected_parts[i];
         ASSERT("--- part content", int, strncmp(part_ptr, expected_part, part_size), ==, 0, "expected: %d, got: %d");
     }
-    vec_drop_inner(&parts);
-    string_drop_inner(&s);
+    vec_drop(&parts);
+    string_drop(&s);
 }
 
 void test_str_split_by_blank_match() {
@@ -175,8 +175,8 @@ void test_str_split_by_blank_match() {
         const char* expected_part = expected_parts[i];
         ASSERT("--- part content", int, strncmp(part_ptr, expected_part, part_size), ==, 0, "expected: %d, got: %d");
     }
-    vec_drop_inner(&parts);
-    string_drop_inner(&s);
+    vec_drop(&parts);
+    string_drop(&s);
 }
 
 void string_tests() {
@@ -226,8 +226,8 @@ void test_new_vec_mutate() {
         content_copy_str++;
     }
     ASSERT("content equal to copy", uint8_t, vec_eq(&v1, &content_copy, cmp_char_refs), ==, 0, "expected: %d, got: %d");
-    vec_drop_inner(&v1);
-    vec_drop_inner(&content_copy);
+    vec_drop(&v1);
+    vec_drop(&content_copy);
 }
 
 void test_vec_of_objs() {
@@ -256,7 +256,7 @@ void test_vec_of_objs() {
     assert(extra_str_ref == extra_str_ptr);
     ASSERT("Str* addresses match", uintptr_t, (uintptr_t)extra_str_ref, ==, (uintptr_t)extra_str_ptr, "expected: %lu, got: %lu");
     ASSERT("last char of last str", char, str_index(extra_str_ref, str_len(extra_str_ref)-1), ==, 'l', "expected: %c, got: %c");
-    vec_drop_inner(&v2);
+    vec_drop(&v2);
 }
 
 void test_vec_mutate_inner_objs() {
@@ -270,8 +270,8 @@ void test_vec_mutate_inner_objs() {
     string_push_cstr(s_ref, " is good");
     ASSERT("length", size_t, string_len(s_ptr), ==, 16, "expected: %lu, got: %lu");
     ASSERT("last char", char, string_index(s_ptr, string_len(s_ptr)-1), ==, 'd', "expected: %c, got: %c");
-    vec_drop_inner(&v3);
-    string_drop_inner(s_ptr);
+    vec_drop(&v3);
+    string_drop(s_ptr);
 }
 
 void test_vec_owned_objs_copy() {
@@ -284,7 +284,7 @@ void test_vec_owned_objs_copy() {
     String s3 = string_copy_from_cstr("mashed potatoes");
     vec_push(&v4, &s3);
     // drop all string backing data before dropping the vec backing data
-    vec_drop_inner_each(&v4, string_drop_inner);
+    vec_drop_each(&v4, string_drop);
 }
 
 void test_vec_clearing_inner_objs() {
@@ -299,10 +299,10 @@ void test_vec_clearing_inner_objs() {
     ASSERT("length", size_t, vec_len(&v5), ==, 4, "expected: %lu, got: %lu");
     ASSERT("cap", size_t, vec_cap(&v5), ==, 4, "expected: %lu, got: %lu");
     printf("| ----- Clearing vec:\n");
-    vec_clear(&v5, string_drop_inner);
+    vec_clear(&v5, string_drop);
     ASSERT("length", size_t, vec_len(&v5), ==, 0, "expected: %lu, got: %lu");
     ASSERT("cap", size_t, vec_cap(&v5), ==, 4, "expected: %lu, got: %lu");
-    vec_drop_inner(&v5);
+    vec_drop(&v5);
 }
 
 void vec_tests() {
