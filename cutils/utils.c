@@ -433,20 +433,38 @@ void vec_resize(Vec* v, size_t new_cap) {
     v->__cap = new_cap;
 }
 
-void vec_push(Vec* v, void* obj) {
+void __vec_check_resize(Vec* v) {
     size_t avail = v->__cap - v->__len;
     if (avail == 0) {
         size_t new_cap = __inc_cap(v->__cap);
         vec_resize(v, new_cap);
     }
+}
+
+void vec_push(Vec* v, void* obj) {
+    __vec_check_resize(v);
     char* offset = (char*)v->__data + (v->__len * v->__item_size);
     memcpy((void*)offset, obj, v->__item_size);
     v->__len++;
 }
 
+void vec_insert(Vec* v, void* obj, size_t ind) {
+    if (ind > v->__len) {
+        fprintf(stderr, "Out of bounds (ind > len): veclen: %lu, insert-index: %lu\n", v->__len, ind);
+        abort();
+    }
+    __vec_check_resize(v);
+    size_t trailing_elems = v->__len - ind;
+    char* insert_ptr = (char*)v->__data + (ind * v->__item_size);
+    char* offset_ptr = insert_ptr + v->__item_size;
+    memmove(offset_ptr, insert_ptr, (trailing_elems * v->__item_size));
+    memcpy((void*)insert_ptr, obj, v->__item_size);
+    v->__len++;
+}
+
 void* vec_index_ref(Vec* v, size_t ind) {
     if (ind >= v->__len) {
-        fprintf(stderr, "Out of bounds: veclen: %lu, index: %lu", v->__len, ind);
+        fprintf(stderr, "Out of bounds: veclen: %lu, index: %lu\n", v->__len, ind);
         abort();
     }
     char* offset = (char*)v->__data + (ind * v->__item_size);

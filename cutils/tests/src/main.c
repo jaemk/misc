@@ -291,28 +291,65 @@ void test_vec_clearing_inner_objs() {
     printf("| --- Vec clearing (vec of String):\n");
     printf("| ----- Pusing Strings:\n");
     const char* in_strings[] = {"one", "two", "three", "four"};
-    Vec v5 = vec_with_capacity(sizeof(String), 4);
+    Vec v = vec_with_capacity(sizeof(String), 4);
     for (size_t i = 0; i < 4; i++) {
         String s_ = string_copy_from_cstr(in_strings[i]);
-        vec_push(&v5, &s_);
+        vec_push(&v, &s_);
     }
-    ASSERT("length", size_t, vec_len(&v5), ==, 4, "expected: %lu, got: %lu");
-    ASSERT("cap", size_t, vec_cap(&v5), ==, 4, "expected: %lu, got: %lu");
+    ASSERT("length", size_t, vec_len(&v), ==, 4, "expected: %lu, got: %lu");
+    ASSERT("cap", size_t, vec_cap(&v), ==, 4, "expected: %lu, got: %lu");
     printf("| ----- Clearing vec:\n");
-    vec_clear(&v5, string_drop);
-    ASSERT("length", size_t, vec_len(&v5), ==, 0, "expected: %lu, got: %lu");
-    ASSERT("cap", size_t, vec_cap(&v5), ==, 4, "expected: %lu, got: %lu");
-    vec_drop(&v5);
+    vec_clear(&v, string_drop);
+    ASSERT("length", size_t, vec_len(&v), ==, 0, "expected: %lu, got: %lu");
+    ASSERT("cap", size_t, vec_cap(&v), ==, 4, "expected: %lu, got: %lu");
+    vec_drop(&v);
+}
+
+void test_vec_insert() {
+    printf("| ----- Inserting Strings:\n");
+    Vec v = vec_with_capacity(sizeof(String), 4);
+    const char* in_strings[] = {"one", "two", "three", "four"};
+    for (size_t i = 0; i < 4; i++) {
+        String s_ = string_copy_from_cstr(in_strings[i]);
+        vec_push(&v, &s_);
+    }
+    String ins_s = string_copy_from_cstr("hello");
+    vec_insert(&v, &ins_s, 0);
+    ASSERT("length", size_t, vec_len(&v), ==, 5, "expected: %lu, got: %lu");
+    ASSERT("cap", size_t, vec_cap(&v), ==, 8, "expected: %lu, got: %lu");
+    String* second = vec_index_ref(&v, 1);
+    Str second_str = string_as_str(second);
+    Str expected_2 = str_from_cstr("one");
+    ASSERT("second content", uint8_t, str_eq(&second_str, &expected_2), ==, 0, "expected: %d, got: %d\n");
+
+    String ins_s2 = string_copy_from_cstr("hello2");
+    vec_insert(&v, &ins_s2, 4);
+    ASSERT("length", size_t, vec_len(&v), ==, 6, "expected: %lu, got: %lu");
+    ASSERT("cap", size_t, vec_cap(&v), ==, 8, "expected: %lu, got: %lu");
+    String* fifth = vec_index_ref(&v, 4);
+    Str fifth_str = string_as_str(fifth);
+    Str expected_5 = str_from_cstr("hello2");
+    ASSERT("fifth content", uint8_t, str_eq(&fifth_str, &expected_5), ==, 0, "expected: %d, got: %d\n");
+
+    String ins_s3= string_copy_from_cstr("hello3");
+    vec_insert(&v, &ins_s3, vec_len(&v));
+    ASSERT("length", size_t, vec_len(&v), ==, 7, "expected: %lu, got: %lu");
+    ASSERT("cap", size_t, vec_cap(&v), ==, 8, "expected: %lu, got: %lu");
+    String* last = vec_index_ref(&v, vec_len(&v) - 1);
+    Str last_str = string_as_str(last);
+    Str expected_last = str_from_cstr("hello3");
+    ASSERT("fifth content", uint8_t, str_eq(&last_str, &expected_last), ==, 0, "expected: %d, got: %d\n");
+    vec_drop_each(&v, string_drop);
 }
 
 void vec_tests() {
     printf("\nVec tests:\n");
-
     test_new_vec_mutate();
     test_vec_of_objs();
     test_vec_mutate_inner_objs();
     test_vec_owned_objs_copy();
     test_vec_clearing_inner_objs();
+    test_vec_insert();
 }
 
 

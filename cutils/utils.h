@@ -233,6 +233,8 @@ void vec_resize(Vec* v, size_t new_cap);
  */
 void vec_push(Vec* v, void* obj);
 
+void vec_insert(Vec* v, void* obj, size_t index);
+
 /* Return a pointer to an item at the given index
  *
  * Example:
