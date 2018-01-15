@@ -67,6 +67,12 @@ String string_new();
 /* Construct a new empty String with the given capacity */
 String string_with_capacity(size_t cap);
 
+/* Construct a new String, copying the contents from the given `String*` */
+String string_copy(String* s);
+
+/* Construct a new String, copying the contents from the given `Str*` */
+String string_copy_from_str(Str* str);
+
 /* Construct a new String, copying the contents from the given `char*` */
 String string_copy_from_cstr(const char* cstr);
 

@@ -37,6 +37,15 @@ String string_with_capactiy(size_t cap) {
     return s;
 }
 
+String string_copy(String* s) {
+    Str str = string_as_str(s);
+    return str_to_owned_string(&str);
+}
+
+String string_copy_from_str(Str* str) {
+    return str_to_owned_string(str);
+}
+
 String string_copy_from_cstr(const char* cstr) {
     size_t len = strlen(cstr);
     char* data = malloc((len + 1) * sizeof(char));
