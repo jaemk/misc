@@ -233,6 +233,11 @@ void vec_resize(Vec* v, size_t new_cap);
  */
 void vec_push(Vec* v, void* obj);
 
+/* Insert an object of size `Vec->__item_size` into the given `Vec`, resizing if necessary.
+ * Note, the provided `obj` pointer is expected to point to something that is
+ * the same size as `Vec->__item_size`. The bytes behind the `obj` pointer will
+ * be `memcpy`d into the location in the `Vec`.
+ */
 void vec_insert(Vec* v, void* obj, size_t index);
 
 /* Return a pointer to an item at the given index

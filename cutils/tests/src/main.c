@@ -306,6 +306,7 @@ void test_vec_clearing_inner_objs() {
 }
 
 void test_vec_insert() {
+    printf("| --- Vec insert (vec of String):\n");
     printf("| ----- Inserting Strings:\n");
     Vec v = vec_with_capacity(sizeof(String), 4);
     const char* in_strings[] = {"one", "two", "three", "four"};
