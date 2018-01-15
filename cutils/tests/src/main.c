@@ -307,13 +307,17 @@ void test_vec_clearing_inner_objs() {
 
 void test_vec_insert() {
     printf("| --- Vec insert (vec of String):\n");
-    printf("| ----- Inserting Strings:\n");
+    printf("| ----- Pushing Strings:\n");
     Vec v = vec_with_capacity(sizeof(String), 4);
     const char* in_strings[] = {"one", "two", "three", "four"};
     for (size_t i = 0; i < 4; i++) {
         String s_ = string_copy_from_cstr(in_strings[i]);
         vec_push(&v, &s_);
     }
+    ASSERT("length", size_t, vec_len(&v), ==, 4, "expected: %lu, got: %lu");
+    ASSERT("cap", size_t, vec_cap(&v), ==, 4, "expected: %lu, got: %lu");
+
+    printf("| ----- Inserting Strings:\n");
     String ins_s = string_copy_from_cstr("hello");
     vec_insert(&v, &ins_s, 0);
     ASSERT("length", size_t, vec_len(&v), ==, 5, "expected: %lu, got: %lu");
