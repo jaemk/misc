@@ -421,6 +421,15 @@ Vec vec_with_capacity(size_t item_size, size_t cap) {
     return v;
 }
 
+Vec vec_copy(Vec* src) {
+    size_t len = vec_len(src);
+    size_t item_size = src->__item_size;
+    Vec v = vec_with_capacity(item_size, len);
+    v.__len = len;
+    memcpy(v.__data, src->__data, len * item_size);
+    return v;
+}
+
 size_t vec_len(Vec* v) {
     return v->__len;
 }

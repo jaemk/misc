@@ -223,6 +223,9 @@ Vec vec_new(size_t item_size);
 /* Construct a new empty `Vec` with the given capacity */
 Vec vec_with_capacity(size_t item_size, size_t cap);
 
+/* Construct a new `Vec`, a bitwise copy of `src` */
+Vec vec_copy(Vec* src);
+
 /* Return current `Vec` length */
 size_t vec_len(Vec* v);
 

@@ -374,6 +374,28 @@ void test_vec_remove() {
     vec_drop_with(&v, string_drop);
 }
 
+void test_vec_copy() {
+    printf("| --- Vec copy (vec of String):\n");
+    Vec v = vec_with_capacity(sizeof(String), 2);
+    const char* in_strings[] = {"one", "two", "three", "four"};
+    for (size_t i = 0; i < 4; i++) {
+        String s_ = string_copy_from_cstr(in_strings[i]);
+        vec_push(&v, &s_);
+    }
+    Vec copy = vec_copy(&v);
+    ASSERT("copy length equal", size_t, vec_len(&v), ==, vec_len(&copy), "expected: %lu, got: %lu");
+    ASSERT("copy cap equal", size_t, vec_cap(&v), ==, vec_len(&copy), "expected: %lu, got: %lu");
+
+    String* orig_ref = vec_index_ref(&v, 2);
+    String* copy_ref = vec_index_ref(&copy, 2);
+    ASSERT("string pointers differ", uintptr_t, (uintptr_t)orig_ref, !=, (uintptr_t)copy_ref, "expected: %lu, got: %lu");
+    ASSERT("string inner-data pointers are equal",
+            uintptr_t, (uintptr_t)orig_ref->__data, ==, (uintptr_t)copy_ref->__data, "expected: %lu, got: %lu");
+    /* Only need to drop strings from one vec since we copied the inner __data pointers */
+    vec_drop_with(&v, string_drop);
+    vec_drop(&copy);
+}
+
 void vec_tests() {
     printf("\nVec tests:\n");
     test_new_vec_mutate();
@@ -383,6 +405,7 @@ void vec_tests() {
     test_vec_clearing_inner_objs();
     test_vec_insert();
     test_vec_remove();
+    test_vec_copy();
 }
 
 
