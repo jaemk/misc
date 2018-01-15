@@ -229,7 +229,7 @@ void vec_resize(Vec* v, size_t new_cap);
 /* Push an object of size `Vec->__item_size` onto the given `Vec`, resizing if necessary.
  * Note, the provided `obj` pointer is expected to point to something that is
  * the same size as `Vec->__item_size`. The bytes behind the `obj` pointer will
- * be `memcpy`d onto the beck of the `Vec`.
+ * be `memcpy`d onto the back of the `Vec`.
  */
 void vec_push(Vec* v, void* obj);
 
