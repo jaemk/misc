@@ -285,10 +285,10 @@ void vec_clear(Vec* v, mapFn drop);
 /* Free the inner data held by a `Vec` after applying
  * the given `drop` function to each element
  */
-void vec_drop_each(Vec* v, mapFn drop);
+void vec_drop_with(Vec* v, mapFn drop);
 
 /* Free the inner data held by a `Vec`
- * Use `vec_drop_each` if the elements need to be cleaned
+ * Use `vec_drop_with` if the elements need to be cleaned
  * up before being cleared out, e.g. a vec of pointers.
  */
 void vec_drop(void* vec_ptr);

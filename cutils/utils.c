@@ -538,7 +538,7 @@ void vec_drop(void* vec_ptr) {
     v->__cap = 0;
 }
 
-void vec_drop_each(Vec* v, mapFn drop) {
+void vec_drop_with(Vec* v, mapFn drop) {
     if (v->__data == NULL)
         return;
     vec_iter_ref(v, drop);

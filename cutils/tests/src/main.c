@@ -284,7 +284,7 @@ void test_vec_owned_objs_copy() {
     String s3 = string_copy_from_cstr("mashed potatoes");
     vec_push(&v4, &s3);
     // drop all string backing data before dropping the vec backing data
-    vec_drop_each(&v4, string_drop);
+    vec_drop_with(&v4, string_drop);
 }
 
 void test_vec_clearing_inner_objs() {
@@ -344,7 +344,7 @@ void test_vec_insert() {
     Str last_str = string_as_str(last);
     Str expected_last = str_from_cstr("hello3");
     ASSERT("fifth content", uint8_t, str_eq(&last_str, &expected_last), ==, 0, "expected: %d, got: %d\n");
-    vec_drop_each(&v, string_drop);
+    vec_drop_with(&v, string_drop);
 }
 
 void test_vec_remove() {
@@ -371,7 +371,7 @@ void test_vec_remove() {
     String* s2_ref = vec_index_ref(&v, 1);
     Str str2_ref = string_as_str(s2_ref);
     ASSERT("second content", uint8_t, str_eq(&str2_ref, &s_content), ==, 0, "expected: %d, got: %d\n");
-    vec_drop_each(&v, string_drop);
+    vec_drop_with(&v, string_drop);
 }
 
 void vec_tests() {
