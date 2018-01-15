@@ -240,6 +240,17 @@ void vec_push(Vec* v, void* obj);
  */
 void vec_insert(Vec* v, void* obj, size_t index);
 
+/* Remove an object of size `Vec->__item_size` from the given `Vec`.
+ * As elements are removed the `Vec` capacity will remain unchanged.
+ */
+void vec_remove(Vec* v, size_t index);
+
+/* Remove an object of size `Vec->__item_size` from the given `Vec` after
+ * applying the `drop` function to the element's pointer.
+ * As elements are removed the `Vec` capacity will remain unchanged.
+ */
+void vec_remove_with(Vec* v, size_t index, mapFn drop);
+
 /* Return a pointer to an item at the given index
  *
  * Example:

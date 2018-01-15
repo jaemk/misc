@@ -462,6 +462,32 @@ void vec_insert(Vec* v, void* obj, size_t ind) {
     v->__len++;
 }
 
+void vec_remove(Vec* v, size_t ind) {
+    if (ind >= v->__len) {
+        fprintf(stderr, "Out of bounds (ind >= len): veclen: %lu, insert-index: %lu\n", v->__len, ind);
+        abort();
+    }
+    size_t trailing_elems = v->__len - 1 - ind;
+    if (trailing_elems == 0) {
+        v->__len--;
+    } else {
+        char* dest_ptr = (char*)v->__data + (ind * v->__item_size);
+        char* src_ptr = dest_ptr + v->__item_size;
+        memmove(dest_ptr, src_ptr, (trailing_elems * v->__item_size));
+        v->__len--;
+    }
+}
+
+void vec_remove_with(Vec* v, size_t ind, mapFn drop) {
+    if (ind >= v->__len) {
+        fprintf(stderr, "Out of bounds (ind >= len): veclen: %lu, insert-index: %lu\n", v->__len, ind);
+        abort();
+    }
+    char* remove_ptr = (char*)v->__data + (ind * v->__item_size);
+    drop((void*)remove_ptr);
+    vec_remove(v, ind);
+}
+
 void* vec_index_ref(Vec* v, size_t ind) {
     if (ind >= v->__len) {
         fprintf(stderr, "Out of bounds: veclen: %lu, index: %lu\n", v->__len, ind);
