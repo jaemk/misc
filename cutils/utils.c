@@ -565,3 +565,15 @@ void vec_drop_with(Vec* v, mapFn drop) {
     v->__cap = 0;
 }
 
+
+uint64_t fnv_64(void* ptr, size_t num_bytes) {
+    size_t FNV_PRIME = 1099511628211U;
+    size_t FNV_OFFSET = 14695981039346656037U;
+    size_t hash = FNV_OFFSET;
+    for (size_t i = 0; i < num_bytes; i++) {
+        hash = hash ^ *((char*)ptr + i);
+        hash = hash * FNV_PRIME;
+    }
+    return hash;
+}
+

@@ -303,5 +303,12 @@ void vec_drop_with(Vec* v, mapFn drop);
 void vec_drop(void* vec_ptr);
 
 
+/* -------------------------- */
+/* ----- Hash functions ----- */
+/* -------------------------- */
+/* Apply the fnv-1 64 hash function to an arbitrary set of bytes */
+uint64_t fnv_64(void* ptr, size_t num_bytes);
+
+
 #endif
 
