@@ -87,7 +87,10 @@ size_t string_len(String* s);
 /* Return current `String` capacity */
 size_t string_cap(String* s);
 
-/* Resize the given String with the new size */
+/* Resize the given String with the new size.
+ * The new capacity is expected to be greater than the current.
+ * If the new capacity is smaller, trailing data will be dropped.
+ */
 void string_resize(String* s, size_t new_cap);
 
 /* Push a char on the end of the String, resizing if necessary */
@@ -232,7 +235,12 @@ size_t vec_len(Vec* v);
 /* Return current `Vec` capacity */
 size_t vec_cap(Vec* v);
 
-/* Resize the given `Vec` with the new capacity */
+/* Resize the given `Vec` with the new capacity.
+ * The new capacity is expected to be greater than the current.
+ * If the new capacity is smaller, trailing data will be dropped
+ * which may result in leaked memory if dropped elements are/hold
+ * pointers that need to be cleaned up.
+ */
 void vec_resize(Vec* v, size_t new_cap);
 
 /* Push an object of size `Vec->__item_size` onto the given `Vec`, resizing if necessary.

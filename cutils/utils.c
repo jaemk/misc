@@ -71,13 +71,12 @@ void string_resize(String* s, size_t new_cap) {
     if (new_cap == 0)
         new_cap = 16;
 
-    size_t n_trailing = (new_cap + 1) - s->__len;
     char* data = realloc(s->__data, (new_cap + 1) * sizeof(char));
     if (data == NULL) {
         fprintf(stderr, "String resize failure\n");
         abort();
     }
-    memset(data + s->__len, '\0', n_trailing);
+    data[s->__len] = '\0';
     s->__data = data;
     s->__cap = new_cap;
 }
