@@ -110,7 +110,9 @@ void string_push_cstr(String* s, const char* cstr);
 /* Index into a String */
 char string_index(String* s, size_t ind);
 
-/* Return a pointer into a String at the given index*/
+/* Return a pointer into a String at the given index.
+ * Note, references may be invalidated when the container is resized.
+ */
 char* string_index_ref(String* s, size_t ind);
 
 /* Compare two `String`s for equality, returning a non-zero value
@@ -270,6 +272,7 @@ void vec_remove(Vec* v, size_t index);
 void vec_remove_with(Vec* v, size_t index, mapFn drop);
 
 /* Return a pointer to an item at the given index
+ * Note, references may be invalidated when the container is resized.
  *
  * Example:
  * ```
