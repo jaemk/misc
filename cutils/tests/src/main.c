@@ -36,6 +36,9 @@ void print_vec_of_strs(Vec* v) {
 }
 
 
+/* --------------------------------------- */
+/* ----------- String Tests -------------- */
+/* --------------------------------------- */
 void test_new_string_mutate() {
     printf("| --- New string:\n");
     String s = string_new();
@@ -191,6 +194,9 @@ void string_tests() {
 }
 
 
+/* --------------------------------------- */
+/* ----------- Vec Tests ----------------- */
+/* --------------------------------------- */
 uint8_t cmp_char_refs(void* a, void* b) {
     if (*(char*)a == *(char*)b)
         return 0;
@@ -409,10 +415,48 @@ void vec_tests() {
 }
 
 
+/* --------------------------------------- */
+/* ----------- HashMap Tests ------------- */
+/* --------------------------------------- */
+void test_hashmap_new_inserts() {
+    printf("\nHashMap tests:\n");
+    printf("| --- HashMap new (map of [String, String]):\n");
+    HashMap map = hashmap_new(sizeof(String), sizeof(String), fnv_64, string_eq, string_drop, string_drop);
+    printf("| ------- Inserting [String, String]:\n");
+    String key1 = string_copy_from_cstr("key-1!");
+    String key2 = string_copy_from_cstr("key-2!");
+    String value1 = string_copy_from_cstr("value-1!");
+    String value2 = string_copy_from_cstr("value-2!");
+    hashmap_insert(&map, &key1, &value1);
+    hashmap_insert(&map, &key2, &value2);
+    ASSERT("length", size_t, hashmap_len(&map), ==, 2, "expected: %lu, got: %lu");
+    ASSERT("cap", size_t, hashmap_cap(&map), ==, 16, "expected: %lu, got: %lu");
+
+    String* expected[] = {&value1, &value2};
+    size_t e_ind = 0;
+    printf("| ------- Checking content:\n");
+    HashMapIter iter = hashmap_iter(&map);
+    while (!hashmap_iter_done(&iter)) {
+        HashMapKV* kv_ref = hashmap_iter_next(&iter);
+        String* _k = kv_ref->key;
+        String* _v = kv_ref->value;
+        printf("|     |--- [%lu] %s: %s\n", kv_ref->hash_key, string_as_cstr(_k), string_as_cstr(_v));
+        ASSERT("stored value", uint8_t, string_eq(_v, expected[e_ind]), ==, 0, "expected: %d, got: %d");
+        e_ind++;
+    }
+    hashmap_drop(&map);
+}
+
+void hashmap_tests() {
+    test_hashmap_new_inserts();
+}
+
+
 int main() {
     printf("c-utils tests...\n");
     string_tests();
     vec_tests();
+    hashmap_tests();
     return 0;
 }
 

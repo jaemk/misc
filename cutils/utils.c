@@ -18,6 +18,9 @@ size_t __inc_cap(size_t current) {
 }
 
 
+void utils_noop() { return; }
+
+
 /* ----------- String ------------- */
 
 
@@ -580,5 +583,174 @@ uint64_t fnv_64(void* ptr, size_t num_bytes) {
         hash = hash * FNV_PRIME;
     }
     return hash;
+}
+
+HashMap hashmap_new(size_t key_size, size_t item_size, hashFn hash_func, cmpEq cmp_func, mapFn drop_key, mapFn drop_item) {
+    HashMap map = {
+        .__buckets=vec_new(sizeof(Vec)),
+        .__key_size=key_size,
+        .__item_size=item_size,
+        .__len=0,
+        .__cap=0,
+        .__load_factor=0.8,
+        .__hash=hash_func,
+        .__cmp=cmp_func,
+        .__drop_key=drop_key,
+        .__drop_item=drop_item,
+    };
+    return map;
+}
+
+HashMap hashmap_with_capacity(size_t key_size, size_t item_size, size_t capacity,
+                              hashFn hash_func, cmpEq cmp_func, mapFn drop_key, mapFn drop_item) {
+    Vec buckets = vec_with_capacity(sizeof(Vec), capacity);
+    for (size_t i = 0; i < capacity; i++) {
+        Vec bucket = vec_with_capacity(sizeof(HashMapKV), 1);
+        vec_push(&buckets, &bucket);
+    }
+    HashMap map = {
+        .__buckets=buckets,
+        .__key_size=key_size,
+        .__item_size=item_size,
+        .__len=0,
+        .__cap=capacity,
+        .__load_factor=0.8,
+        .__hash=hash_func,
+        .__cmp=cmp_func,
+        .__drop_key=drop_key,
+        .__drop_item=drop_item,
+    };
+    return map;
+}
+
+HashMap hashmap_with_props(size_t key_size, size_t item_size, size_t capacity, float load_factor,
+                           hashFn hash_func, cmpEq cmp_func, mapFn drop_key, mapFn drop_item) {
+    Vec buckets = vec_with_capacity(sizeof(Vec), capacity);
+    for (size_t i = 0; i < capacity; i++) {
+        Vec bucket = vec_with_capacity(sizeof(HashMapKV), 1);
+        vec_push(&buckets, &bucket);
+    }
+    HashMap map = {
+        .__buckets=vec_with_capacity(sizeof(Vec), capacity),
+        .__key_size=key_size,
+        .__item_size=item_size,
+        .__len=0,
+        .__cap=capacity,
+        .__load_factor=load_factor,
+        .__hash=hash_func,
+        .__cmp=cmp_func,
+        .__drop_key=drop_key,
+        .__drop_item=drop_item,
+    };
+    return map;
+}
+
+size_t hashmap_len(HashMap* map) {
+    return map->__len;
+}
+
+size_t hashmap_cap(HashMap* map) {
+    return map->__cap;
+}
+
+void hashmap_drop(HashMap* map) {
+    size_t num_buckets = vec_len(&map->__buckets);
+    for (size_t bucket_ind = 0; bucket_ind < num_buckets; bucket_ind++) {
+        Vec* bucket = vec_index_ref(&map->__buckets, bucket_ind);
+        size_t bucket_len = vec_len(bucket);
+        for (size_t kv_ind = 0; kv_ind < bucket_len; kv_ind++) {
+            HashMapKV* kv_ref = vec_index_ref(bucket, kv_ind);
+            map->__drop_key(kv_ref->key);
+            map->__drop_item(kv_ref->value);
+        }
+    }
+    vec_drop_with(&map->__buckets, vec_drop);
+}
+
+void hashmap_resize(HashMap* map, size_t new_cap) {
+    if (new_cap == 0)
+        new_cap = 16;
+
+    HashMap new_map = hashmap_with_capacity(map->__key_size, map->__item_size, new_cap,
+                                            map->__hash, map->__cmp, map->__drop_key, map->__drop_item);
+    HashMapIter iter = hashmap_iter(map);
+    while (!hashmap_iter_done(&iter)) {
+        HashMapKV* kv_ref = hashmap_iter_next(&iter);
+        hashmap_insert_with_hash(&new_map, kv_ref->key, kv_ref->value, kv_ref->hash_key);
+    }
+    hashmap_drop(map);
+    *map = new_map;
+    return;
+}
+
+void hashmap_insert(HashMap* map, void* key, void* value) {
+    if (map->__len >= map->__cap) {
+        size_t new_cap = __inc_cap(map->__cap);
+        hashmap_resize(map, new_cap);
+    }
+    size_t hash = map->__hash(key, map->__key_size);
+    hashmap_insert_with_hash(map, key, value, hash);
+}
+
+void hashmap_insert_with_hash(HashMap* map, void* key, void* value, size_t hash) {
+    Vec* bucket = vec_index_ref(&map->__buckets, hash % vec_len(&map->__buckets));
+    size_t bucket_len = vec_len(bucket);
+    for (size_t i = 0; i < bucket_len; i++) {
+        HashMapKV* kv_ref = vec_index_ref(bucket, i);
+        if (map->__cmp(key, kv_ref->key) == 0) {
+            map->__drop_key(key);
+            map->__drop_item(kv_ref->value);
+            memcpy(kv_ref->value, value, map->__item_size);
+            return;
+        }
+    }
+    HashMapKV kv = {
+        .hash_key=hash,
+        .key=key,
+        .value=value,
+    };
+    vec_push(bucket, &kv);
+    map->__len++;
+}
+
+HashMapIter hashmap_iter(HashMap* map) {
+    size_t bucket_ind = 0;
+    if (vec_len(&map->__buckets) > 0) {
+        while (1) {
+            Vec* bucket = vec_index_ref(&map->__buckets, bucket_ind);
+            if (vec_len(bucket) > 0) {
+                break;
+            }
+            bucket_ind++;
+        }
+    }
+    HashMapIter iter = {
+        .__map=map,
+        .__count=0,
+        .__bucket_ind=bucket_ind,
+        .__bucket_inner_ind=0,
+    };
+    return iter;
+}
+
+uint8_t hashmap_iter_done(HashMapIter* iter) {
+    if (iter->__count >= hashmap_len(iter->__map)) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
+HashMapKV* hashmap_iter_next(HashMapIter* iter) {
+    Vec* bucket = vec_index_ref(&iter->__map->__buckets, iter->__bucket_ind);
+    HashMapKV* kv_ref = vec_index_ref(bucket, iter->__bucket_inner_ind);
+    iter->__count++;
+    iter->__bucket_inner_ind++;
+    size_t bucket_len = vec_len(bucket);
+    while (iter->__bucket_inner_ind >= bucket_len) {
+        iter->__bucket_ind++;
+        iter->__bucket_inner_ind = 0;
+    }
+    return kv_ref;
 }
 

@@ -58,6 +58,50 @@ typedef void (*mapFn)(void*);
 typedef uint8_t (*cmpEq)(void*, void*);
 
 
+/* Function that produces a 64bit hash value from an arbitrary set of bytes
+ */
+typedef uint64_t (*hashFn)(void*, size_t);
+
+/* HashMap
+ * Generic hashmap container
+ * Requires user to provide `hashFn` (hash-key),
+ * `cmpEq` (cmp-item), and `mapFn` (drop-key & drop-item) functions.
+ * that operate on the type of object stored.
+ */
+typedef struct {
+    Vec __buckets;
+    size_t __key_size, __item_size, __len, __cap;
+    float __load_factor;
+    hashFn __hash;
+    cmpEq __cmp;
+    mapFn __drop_key;
+    mapFn __drop_item;
+} HashMap;
+
+/* HashMapKV
+ * Holds pointers to an associated key & value
+ */
+typedef struct {
+    size_t hash_key;
+    void* key;
+    void* value;
+} HashMapKV;
+
+/* HashMapIter
+ * Iterator over key & value references of a HashMap.
+ */
+typedef struct {
+    HashMap* __map;
+    size_t __count;
+    size_t __bucket_ind;
+    size_t __bucket_inner_ind;
+} HashMapIter;
+
+
+
+void utils_noop();
+
+
 /* -------------------------- */
 /* ---- String functions ---- */
 /* -------------------------- */
@@ -320,6 +364,47 @@ void vec_drop(void* vec_ptr);
 /* Apply the fnv-1 64 hash function to an arbitrary set of bytes */
 uint64_t fnv_64(void* ptr, size_t num_bytes);
 
+/* Construct a new HashMap with zero capacity */
+HashMap hashmap_new(size_t key_size, size_t item_size, hashFn hash_func, cmpEq cmp_func, mapFn drop_key, mapFn drop_item);
+
+/* Construct a new HashMap with the given capacity */
+HashMap hashmap_with_capacity(size_t key_size, size_t item_size, size_t capacity,
+                              hashFn hash_func, cmpEq cmp_func, mapFn drop_key, mapFn drop_item);
+
+/* Construct a new HashMap with the given properties */
+HashMap hashmap_with_props(size_t key_size, size_t item_size, size_t capacity, float load_factor,
+                           hashFn hash_func, cmpEq cmp_func, mapFn drop_key, mapFn drop_item);
+
+void hashmap_drop(HashMap* hashmap);
+
+/* Return current `HashMap` length */
+size_t hashmap_len(HashMap* hashmap);
+
+/* Return current `HashMap` capacity */
+size_t hashmap_cap(HashMap* hashmap);
+
+/* Resize the given `HashMap` with the new capacity.
+ * The new capacity is expected to be greater than the current.
+ * If the new capacity is smaller, trailing data will be dropped
+ * which may result in leaked memory if dropped elements are/hold
+ * pointers that need to be cleaned up.
+ */
+void hashmap_resize();
+
+/* Insert a key, value pair, replacing any existing matching key.
+ * The data behind both the `key` and `value` pointers will be bitwise copied.
+ */
+void hashmap_insert(HashMap* hashmap, void* key, void* value);
+
+void hashmap_insert_with_hash(HashMap* map, void* key, void* value, size_t hash);
+
+void* hashmap_get_ref(HashMap* hashmap, void* key);
+
+HashMapIter hashmap_iter(HashMap* map);
+
+uint8_t hashmap_iter_done(HashMapIter* iter);
+
+HashMapKV* hashmap_iter_next(HashMapIter* iter);
 
 #endif
 
