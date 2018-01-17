@@ -118,7 +118,7 @@ char* string_index_ref(String* s, size_t ind);
 /* Compare two `String`s for equality, returning a non-zero value
  * when `String`s are unequal
  */
-uint8_t string_eq(String* s1, String* s2);
+uint8_t string_eq(void* s1, void* s2);
 
 /* Convert String to a Str */
 Str string_as_str(String* s);
@@ -216,7 +216,7 @@ const char* str_index_ref(Str* s, size_t ind);
 /* Compare two `Str`s for equality, returning a non-zero value
  * when `Str`s are unequal
  */
-uint8_t str_eq(Str* str1, Str* str2);
+uint8_t str_eq(void* str1, void* str2);
 
 
 /* -------------------------- */
@@ -294,7 +294,7 @@ void vec_iter_ref(Vec* v, mapFn func);
  * when `Vec`s are unequal. Uses `cmp_func` to check elements
  * for equality.
  */
-uint8_t vec_eq(Vec* v1, Vec* v2, cmpEq cmp_func);
+uint8_t vec_eq(void* v1, void* v2, cmpEq cmp_func);
 
 /* Apply the `drop` function to each element and then set
  * the length of the `Vec` to zero. This will not affect the current

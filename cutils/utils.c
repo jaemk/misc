@@ -134,7 +134,9 @@ char* string_index_ref(String* s, size_t index) {
     return s->__data + index;
 }
 
-uint8_t string_eq(String* s1, String* s2) {
+uint8_t string_eq(void* string1, void* string2) {
+    String* s1 = (String*)string1;
+    String* s2 = (String*)string2;
     if (s1 == s2)
         return 0;
 
@@ -369,7 +371,9 @@ const char* str_index_ref(Str* str, size_t ind) {
     return str->__data + ind;
 }
 
-uint8_t str_eq(Str* str1, Str* str2) {
+uint8_t str_eq(void* str1_, void* str2_) {
+    Str* str1 = (Str*)str1_;
+    Str* str2 = (Str*)str2_;
     if (str1 == str2)
         return 0;
 
@@ -522,7 +526,9 @@ void vec_iter_ref(Vec* v, mapFn func) {
     }
 }
 
-uint8_t vec_eq(Vec* v1, Vec* v2, cmpEq cmp_func) {
+uint8_t vec_eq(void* v1_, void* v2_, cmpEq cmp_func) {
+    Vec* v1 = (Vec*)v1_;
+    Vec* v2 = (Vec*)v2_;
     if (v1 == v2)
         return 0;
 
