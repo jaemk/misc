@@ -58,6 +58,21 @@ typedef void (*mapFn)(void*);
 typedef uint8_t (*cmpEq)(void*, void*);
 
 
+/* Describe the comparison between two elements
+ */
+typedef enum { CMP_LESS, CMP_EQUAL, CMP_GREATER } CmpOrdering;
+
+
+/* Function used to compare two elements (a & b)
+ * Used by containers, like `Vec`, as a way to compare elements.
+ * Returns an instance of `CmpOrdering` describing a & b:
+ *  CMP_LESS    -> a is less than b
+ *  CMP_EQUAL   -> a is equal to b
+ *  CMP_GREATER -> a is greater than b
+ */
+typedef CmpOrdering (*cmpFn)(void*, void*);
+
+
 /* Function that produces a 64bit hash value from a known pointer
  */
 typedef uint64_t (*hashFn)(void*);
