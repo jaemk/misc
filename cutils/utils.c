@@ -645,7 +645,7 @@ HashMap hashmap_with_capacity(size_t key_size, size_t item_size, size_t capacity
     return map;
 }
 
-HashMap hashmap_with_props(size_t key_size, size_t item_size, size_t capacity, float load_factor,
+HashMap hashmap_with_props(size_t key_size, size_t item_size, size_t capacity, double load_factor,
                            hashFn hash_func, cmpEq cmp_func, mapFn drop_key, mapFn drop_item) {
     Vec buckets = vec_with_capacity(sizeof(Vec), capacity);
     for (size_t i = 0; i < capacity; i++) {
@@ -693,6 +693,12 @@ void hashmap_resize(HashMap* map, size_t new_cap) {
     if (new_cap == 0)
         new_cap = 16;
 
+    if (new_cap < map->__cap) {
+        fprintf(stderr, "Cannot resize hashmap to be smaller than current capacity. current: %lu, want: %lu\n",
+                map->__cap, new_cap);
+        abort();
+    }
+
     HashMap new_map = hashmap_with_capacity(map->__key_size, map->__item_size, new_cap,
                                             map->__hash, map->__cmp, map->__drop_key, map->__drop_item);
     HashMapIter iter = hashmap_iter(map);
@@ -706,15 +712,15 @@ void hashmap_resize(HashMap* map, size_t new_cap) {
 }
 
 void hashmap_insert(HashMap* map, void* key, void* value) {
-    if (map->__len >= map->__cap) {
-        size_t new_cap = __inc_cap(map->__cap);
-        hashmap_resize(map, new_cap);
-    }
-    size_t hash = map->__hash(key, map->__key_size);
+    size_t hash = map->__hash(key);
     hashmap_insert_with_hash(map, key, value, hash);
 }
 
 void hashmap_insert_with_hash(HashMap* map, void* key, void* value, size_t hash) {
+    if ((double)map->__len >= map->__load_factor * (double)map->__cap) {
+        size_t new_cap = __inc_cap(map->__cap);
+        hashmap_resize(map, new_cap);
+    }
     Vec* bucket = vec_index_ref(&map->__buckets, hash % vec_len(&map->__buckets));
     size_t bucket_len = vec_len(bucket);
     for (size_t i = 0; i < bucket_len; i++) {

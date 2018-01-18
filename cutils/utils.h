@@ -71,7 +71,7 @@ typedef uint64_t (*hashFn)(void*);
 typedef struct {
     Vec __buckets;
     size_t __key_size, __item_size, __len, __cap;
-    float __load_factor;
+    double __load_factor;
     hashFn __hash;
     cmpEq __cmp;
     mapFn __drop_key;
@@ -384,7 +384,7 @@ HashMap hashmap_with_capacity(size_t key_size, size_t item_size, size_t capacity
                               hashFn hash_func, cmpEq cmp_func, mapFn drop_key, mapFn drop_item);
 
 /* Construct a new HashMap with the given properties */
-HashMap hashmap_with_props(size_t key_size, size_t item_size, size_t capacity, float load_factor,
+HashMap hashmap_with_props(size_t key_size, size_t item_size, size_t capacity, double load_factor,
                            hashFn hash_func, cmpEq cmp_func, mapFn drop_key, mapFn drop_item);
 
 void hashmap_drop(HashMap* hashmap);
