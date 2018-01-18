@@ -154,6 +154,12 @@ uint8_t string_eq(void* string1, void* string2) {
     return 0;
 }
 
+uint64_t string_hash(void* string) {
+    String* s = (String*)string;
+    size_t len = string_len(s);
+    return fnv_64(s->__data, len);
+}
+
 Str string_as_str(String* s) {
     Str str = { .__data=s->__data, .__len=s->__len };
     return str;
@@ -391,6 +397,12 @@ uint8_t str_eq(void* str1_, void* str2_) {
     return 0;
 }
 
+uint64_t str_hash(void* str_) {
+    Str* str = (Str*)str_;
+    size_t len = str_len(str);
+    return fnv_64((void*)str->__data, len);
+}
+
 String read_file(const char* path) {
     FILE* f = fopen(path, "r");
     if (f == NULL) {
@@ -546,6 +558,16 @@ uint8_t vec_eq(void* v1_, void* v2_, cmpEq cmp_func) {
             return 1;
     }
     return 0;
+}
+
+uint64_t vec_hash_with(void* v, hashFn hash_func) {
+    size_t len = vec_len(v);
+    uint64_t hash = 17;
+    for (size_t i = 0; i < len; i++) {
+        void* ref = vec_index_ref(v, i);
+        hash = hash * 31 + hash_func(ref);
+    }
+    return hash;
 }
 
 void vec_clear(Vec* v, mapFn drop) {

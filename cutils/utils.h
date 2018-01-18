@@ -58,9 +58,9 @@ typedef void (*mapFn)(void*);
 typedef uint8_t (*cmpEq)(void*, void*);
 
 
-/* Function that produces a 64bit hash value from an arbitrary set of bytes
+/* Function that produces a 64bit hash value from a known pointer
  */
-typedef uint64_t (*hashFn)(void*, size_t);
+typedef uint64_t (*hashFn)(void*);
 
 /* HashMap
  * Generic hashmap container
@@ -164,6 +164,9 @@ char* string_index_ref(String* s, size_t ind);
  */
 uint8_t string_eq(void* s1, void* s2);
 
+/* Calculate the hash of a `String` and its contents */
+uint64_t string_hash(void* s);
+
 /* Convert String to a Str */
 Str string_as_str(String* s);
 
@@ -262,6 +265,9 @@ const char* str_index_ref(Str* s, size_t ind);
  */
 uint8_t str_eq(void* str1, void* str2);
 
+/* Calculate the hash of a `Str` and its contents */
+uint64_t str_hash(void* str);
+
 
 /* -------------------------- */
 /* ----- Vec functions ------ */
@@ -280,6 +286,12 @@ size_t vec_len(Vec* v);
 
 /* Return current `Vec` capacity */
 size_t vec_cap(Vec* v);
+
+/* Calculate the hash of a `Vec` by combining the hash codes produced
+ * by applying `hash_func` to each element.
+ * https://stackoverflow.com/questions/1646807/quick-and-simple-hash-code-combinations
+ */
+uint64_t vec_hash_with(void* v, hashFn hash_func);
 
 /* Resize the given `Vec` with the new capacity.
  * The new capacity is expected to be greater than the current.
@@ -361,7 +373,7 @@ void vec_drop(void* vec_ptr);
 /* -------------------------- */
 /* ----- Hash functions ----- */
 /* -------------------------- */
-/* Apply the fnv-1 64 hash function to an arbitrary set of bytes */
+/* Apply the fnv-1 64bit hash function to an arbitrary set of bytes */
 uint64_t fnv_64(void* ptr, size_t num_bytes);
 
 /* Construct a new HashMap with zero capacity */
