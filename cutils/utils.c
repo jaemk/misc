@@ -741,6 +741,19 @@ void hashmap_insert_with_hash(HashMap* map, void* key, void* value, size_t hash)
     map->__len++;
 }
 
+void* hashmap_get_ref(HashMap* map, void* key) {
+    size_t hash = map->__hash(key);
+    Vec* bucket = vec_index_ref(&map->__buckets, hash % vec_len(&map->__buckets));
+    size_t bucket_len = vec_len(bucket);
+    for (size_t i = 0; i < bucket_len; i++) {
+        HashMapKV* kv_ref = vec_index_ref(bucket, i);
+        if (map->__cmp(key, kv_ref->key) == 0) {
+            return kv_ref->value;
+        }
+    }
+    return NULL;
+}
+
 HashMapIter hashmap_iter(HashMap* map) {
     size_t bucket_ind = 0;
     if (vec_len(&map->__buckets) > 0) {

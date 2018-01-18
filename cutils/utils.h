@@ -387,6 +387,10 @@ HashMap hashmap_with_capacity(size_t key_size, size_t item_size, size_t capacity
 HashMap hashmap_with_props(size_t key_size, size_t item_size, size_t capacity, double load_factor,
                            hashFn hash_func, cmpEq cmp_func, mapFn drop_key, mapFn drop_item);
 
+
+/* Free the data allocated inside the hashmap, applying `__drop_key`
+ * and `__drop_item` to each element before freeing the backing data.
+ */
 void hashmap_drop(HashMap* hashmap);
 
 /* Return current `HashMap` length */
@@ -408,14 +412,28 @@ void hashmap_resize();
  */
 void hashmap_insert(HashMap* hashmap, void* key, void* value);
 
-void hashmap_insert_with_hash(HashMap* map, void* key, void* value, size_t hash);
+/* Identical to `hashmap_insert` but uses the provided `hashcode`
+ * instead of calculating it.
+ */
+void hashmap_insert_with_hash(HashMap* map, void* key, void* value, size_t hashcode);
 
+/* Return a pointer to the value associated with the given key.
+ * Returns NULL if the key is not present.
+ */
 void* hashmap_get_ref(HashMap* hashmap, void* key);
 
+/* Create a new `HashMapIter` for the specified `HashMap`.
+ * Note, mutating the associated `HashMap` in anyway may invalidate
+ * the current iterator.
+ */
 HashMapIter hashmap_iter(HashMap* map);
 
+/* Check if the current `HashMapIter` is complete.
+ * Returning 1 for complete, and 0 for incomplete.
+ */
 uint8_t hashmap_iter_done(HashMapIter* iter);
 
+/* Return a pointer to the next `HashMapKV` key & value pair. */
 HashMapKV* hashmap_iter_next(HashMapIter* iter);
 
 #endif
