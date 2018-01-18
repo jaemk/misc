@@ -17,7 +17,7 @@
 - To type-check:
     - Install [watchexec](https://github.com/mattgreen/watchexec)
     - Install `mypy`: `pip install mypy`
-    - `./watchrun.py`
+    - `./watchrun.sh`
 
 
 ----
