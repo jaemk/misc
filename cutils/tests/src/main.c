@@ -421,14 +421,17 @@ void vec_tests() {
 void test_hashmap_new_inserts() {
     printf("\nHashMap tests:\n");
     printf("| --- HashMap new (map of [String, String]):\n");
-    HashMap map = hashmap_new(sizeof(String), sizeof(String), fnv_64, string_eq, string_drop, string_drop);
+    HashMap map = hashmap_new(sizeof(String), sizeof(String), string_hash, string_eq, string_drop, string_drop);
     printf("| ------- Inserting [String, String]:\n");
-    String key1 = string_copy_from_cstr("key-1!");
-    String key2 = string_copy_from_cstr("key-2!");
-    String value1 = string_copy_from_cstr("value-1!");
-    String value2 = string_copy_from_cstr("value-2!");
+    String key1     = string_copy_from_cstr("key-1!");
+    String key1_1   = string_copy_from_cstr("key-1!");
+    String key2     = string_copy_from_cstr("key-2!");
+    String value1   = string_copy_from_cstr("value-1!");
+    String value1_1 = string_copy_from_cstr("value-1!");
+    String value2   = string_copy_from_cstr("value-2!");
     hashmap_insert(&map, &key1, &value1);
     hashmap_insert(&map, &key2, &value2);
+    hashmap_insert(&map, &key1_1, &value1_1);
     ASSERT("length", size_t, hashmap_len(&map), ==, 2, "expected: %lu, got: %lu");
     ASSERT("cap", size_t, hashmap_cap(&map), ==, 16, "expected: %lu, got: %lu");
 
