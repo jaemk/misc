@@ -23,7 +23,8 @@ add_executable(${PROJECT_NAME} ${SOURCES})  # output artifact
 set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED ON)
 set(Boost_USE_STATIC_RUNTIME OFF)
-find_package(Boost 1.60.0 REQUIRED COMPONENTS regex)        # list all boost libs here
+find_package(Boost 1.60.0 REQUIRED COMPONENTS)        # list all boost libs here
+#find_package(Boost 1.60.0 REQUIRED COMPONENTS regex)        # list all boost libs here
 include_directories(${Boost_INCLUDE_DIRS})                  # include boost things
 target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES})   # link boost things
 
