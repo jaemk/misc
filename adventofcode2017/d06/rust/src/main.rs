@@ -4,7 +4,7 @@ extern crate env_logger;
 use std::collections::HashMap;
 
 
-static INPUT: &'static str = include_str!("../input.txt");
+static INPUT: &'static str = include_str!("../../input.txt");
 
 
 fn parse_input(input: &str) -> Result<Vec<usize>, Box<std::error::Error>> {
