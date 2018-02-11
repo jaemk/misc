@@ -35,7 +35,7 @@ target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES})   # link boost things
 #target_compile_options(${PROJECT_NAME} PUBLIC ${LIB_NOTIFY_CFLAGS_OTHER})
 
 # List all compile flags here
-set(_FLAGS "-Wall -Wextra -Werror -Wpedantic -std=c++11")
+set(_FLAGS "-Wall -Wextra -Werror -Wpedantic -std=c++11 -Ofast -march=native")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${_FLAGS}")
 
 # spit out a `compile_commands.json` file for ycm completions
