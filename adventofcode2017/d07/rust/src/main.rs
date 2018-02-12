@@ -4,7 +4,7 @@ extern crate env_logger;
 use std::collections::{HashSet, HashMap};
 
 
-static INPUT: &'static str = include_str!("../input.txt");
+static INPUT: &'static str = include_str!("../../input.txt");
 
 
 mod part1 {
