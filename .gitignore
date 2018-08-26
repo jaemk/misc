@@ -11,3 +11,5 @@ CMakeCache.txt
 Makefile
 compile_commands.json
 bin
+*.idea
+*.iml
