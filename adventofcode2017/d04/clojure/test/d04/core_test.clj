@@ -9,3 +9,13 @@
                  ["aa bb cc dd aaa" true]]]
       (doseq [[in expected] cases]
         (is (part-1 in) expected)))))
+
+(deftest test-p2
+  (testing "part 2"
+    (let [cases [["abcde fghij" true],
+                 ["abcde xyz ecdab" false],
+                 ["a ab abc abd abf abj" true],
+                 ["iiii oiii ooii oooi oooo" true],
+                 ["oiii ioii iioi iiio" false]]]
+      (doseq [[in expected] cases]
+        (is (part-2 in) expected)))))
