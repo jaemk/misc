@@ -106,7 +106,7 @@
     (loop [g g
            size 1]
       (let [grid-val (-grid-value g)]
-        (if (>= grid-val n)
+        (if (> grid-val n)
           grid-val
           (recur (alloc-grid-mem g size :calc-val -sum-surrounding) (inc size)))))))
 

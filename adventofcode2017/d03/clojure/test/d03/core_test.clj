@@ -11,3 +11,7 @@
     (is (= 2 (d03/part-1 23))))
   (testing "part 1"
     (is (= 31 (d03/part-1 1024)))))
+
+(deftest p2
+  (testing "part 2"
+    (is (= 54 (d03/part-2 26)))))
