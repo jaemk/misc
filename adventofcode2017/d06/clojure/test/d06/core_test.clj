@@ -2,6 +2,8 @@
   (:require [clojure.test :refer :all]
             [d06.core :refer :all]))
 
-(deftest a-test
-  (testing "FIXME, I fail."
-    (is (= 0 1))))
+(deftest solves
+  (testing "solver"
+    (let [res (solve [0 2 7 0])]
+      (is (= (:count res) 5))
+      (is (= (:diff res) 4)))))
