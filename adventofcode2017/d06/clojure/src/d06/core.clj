@@ -8,33 +8,45 @@
                 (string/split v #"\s")
                 (mapv #(Integer. %) v)))
 
-(defn- find-greatest [banks]
-  (->> banks
+(defn- find-greatest
+  "from a seq of numbers, returns the left-most
+  max value and its index
+  numbers: seq of numbers
+  return: [index max-value]"
+  [numbers]
+  (->> numbers
        (map vector (range))
        reverse
        (apply max-key #(get % 1))))
 
-(defn- step [banks index value]
+(defn- step
+  "Distributes `value` among the set of banks, starting
+  at `start-index, returning new banks"
+  [banks start-index value]  ; [2 0 3 1], 2, 3
   (let [n (count banks)]
     (->> (repeat 1)
-         (take value)
-         (concat (repeat (inc index) 0))
-         (partition n n (repeat n 0))
-         (apply map +)
-         (mapv + banks))))
+         (take value)                     ; [1 1 1]
+         (concat (repeat start-index 0))  ; [0 0 1 1 1]
+         (partition n n (repeat n 0))     ; [[0 0 1 1], [1 0 0 0]]
+         (apply map +)                    ; [1 0 1 1]
+         (mapv + banks))))                ; [3 0 4 2]
 
-(defn part-1 [input]
+(defn solve [input]
   (loop [banks input
-         seen #{}
+         seen {}
          n 0]
     (if (contains? seen banks)
-      n
-      (let [seen (conj seen banks)
+      {:count n
+       :diff (->> (seen banks) (- n))
+       :banks banks}
+      (let [seen (assoc seen banks n)
             [index value] (find-greatest banks)
             banks (assoc banks index 0)
-            banks (step banks index value)]
+            banks (step banks (inc index) value)]
         (recur banks seen (inc n))))))
 
 (defn -main
   [& args]
-  (println "part 1:" (part-1 input)))
+  (let [{:keys [count diff]} (solve input)]
+    (println "part 1:" count)
+    (println "part 2:" diff)))
