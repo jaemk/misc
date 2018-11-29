@@ -1,0 +1,3 @@
+(tests
+ (names d01 d02)
+ (libraries advent ounit))
