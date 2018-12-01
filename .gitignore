@@ -17,3 +17,4 @@ bin
 _build
 .merlin
 *.install
+Cargo.lock
