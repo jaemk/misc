@@ -28,10 +28,10 @@ pub fn file_lines<T: AsRef<Path>>(path: T) -> Result<impl Iterator<Item=io::Resu
 }
 
 
-pub fn freqs(s: &str) -> HashMap<char, u32> {
+pub fn freqs<T: std::hash::Hash + std::cmp::Eq>(elems: impl Iterator<Item=T>) -> HashMap<T, u32> {
     let mut map = HashMap::new();
-    for c in s.chars() {
-        let e = map.entry(c).or_insert(0);
+    for item in elems {
+        let e = map.entry(item).or_insert(0);
         *e += 1;
     }
     map

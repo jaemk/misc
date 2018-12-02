@@ -5,7 +5,7 @@ fn part_1(input: &str) -> StdResult<u32> {
     let mut twos = 0;
     let mut threes = 0;
     for line in input.lines() {
-        let freqs = utils::freqs(line);
+        let freqs = utils::freqs(line.chars());
 
         let mut has2 = false;
         let mut has3 = false;
