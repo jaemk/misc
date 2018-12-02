@@ -22,22 +22,17 @@ fn part_1(input: &str) -> StdResult<u32> {
 }
 
 
-fn positional_diff(a: &[char], b: &[char]) -> u32 {
-    a.iter().zip(b.iter()).fold(0, |acc, (a, b)| {
-        acc + if a != b { 1 } else { 0 }
-    })
-}
-
 fn part_2(input: &str) -> StdResult<String> {
     let rows = input.lines().map(|s| s.chars().collect::<Vec<_>>()).collect::<Vec<_>>();
 
     for (i, row) in rows.iter().enumerate() {
         for other in &rows[i..] {
-            if positional_diff(row, other) == 1 {
-                let res = row.iter().zip(other.iter()).map(|(a, b)| {
-                    if a == b { Some(a) } else { None }
-                }).filter_map(|a| a).collect::<String>();
-                return Ok(res)
+            let filtered = row.iter().zip(other.iter()).map(|(a, b)| {
+                if a == b { Some(a) } else { None }
+            }).filter_map(|a| a).collect::<String>();
+
+            if filtered.len() == row.len() - 1 {
+                return Ok(filtered)
             }
         }
     }
