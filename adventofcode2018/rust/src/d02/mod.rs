@@ -51,3 +51,35 @@ pub fn run() -> StdResult<()> {
     info!("p2: {:?}", res);
     Ok(())
 }
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_part_1() {
+        let input = "abcdef\n\
+                     bababc\n\
+                     abbcde\n\
+                     abcccd\n\
+                     aabcdd\n\
+                     abcdee\n\
+                     ababab";
+        let res = part_1(&input).unwrap();
+        assert_eq!(res, 12);
+    }
+
+    #[test]
+    fn test_part_2() {
+        let input = "abcde\n\
+                     fghij\n\
+                     klmno\n\
+                     pqrst\n\
+                     fguij\n\
+                     axcye\n\
+                     wvxyz";
+        let res = part_2(&input).unwrap();
+        assert_eq!(res, "fgij");
+    }
+}
