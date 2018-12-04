@@ -5,6 +5,7 @@ extern crate chrono;
 mod utils;
 mod d01;
 mod d02;
+mod d03;
 
 use std::env;
 
@@ -33,5 +34,6 @@ fn main() -> utils::StdResult<()> {
     info!("**** Advent of code! ****");
     d01::run()?;
     d02::run()?;
+    d03::run()?;
     Ok(())
 }
