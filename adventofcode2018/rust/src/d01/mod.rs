@@ -1,4 +1,4 @@
-use super::utils::{StdResult, load_file};
+use super::utils::{StdResult};
 use std::collections::HashSet;
 
 
@@ -15,7 +15,7 @@ fn parse(s: &str) -> StdResult<Vec<i32>> {
 
 
 fn part_1(input: &[i32]) -> i32 {
-    input.iter().fold(0, |acc, n| acc + n)
+    input.iter().sum()
 }
 
 
@@ -34,13 +34,20 @@ fn part_2(input: &[i32]) -> i32 {
 
 
 pub fn run() -> StdResult<()> {
-    info!("* Day 1 *");
-    let input = load_file("../input/d01.txt")?;
-    let input = parse(&input)?;
-    let p1 = part_1(&input);
+    info!("*** Day 1 ***");
+    let input = parse(input_file!("d01.txt"))?;
+
+    let (ms1, p1) = time!({
+        part_1(&input)
+    });
     info!("p1: {}", p1);
-    let p2 = part_2(&input);
+
+    let (ms2, p2) = time!({
+        part_2(&input)
+    });
     info!("p2: {}", p2);
+
+    info!("[Day 1 runtimes] p1: {}ms, p2: {}ms\n", ms1, ms2);
     Ok(())
 }
 

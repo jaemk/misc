@@ -39,16 +39,23 @@ fn part_2(input: &str) -> StdResult<String> {
     unreachable!()
 }
 
+
 pub fn run() -> StdResult<()> {
-    info!("* Day 2 *");
+    info!("*** Day 2 ***");
 
-    let input = utils::load_file("../input/d02.txt")?;
+    let input = input_file!("d02.txt");
 
-    let res = part_1(&input)?;
-    info!("p1: {:?}", res);
+    let (ms1, p1) = time!({
+        part_1(&input)?
+    });
+    info!("p1: {:?}", p1);
 
-    let res = part_2(&input)?;
-    info!("p2: {:?}", res);
+    let (ms2, p2) = time!({
+        part_2(&input)?
+    });
+    info!("p2: {:?}", p2);
+
+    info!("[Day 2 runtimes] p1: {}ms, p2: {}ms\n", ms1, ms2);
     Ok(())
 }
 

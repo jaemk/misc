@@ -1,4 +1,4 @@
-use utils::{self, StdResult, StdError};
+use utils::{StdResult, StdError};
 use std::str::FromStr;
 use std::collections::{HashMap, HashSet};
 
@@ -100,12 +100,17 @@ fn solve(claims: &[Claim]) -> StdResult<Ans> {
 
 
 pub fn run() -> StdResult<()> {
-    info!("* Day 3 *");
-    let input = utils::load_file("../input/d03.txt")?;
-    let claims = parse(&input)?;
-    let res = solve(&claims)?;
+    info!("*** Day 3 ***");
+    let input = input_file!("d03.txt");
+
+    let (ms, res) = time!({
+        let claims = parse(&input)?;
+        solve(&claims)?
+    });
+
     info!("p1: {:?}", res.p1);
     info!("p2: {:?}", res.p2);
+    info!("[Day 3 runtimes] both: {}ms\n", ms);
     Ok(())
 }
 

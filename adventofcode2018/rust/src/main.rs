@@ -2,7 +2,7 @@
 extern crate env_logger;
 extern crate chrono;
 
-mod utils;
+#[macro_use] mod utils;
 mod d01;
 mod d02;
 mod d03;
@@ -17,11 +17,10 @@ fn init_logger() {
     }
     env_logger::Builder::from_env("LOG")
         .format(|buf, record| {
-            write!(buf, "{} [{}] [{}::{}]: {}\n",
+            write!(buf, "{} [{}] [{}]: {}\n",
                    chrono::Local::now().format("%Y-%m-%d %H:%M:%S"),
                    record.level(),
                    record.target(),
-                   record.line().unwrap_or(0),
                    record.args()
             )
         })
