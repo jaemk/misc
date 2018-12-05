@@ -1,11 +1,14 @@
+#[macro_use] extern crate lazy_static;
 #[macro_use] extern crate log;
 extern crate env_logger;
 extern crate chrono;
+extern crate regex;
 
 #[macro_use] mod utils;
 mod d01;
 mod d02;
 mod d03;
+mod d04;
 
 use std::env;
 
@@ -34,5 +37,6 @@ fn main() -> utils::StdResult<()> {
     d01::run()?;
     d02::run()?;
     d03::run()?;
+    d04::run()?;
     Ok(())
 }

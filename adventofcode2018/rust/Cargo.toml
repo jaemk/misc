@@ -7,3 +7,5 @@ authors = ["James Kominick <james@kominick.com>"]
 log = "0.4"
 env_logger = "0.5"
 chrono = "0.4"
+regex = "1"
+lazy_static = "1"
