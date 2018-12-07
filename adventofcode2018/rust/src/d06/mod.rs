@@ -108,12 +108,14 @@ fn part_2(points: &[Point], field_size: &(usize, usize), limit: usize) -> StdRes
 }
 
 
+const PAD: usize = 1;
+
 pub fn run() -> StdResult<()> {
     info!("*** Day 6 ***");
     let input = input_file!("d06.txt");
     let points = parse_points(input)?;
-    let max_x = points.iter().max_by_key(|p| p.x).unwrap().x + 5;
-    let max_y = points.iter().max_by_key(|p| p.y).unwrap().y + 5;
+    let max_x = points.iter().max_by_key(|p| p.x).unwrap().x + PAD;
+    let max_y = points.iter().max_by_key(|p| p.y).unwrap().y + PAD;
     let field_size = (max_x, max_y);
 
     let (ms1, res1) = time!({ part_1(&points, &field_size)? });
@@ -143,8 +145,8 @@ mod tests {
     #[test]
     fn test_part_1() {
         let points = parse_points(INPUT).unwrap();
-        let max_x = points.iter().max_by_key(|p| p.x).unwrap().x + 5;
-        let max_y = points.iter().max_by_key(|p| p.y).unwrap().y + 5;
+        let max_x = points.iter().max_by_key(|p| p.x).unwrap().x + PAD;
+        let max_y = points.iter().max_by_key(|p| p.y).unwrap().y + PAD;
         let field_size = (max_x, max_y);
         let res = part_1(&points, &field_size).unwrap();
         assert_eq!(res, 17);
@@ -153,6 +155,9 @@ mod tests {
     #[test]
     fn test_part_2() {
         let points = parse_points(INPUT).unwrap();
+        let max_x = points.iter().max_by_key(|p| p.x).unwrap().x + PAD;
+        let max_y = points.iter().max_by_key(|p| p.y).unwrap().y + PAD;
+        let field_size = (max_x, max_y);
         let res = part_2(&points, &field_size, 32).unwrap();
         assert_eq!(res, 16);
     }
