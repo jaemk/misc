@@ -1,4 +1,4 @@
-use super::utils::{self, StdResult};
+use crate::utils::{self, StdResult};
 
 
 fn part_1(input: &str) -> StdResult<u32> {

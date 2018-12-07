@@ -61,6 +61,9 @@ macro_rules! time {
 
 #[macro_export]
 macro_rules! map {
+    () => {
+        HashMap::new()
+    };
     ($($k:expr => $v:expr),* $(,)*) => {
         {
             let mut map = HashMap::new();
@@ -75,6 +78,9 @@ macro_rules! map {
 
 #[macro_export]
 macro_rules! set {
+    () => {
+        HashSet::new()
+    };
     ($($k:expr),* $(,)*) => {
         {
             let mut set = HashSet::new();
@@ -83,7 +89,7 @@ macro_rules! set {
             )*
             set
         }
-    }
+    };
 }
 
 

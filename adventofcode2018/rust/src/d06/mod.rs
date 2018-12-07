@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::collections::HashSet;
 use itertools::Itertools;
-use utils::{self, StdResult, StdError};
+use crate::utils::{self, StdResult, StdError};
 
 
 #[derive(Clone, Hash, PartialEq, Eq, Debug)]

@@ -1,4 +1,4 @@
-use utils::{self, StdResult};
+use crate::utils::{self, StdResult};
 
 
 /// try to fold together (remove) the current index and index to the right
