@@ -73,6 +73,20 @@ macro_rules! map {
 }
 
 
+#[macro_export]
+macro_rules! set {
+    ($($k:expr),* $(,)*) => {
+        {
+            let mut set = HashSet::new();
+            $(
+                set.insert($k);
+            )*
+            set
+        }
+    }
+}
+
+
 pub fn freqs<T: Hash + Eq>(elems: impl Iterator<Item=T>) -> HashMap<T, u32> {
     let mut map = HashMap::new();
     for item in elems {

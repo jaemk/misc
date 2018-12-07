@@ -3,6 +3,7 @@
 extern crate env_logger;
 extern crate chrono;
 extern crate regex;
+extern crate itertools;
 
 #[macro_use] mod utils;
 mod d01;
@@ -10,6 +11,7 @@ mod d02;
 mod d03;
 mod d04;
 mod d05;
+mod d06;
 
 use std::env;
 
@@ -40,5 +42,6 @@ fn main() -> utils::StdResult<()> {
     d03::run()?;
     d04::run()?;
     d05::run()?;
+    d06::run()?;
     Ok(())
 }
