@@ -14,6 +14,7 @@ mod d05;
 mod d06;
 mod d07;
 mod d08;
+mod d09;
 
 use std::env;
 
@@ -47,5 +48,6 @@ fn main() -> utils::StdResult<()> {
     d06::run()?;
     d07::run()?;
     d08::run()?;
+    d09::run()?;
     Ok(())
 }
