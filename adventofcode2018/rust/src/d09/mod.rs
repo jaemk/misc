@@ -56,8 +56,8 @@ impl Circle {
     #[inline]
     fn size(&self) -> usize { self.n_left + self.n_right }
 
-    fn rotate(&mut self, mofve: Move) {
-        match mofve {
+    fn rotate(&mut self, move_: Move) {
+        match move_ {
             Move::Left(n) => {
                 for _ in 0..n {
                     let e = self.left.pop_front().expect("left is empty");
@@ -112,16 +112,16 @@ impl Circle {
 
     fn insert(&mut self, n: usize) -> u32 {
         if n % 23 == 0 {
-            let mofve = self.counter_clockwise(7);
-            self.rotate(mofve);
+            let move_= self.counter_clockwise(7);
+            self.rotate(move_);
             let e = self.left.pop_front().expect("left empty");
             self.n_left -= 1;
             self.rotate(Move::Right(1));
             return (e + n) as u32
         }
 
-        let mofve = self.clockwise(1);
-        self.rotate(mofve);
+        let move_ = self.clockwise(1);
+        self.rotate(move_);
         self.left.push_front(n);
         self.n_left += 1;
         0
