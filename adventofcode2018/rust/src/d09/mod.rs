@@ -1,5 +1,5 @@
 use crate::utils::{StdResult, StdError};
-use std::collections::HashMap;
+use std::collections::{HashMap, LinkedList};
 use regex::Regex;
 
 
@@ -30,57 +30,110 @@ impl std::str::FromStr for Game {
 }
 
 
+enum Move {
+    Left(usize),
+    Right(usize),
+}
+
 struct Circle {
-    _size: usize,
-    inner: Vec<usize>,
-    current_ind: usize,
+    left: LinkedList<usize>,
+    n_left: usize,
+    right: LinkedList<usize>,
+    n_right: usize,
 }
 impl Circle {
-    fn new(size: usize) -> Self {
-        let mut inner = Vec::with_capacity(size);
-        inner.push(0);
-        Self { _size: size, inner, current_ind: 0 }
+    fn new() -> Self {
+        let mut left = LinkedList::new();
+        left.push_front(0);
+        Self {
+            left,
+            n_left: 1,
+            right: LinkedList::new(),
+            n_right: 0,
+        }
     }
 
     #[inline]
-    fn size(&self) -> usize { self.inner.len() }
+    fn size(&self) -> usize { self.n_left + self.n_right }
 
-    fn clockwise(&self, n: usize) -> usize {
-        (self.current_ind + n) % self.size()
+    fn rotate(&mut self, mofve: Move) {
+        match mofve {
+            Move::Left(n) => {
+                for _ in 0..n {
+                    let e = self.left.pop_front().expect("left is empty");
+                    self.right.push_front(e);
+                }
+                self.n_left -= n;
+                self.n_right += n;
+            }
+            Move::Right(n) => {
+                for _ in 0..n {
+                    let e = self.right.pop_front().expect("right is empty");
+                    self.left.push_front(e);
+                }
+                self.n_right -= n;
+                self.n_left += n;
+            }
+        }
     }
 
-    fn counter_clockwise(&self, n: usize) -> usize {
-        let rev_ind = self.size() - 1 - self.current_ind;
+    /// For a clockwise move of n-spaces, return reduced direction of movement
+    fn clockwise(&self, n: usize) -> Move {
+        // <0> <>  // right(0)
+        // <0 1> <> // 1 // 2 % 2 = 0 // 1 - 0 // left(1) // <0> <1>
+        // <0 2> <1> // 1 // 2 % 3 = 2 // 2 - 1 // right(1) // <0 2 1>
+        // <0 2 1 3> <> // 3 // 4 % 4 = 0 // 3 - 0 // left(3) // <0> <2 1 3>
+        // <0 4> <2 1 3> // 1 // 2 % 5 = 2 // 2 - 1 // right(1) // <0 4 2> <1 3>
+        // <0 4 2 5> <1 3> // 3 // 4 % 6 // 4 - 3 // right(1) // <0 4 2 5 1> <3>
+        // <0 4 2 5 1 6> <3> // 5 /// 6 % 7 // 6 - 5 // right(1) // <0 4 2 5 1 6 3> <>
+        // <0 4 2 5 1 6 3 7> <> //
+        if self.size() == 1 { return Move::Right(0) }
+
+        let array_pos = self.n_left - 1;
+        let new_pos = (array_pos + n) % self.size();
+        if new_pos < array_pos { Move::Left(array_pos - new_pos) }
+        else { Move::Right(new_pos - array_pos) }
+    }
+
+    /// For a counter-clockwise move of n-spaces, return reduced direction of movement
+    fn counter_clockwise(&self, n: usize) -> Move {
+        // <0 2 3 4> <7 6 5 8 9 11>
+        // cc 7 == move::right(3)
+        // <0 2 3 4 7 6 5> <8 9 11>
+        // 3 -> 10 - 1 - 3 = 6 -> 6 + 7 = 13 -> 13 % 10 = 3 -> 10 - 1 - 3 = 6 -> 6 - 3 = right(3)
+        let array_pos = self.n_left - 1;
+        let rev_ind = self.size() - 1 - array_pos;
         let next_ind = rev_ind + n;
         let rem = next_ind % self.size();
-        let fwd_ind = self.size() - 1 - rem;
-        fwd_ind
+        let new_pos = self.size() - 1 - rem;
+        if new_pos < array_pos { Move::Left(array_pos - new_pos) }
+        else { Move::Right(new_pos - array_pos) }
     }
 
     fn insert(&mut self, n: usize) -> u32 {
         if n % 23 == 0 {
-            let pop_ind = self.counter_clockwise(7);
-            let popped = self.inner.remove(pop_ind);
-            self.current_ind = pop_ind;
-            return (popped + n) as u32
+            let mofve = self.counter_clockwise(7);
+            self.rotate(mofve);
+            let e = self.left.pop_front().expect("left empty");
+            self.n_left -= 1;
+            self.rotate(Move::Right(1));
+            return (e + n) as u32
         }
 
-        let insert_ind = self.clockwise(2);
-        if insert_ind > self.size() {
-            self.inner.push(n);
-        } else {
-            self.inner.insert(insert_ind, n);
-        }
-        self.current_ind = insert_ind;
+        let mofve = self.clockwise(1);
+        self.rotate(mofve);
+        self.left.push_front(n);
+        self.n_left += 1;
         0
     }
 }
 
-fn part_1(game: &Game) -> StdResult<u32> {
-    let mut circle = Circle::new(game.marbles);
+
+fn solve(game: &Game) -> StdResult<u32> {
+    let mut circle = Circle::new();
     let mut players = map!();
     for (n, p) in (0..game.players).cycle().enumerate() {
-        if n > game.marbles {
+        if n >= game.marbles {
             break
         }
         let n = n + 1;
@@ -91,19 +144,20 @@ fn part_1(game: &Game) -> StdResult<u32> {
     Ok(*players.values().max().ok_or_else(|| "no max!")?)
 }
 
+
 pub fn run() -> StdResult<()> {
     info!("*** Day 9 ***");
 
     let input = input_file!("d09.txt");
-    let game = input.parse::<Game>()?;
-    let (ms1, p1) = time!({ part_1(&game)? });
+    let mut game = input.parse::<Game>()?;
+    let (ms1, p1) = time!({ solve(&game)? });
     info!("p1: {}", p1);
 
-//    game.marbles *= 100;
-//    let (ms2, p2) = time!({ part_1(&game)? });
-//    info!("p2: {}", p2);
+    game.marbles *= 100;
+    let (ms2, p2) = time!({ solve(&game)? });
+    info!("p2: {}", p2);
 
-    info!("[Day 9 runtimes] p1: {}ms\n", ms1);
+    info!("[Day 9 runtimes] p1: {}ms, p2: {}ms\n", ms1, ms2);
     Ok(())
 }
 
@@ -127,7 +181,7 @@ mod tests {
     fn test_part_1() {
         for (s, expected) in INPUT.iter() {
             let game = s.parse::<Game>().unwrap();
-            let res = part_1(&game).unwrap();
+            let res = solve(&game).unwrap();
             assert_eq!(res, *expected, "failed input: {}", s);
         }
     }
