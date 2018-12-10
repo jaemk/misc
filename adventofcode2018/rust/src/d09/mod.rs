@@ -1,5 +1,5 @@
 use crate::utils::{StdResult, StdError};
-use std::collections::{HashMap, LinkedList};
+use std::collections::{HashMap, VecDeque};
 use regex::Regex;
 
 
@@ -36,19 +36,19 @@ enum Move {
 }
 
 struct Circle {
-    left: LinkedList<usize>,
+    left: VecDeque<usize>,
     n_left: usize,
-    right: LinkedList<usize>,
+    right: VecDeque<usize>,
     n_right: usize,
 }
 impl Circle {
-    fn new() -> Self {
-        let mut left = LinkedList::new();
+    fn new(max_marbles: usize) -> Self {
+        let mut left = VecDeque::with_capacity(max_marbles);
         left.push_front(0);
         Self {
             left,
             n_left: 1,
-            right: LinkedList::new(),
+            right: VecDeque::with_capacity(max_marbles),
             n_right: 0,
         }
     }
@@ -130,7 +130,7 @@ impl Circle {
 
 
 fn solve(game: &Game) -> StdResult<u32> {
-    let mut circle = Circle::new();
+    let mut circle = Circle::new(game.marbles);
     let mut players = map!();
     for (n, p) in (0..game.players).cycle().enumerate() {
         if n >= game.marbles {
