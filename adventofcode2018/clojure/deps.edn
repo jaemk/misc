@@ -1,0 +1,10 @@
+{:paths ["src"]
+ :aliases
+ {:repl
+  {:extra-deps
+   {reply {:mvn/version "0.4.3"}
+    org.clojure/tools.namespace {:mvn/version "0.3.1"}}}
+ :tests-path
+  {:extra-paths ["tests"]}
+ :dev-path
+  {:extra-paths ["dev"]}}}
