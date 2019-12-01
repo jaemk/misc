@@ -1,0 +1,12 @@
+{:paths ["src"]
+ :deps {byte-streams {:mvn/version "0.2.4"}
+        org.clojure/math.combinatorics {:mvn/version "0.1.6"}}
+ :aliases
+ {:repl
+  {:extra-deps
+   {reply {:mvn/version "0.4.3"}
+    org.clojure/tools.namespace {:mvn/version "0.3.1"}}}
+ :tests-path
+  {:extra-paths ["tests"]}
+ :dev-path
+  {:extra-paths ["dev"]}}}
