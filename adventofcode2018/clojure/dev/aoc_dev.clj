@@ -5,7 +5,9 @@
         [clojure.test]))
 
 (def test-namespaces
-  ['aoc.d01-tests])
+  ['aoc.d01-tests
+   'aoc.d02-tests
+   ])
 
 (defn publics [ns']
   (keys (ns-publics ns')))
@@ -18,5 +20,4 @@
   (apply run-tests test-namespaces))
 
 (defn main []
-  (rr)
   (aoc/-main))
