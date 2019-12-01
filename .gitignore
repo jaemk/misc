@@ -18,5 +18,9 @@ _build
 .merlin
 *.install
 Cargo.lock
-*.cpcache/
 .env.local
+
+*.cpcache/
+*classes/
+**/build_out/*
+!**/build_out/.gitkeep

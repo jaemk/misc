@@ -1,4 +1,5 @@
 (ns aoc.core
+  (:gen-class)
   (:require [aoc.registry :refer [days]]
             [aoc.utils :as u]
             [aoc.d01]

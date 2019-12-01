@@ -4,9 +4,18 @@
  :aliases
  {:repl
   {:extra-deps
-   {reply {:mvn/version "0.4.3"}
-    org.clojure/tools.namespace {:mvn/version "0.3.1"}}}
- :tests-path
-  {:extra-paths ["tests"]}
- :dev-path
-  {:extra-paths ["dev"]}}}
+    {reply {:mvn/version "0.4.3"}
+     org.clojure/tools.namespace {:mvn/version "0.3.1"}}}
+  :tests-path
+   {:extra-paths ["tests"]}
+  :dev-path
+   {:extra-paths ["dev"]}
+  :native-image
+   {:main-opts ["-m clj.native-image aoc.core"
+                "--report-unsupported-elements-at-runtime"
+                "--initialize-at-build-time"
+                "-H:Name=build_out/aoc"]
+    :jvm-opts ["-Dclojure.compiler.direct-linking=true"]
+    :extra-deps {clj.native-image {:git/url "https://github.com/taylorwood/clj.native-image.git"
+                                   :sha "7708e7fd4572459c81f6a6b8e44c96f41cdd92d4"}}}
+  }}
