@@ -1,6 +1,8 @@
 (ns aoc.d01
-  (:require [aoc.registry :refer [register-day-fn!]]
+  (:require [aoc.registry :refer [register-day!]]
             [aoc.utils :as u]))
+
+(register-day! 1 *ns*)
 
 (defn input [] (u/file->lines "../input/d01.txt"))
 
@@ -44,5 +46,3 @@
   (let [{r :res t :ms} (u/ex-time (part2))]
     (println (format "%s, %sms" r t)))
   )
-
-(register-day-fn! all)

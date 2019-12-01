@@ -1,23 +1,16 @@
 (ns aoc.dev
   (:require [aoc.core :as aoc]
-            [aoc.registry :as reg])
+            [aoc.utils :as u]
+            [aoc.registry :as reg]
+            [aoc.core-tests :as t])
   (:use [clojure.repl]
-        [clojure.tools.namespace.repl :only [refresh]]
-        [clojure.test]))
-
-(def test-namespaces
-  ['aoc.d01-tests
-   ])
+        [clojure.tools.namespace.repl :only [refresh]]))
 
 (defn publics [ns']
   (keys (ns-publics ns')))
 
-(defn rr []
-  (refresh))
-
 (defn tt []
-  (rr)
-  (apply run-tests test-namespaces))
+  (t/test-all))
 
 (defn main []
   (aoc/-main))

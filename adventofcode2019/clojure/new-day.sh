@@ -8,10 +8,16 @@ if [ -z "$day" ]; then
 fi
 
 day_s=d`printf "%02d" $day`
+src_file=src/aoc/$day_s.clj
+test_file=tests/aoc/"$day_s"_tests.clj
 
+echo "creating source file: $src_file"
 _src=\
 "(ns aoc.$day_s
-  (:require [aoc.utils :as u]))
+  (:require [aoc.utils :as u]
+            [aoc.registry :refer [register-day!]]))
+
+(register-day! $day *ns*)
 
 (defn input [] (u/file->lines \"../input/$day_s.txt\"))
 
@@ -35,8 +41,9 @@ _src=\
     (println (format \"%s, %sms\" r t)))
   )
 "
-echo "$_src" > src/aoc/$day_s.clj
+echo "$_src" > $src_file
 
+echo "creating test file: $test_file"
 _test=\
 "(ns aoc.$day_s-tests
   (:require [aoc.$day_s]
@@ -47,7 +54,11 @@ _test=\
   )
 
 (deftest p1-2
-  (is (= nil (aoc.d01/part2 [\"in\"])))
+  (is (= nil (aoc.$day_s/part2 [\"in\"])))
   )
 "
-echo "$_test" > tests/aoc/"$day_s"_tests.clj
+echo "$_test" > $test_file
+
+echo "retrieving input for day $day"
+../get-input.sh $day ../input
+

@@ -4,6 +4,9 @@
   (println n)
   n)
 
+(defn call [func]
+  (func))
+
 (def file->lines
   (memoize
     (fn [file]

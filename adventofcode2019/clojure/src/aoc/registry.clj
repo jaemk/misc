@@ -1,8 +1,9 @@
 (ns aoc.registry)
 
-(def day-fns (atom []))
+"A map of day numbers to day namespaces"
+(defonce days
+  (atom (sorted-map)))
 
-(defn register-day-fn! [func]
-  (println "registering " func)
-  (swap! day-fns #(conj % func)))
+(defn register-day! [day-num day-ns]
+  (swap! days #(assoc % day-num day-ns)))
 

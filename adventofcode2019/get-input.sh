@@ -3,13 +3,20 @@ set -e
 session_cookie="$SESSION_COOKIE"
 
 day="$1"
-outfile=./input/d`printf "%02d" $day`.txt
-url=https://adventofcode.com/2019/day/$day/input
+outdir="$2"
 
 if [ -z "$day" ]; then
     echo "please specify day number"
     exit 1
 fi
+if [ -z "$outdir" ]; then
+    echo "please specify outdir"
+    exit 1
+fi
+
+outfile=$outdir/d`printf "%02d" $day`.txt
+url=https://adventofcode.com/2019/day/$day/input
+
 
 echo "retrieving: $url"
 echo "saving to: $outfile"
