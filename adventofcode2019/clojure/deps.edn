@@ -1,21 +1,38 @@
 {:paths ["src"]
  :deps {byte-streams {:mvn/version "0.2.4"}
-        org.clojure/math.combinatorics {:mvn/version "0.1.6"}}
+        org.clojure/math.combinatorics {:mvn/version "0.1.6"}
+        ; use a patched clojure version to work with graal native-image
+        ; https://github.com/lread/clj-graal-docs/tree/master/CLJ-1472
+        ; also requires reflections.json config
+        org.clojure/clojure {:mvn/version "1.10.1-patch_38bafca9_clj_1472_3"}}
  :aliases
  {:repl
-  {:extra-deps
-    {reply {:mvn/version "0.4.3"}
-     org.clojure/tools.namespace {:mvn/version "0.3.1"}}}
+    {:extra-deps {reply {:mvn/version "0.4.3"}
+                  org.clojure/tools.namespace {:mvn/version "0.3.1"}}}
+
   :tests-path
-   {:extra-paths ["tests"]}
+    {:extra-paths ["tests"]}
+
   :dev-path
-   {:extra-paths ["dev"]}
+    {:extra-paths ["dev"]}
+
+  :uberjar
+    {:extra-deps {uberdeps {:mvn/version "0.1.6"}}
+     :main-opts ["-m uberdeps.uberjar"
+                 "--aliases tests-path"
+                 "--target target/aoc.jar"]}
+
   :native-image
-   {:main-opts ["-m clj.native-image aoc.core"
-                "--report-unsupported-elements-at-runtime"
-                "--initialize-at-build-time"
-                "-H:Name=build_out/aoc"]
-    :jvm-opts ["-Dclojure.compiler.direct-linking=true"]
-    :extra-deps {clj.native-image {:git/url "https://github.com/taylorwood/clj.native-image.git"
-                                   :sha "7708e7fd4572459c81f6a6b8e44c96f41cdd92d4"}}}
+    {:main-opts ["-m clj.native-image aoc.core"
+                 "--report-unsupported-elements-at-runtime"
+                 "--initialize-at-build-time"
+                 "--no-fallback"
+                 "--allow-incomplete-classpath"
+                 "--report-unsupported-elements-at-runtime"
+                 "--initialize-at-run-time=clojure.pprint__init"
+                 "-H:Name=target/aoc"
+                 "-H:ConfigurationFileDirectories=META-INF/native-image"]
+     :jvm-opts ["-Dclojure.compiler.direct-linking=true"]
+     :extra-deps {clj.native-image {:git/url "https://github.com/taylorwood/clj.native-image.git"
+                                    :sha "7708e7fd4572459c81f6a6b8e44c96f41cdd92d4"}}}
   }}

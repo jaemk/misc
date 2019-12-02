@@ -1,0 +1,21 @@
+{
+  "resources":[
+    {"pattern":"aoc/core.clj"}, 
+    {"pattern":"aoc/core_tests.clj"}, 
+    {"pattern":"aoc/d01.clj"}, 
+    {"pattern":"aoc/d01_tests.clj"}, 
+    {"pattern":"aoc/registry.clj"}, 
+    {"pattern":"aoc/utils.clj"}, 
+    {"pattern":"clojure/core.clj"}, 
+    {"pattern":"clojure/core/server.clj"}, 
+    {"pattern":"clojure/core/server__init.class"}, 
+    {"pattern":"clojure/core/specs/alpha.clj"}, 
+    {"pattern":"clojure/core__init.class"}, 
+    {"pattern":"clojure/pprint.clj"}, 
+    {"pattern":"clojure/pprint__init.class"}, 
+    {"pattern":"clojure/spec/alpha.clj"}, 
+    {"pattern":"clojure/spec/alpha__init.class"}, 
+    {"pattern":"clojure/test.clj"}, 
+    {"pattern":"clojure/test__init.class"}
+  ]
+}

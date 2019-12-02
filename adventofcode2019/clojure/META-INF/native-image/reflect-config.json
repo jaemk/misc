@@ -1,0 +1,448 @@
+[
+{
+  "name":"aoc.core$_main",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"aoc.core$day_ns__GT_all_fn",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"aoc.core$eval138",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"aoc.core$eval142",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"aoc.core$eval159",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"aoc.core$eval182",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"aoc.core$eval184",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"aoc.core$eval188",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"aoc.core$eval208",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"aoc.core$eval212",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"aoc.core$eval214",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"aoc.core$eval218",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"aoc.core$run_all",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"aoc.core_tests$_main",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"aoc.core_tests$day_ns__GT_test_ns",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"aoc.core_tests$eval138",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"aoc.core_tests$eval142",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"aoc.core_tests$eval159",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"aoc.core_tests$eval182",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"aoc.core_tests$eval224",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"aoc.core_tests$require_all",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"aoc.core_tests$test_all",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"aoc.d01$all",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"aoc.d01$eval184",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"aoc.d01$eval188",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"aoc.d01$eval190",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"aoc.d01$eval192",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"aoc.d01$eval194",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"aoc.d01$eval198",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"aoc.d01$input",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"aoc.d01$mass__GT_fuel",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"aoc.d01$module_mass__GT_fuel",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"aoc.d01$part1",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"aoc.d01$part2",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"aoc.d01_tests$eval234",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"aoc.d01_tests$eval238",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"aoc.d01_tests$fn__242",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"aoc.d01_tests$fn__267",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"aoc.d01_tests$p1_1",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"aoc.d01_tests$p1_2",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"aoc.registry$eval144",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"aoc.registry$eval148",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"aoc.registry$eval152",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"aoc.registry$register_day_BANG_",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"aoc.utils$call",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"aoc.utils$dbg",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"aoc.utils$eval161",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"aoc.utils$eval165",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"aoc.utils$eval178",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"aoc.utils$eval180",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"aoc.utils$ex_time",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"aoc.utils$fn__171",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"aoc.utils$parse_int",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"clojure.core.server__init"
+},
+{
+  "name":"clojure.core.specs.alpha$eval132",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"clojure.core.specs.alpha$eval134",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"clojure.core.specs.alpha$eval3",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"clojure.core.specs.alpha$eval5",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"clojure.core.specs.alpha$eval9",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"clojure.core.specs.alpha$even_number_of_forms_QMARK_",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"clojure.core.specs.alpha$fn__102",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"clojure.core.specs.alpha$fn__104",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"clojure.core.specs.alpha$fn__107",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"clojure.core.specs.alpha$fn__110",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"clojure.core.specs.alpha$fn__112",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"clojure.core.specs.alpha$fn__115",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"clojure.core.specs.alpha$fn__117",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"clojure.core.specs.alpha$fn__119",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"clojure.core.specs.alpha$fn__14",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"clojure.core.specs.alpha$fn__17",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"clojure.core.specs.alpha$fn__20",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"clojure.core.specs.alpha$fn__23",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"clojure.core.specs.alpha$fn__26",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"clojure.core.specs.alpha$fn__28",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"clojure.core.specs.alpha$fn__31",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"clojure.core.specs.alpha$fn__33",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"clojure.core.specs.alpha$fn__36",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"clojure.core.specs.alpha$fn__39",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"clojure.core.specs.alpha$fn__42",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"clojure.core.specs.alpha$fn__46",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"clojure.core.specs.alpha$fn__49",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"clojure.core.specs.alpha$fn__52",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"clojure.core.specs.alpha$fn__54",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"clojure.core.specs.alpha$fn__56",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"clojure.core.specs.alpha$fn__69",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"clojure.core.specs.alpha$fn__71",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"clojure.core.specs.alpha$fn__83",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"clojure.core.specs.alpha$fn__96",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"clojure.core.specs.alpha$fn__99",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"clojure.core.specs.alpha$quotable",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"clojure.core__init"
+},
+{
+  "name":"clojure.lang.Compiler",
+  "allPublicFields":true
+},
+{
+  "name":"clojure.lang.ISeq"
+},
+{
+  "name":"clojure.lang.LockingTransaction",
+  "allPublicMethods":true
+},
+{
+  "name":"clojure.lang.Namespace",
+  "allPublicMethods":true
+},
+{
+  "name":"clojure.lang.Numbers",
+  "allPublicMethods":true
+},
+{
+  "name":"clojure.lang.PersistentHashMap",
+  "allPublicMethods":true
+},
+{
+  "name":"clojure.lang.RT",
+  "allPublicMethods":true
+},
+{
+  "name":"clojure.lang.Symbol",
+  "allPublicMethods":true
+},
+{
+  "name":"clojure.lang.Var",
+  "allPublicMethods":true
+},
+{
+  "name":"clojure.pprint__init"
+},
+{
+  "name":"clojure.spec.alpha__init"
+},
+{
+  "name":"clojure.test__init"
+},
+{
+  "name":"java.lang.Class",
+  "allPublicMethods":true
+},
+{
+  "name":"java.lang.Integer",
+  "allPublicConstructors":true
+},
+{
+  "name":"java.lang.Long"
+},
+{
+  "name":"java.lang.Object",
+  "allPublicMethods":true
+},
+{
+  "name":"java.lang.String"
+},
+{
+  "name":"java.lang.System",
+  "allPublicMethods":true
+},
+{
+  "name":"java.lang.Throwable"
+},
+{
+  "name":"java.nio.file.attribute.FileAttribute"
+},
+{
+  "name":"user$eval1",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"user$eval136",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"user$eval232",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+}
+]

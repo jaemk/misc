@@ -5,6 +5,8 @@
             [aoc.d01]
             ))
 
+(set! *warn-on-reflection* true)
+
 (defn day-ns->all-fn [ns']
   (if-let [all-fn (ns-resolve ns' 'all)]
     all-fn

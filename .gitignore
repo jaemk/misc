@@ -22,5 +22,5 @@ Cargo.lock
 
 *.cpcache/
 *classes/
-**/build_out/*
-!**/build_out/.gitkeep
+**/build/*
+!**/build/.gitkeep

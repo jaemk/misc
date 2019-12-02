@@ -1,4 +1,5 @@
 (ns aoc.core-tests
+  (:gen-class)
   (:require [aoc.registry :as reg]
             [aoc.utils :as u]
             [aoc.core])
