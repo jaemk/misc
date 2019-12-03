@@ -7,11 +7,15 @@
 (defn call [func]
   (func))
 
-(def file->lines
+(def f->s
   (memoize
     (fn [file]
       (-> (slurp file)
-          clojure.string/split-lines))))
+          clojure.string/trim))))
+
+(defn file->lines [file]
+  (-> (f->s file)
+      clojure.string/split-lines))
 
 (defn parse-int [s]
   (Integer. s))

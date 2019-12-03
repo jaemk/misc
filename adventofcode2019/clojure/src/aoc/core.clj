@@ -3,6 +3,7 @@
   (:require [aoc.registry :refer [days]]
             [aoc.utils :as u]
             [aoc.d01]
+            [aoc.d02]
             ))
 
 (set! *warn-on-reflection* true)
