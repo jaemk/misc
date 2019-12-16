@@ -1,15 +1,16 @@
 package d01
 
+import utils.memoize
 import utils.readFile
 import kotlin.math.floor
 import kotlin.system.measureTimeMillis
 
-fun input(): List<Int> {
+val input = {
     val parsed = mutableListOf<Int>()
     readFile("../input/d01.txt")
             .useLines { it.mapTo(parsed, { line -> line.toInt() }) }
-    return parsed.toList()
-}
+    parsed.toList()
+}.memoize()
 
 fun massToFuel(mass: Int): Int = floor(mass / 3.0).toInt() - 2
 
@@ -35,7 +36,7 @@ fun part2() {
 }
 
 fun all() {
-    println("** Day 1 **")
+    println("\n** Day 1 **")
     val ms1 = measureTimeMillis { part1() }
     println("---> ${ms1}ms")
 
