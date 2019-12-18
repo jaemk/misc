@@ -7,4 +7,5 @@ fun main(args: Array<String>) {
     println(message())
     d01.all()
     d02.all()
+    d03.all()
 }
