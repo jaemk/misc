@@ -8,4 +8,5 @@ fun main(args: Array<String>) {
     d01.all()
     d02.all()
     d03.all()
+    d04.all()
 }
