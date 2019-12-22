@@ -18,7 +18,10 @@ fun part1() {
     val read = { 1 }
 
     val buffer = mutableListOf<Int>()
-    fun write(value: Int) { buffer.add(value) }
+    fun write(value: Int) {
+        buffer.add(value)
+    }
+
     val vm = Vm(code, readFn = read, writeFn = ::write)
     vm.runToCompletion()
 
@@ -29,8 +32,18 @@ fun part1() {
 
 
 fun part2() {
-    val res = 1
-    println("part2: $res")
+    val code = parseInput(input())
+    val read = { 5 }
+    val buffer = mutableListOf<Int>()
+    fun write(value: Int) {
+        buffer.add(value)
+    }
+
+    val vm = Vm(code, readFn = read, writeFn = ::write)
+    vm.runToCompletion()
+    val end = buffer.last()
+    val ok = buffer.size == 1 && end == 10376124
+    println("part2: $end, $ok")
 }
 
 
