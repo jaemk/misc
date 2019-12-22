@@ -4,6 +4,7 @@ package utils
 fun <U> (() -> U).memoize(): () -> U {
     var cache: Option = None
     return {
+        @Suppress("UNCHECKED_CAST")
         when (cache) {
             is None -> {
                 cache = Some(this())
@@ -15,7 +16,7 @@ fun <U> (() -> U).memoize(): () -> U {
 }
 
 fun <T, U> ((T) -> U).memoize(): (T) -> U {
-    var cache: MutableMap<T, U> = HashMap()
+    val cache: MutableMap<T, U> = HashMap()
     return {input ->
         cache.getOrPut(input, { this(input) })
     }

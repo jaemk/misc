@@ -116,7 +116,7 @@ fun findMinIntersectionPath(a: List<Move>, b: List<Move>): Int {
     }
     return pointSeq(b)
             .map { it to (seen.get(it.point()) ?: 0) }
-            .filter { (a, bDist) ->
+            .filter { (_, bDist) ->
                 bDist != 0
             }
             .map { (a, bDist) -> a.pathDist + bDist }

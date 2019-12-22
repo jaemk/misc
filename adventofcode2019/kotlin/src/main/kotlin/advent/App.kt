@@ -9,4 +9,5 @@ fun main(args: Array<String>) {
     d02.all()
     d03.all()
     d04.all()
+    d05.all()
 }
