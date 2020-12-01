@@ -1,5 +1,4 @@
 use crate::utils::err;
-use crate::utils::file;
 
 use itertools::iproduct;
 
@@ -36,7 +35,7 @@ fn part2(input: &[u32]) -> err::Result<u32> {
 }
 
 pub fn run() -> err::Result<()> {
-    let input = file::read("../input/d01.txt")?;
+    let input = embed_input!("d01.txt");
     let input = parse(&input)?;
 
     let (ms, res) = time!(part1(&input)?);

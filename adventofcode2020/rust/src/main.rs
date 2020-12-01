@@ -3,8 +3,15 @@ mod utils;
 
 mod d01;
 
+macro_rules! report {
+    ($day:expr, $body:expr) => {{
+        let (millis, _) = time!($body);
+        println!("Day {} total time: {}ms", $day, millis);
+    }};
+}
+
 fn run() -> utils::err::Result<()> {
-    d01::run()?;
+    report!("1", d01::run()?);
     Ok(())
 }
 

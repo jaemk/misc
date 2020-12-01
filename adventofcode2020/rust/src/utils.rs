@@ -12,6 +12,7 @@ pub mod err {
     pub type Result<T> = std::result::Result<T, Error>;
 }
 
+#[macro_use]
 pub mod file {
     use super::*;
 
@@ -30,6 +31,13 @@ pub mod file {
         let f = File::open(path)?;
         let r = io::BufReader::new(f);
         Ok(r.lines())
+    }
+
+    #[macro_export]
+    macro_rules! embed_input {
+        ($day:expr) => {
+            include_str!(concat!("../../../input/", $day))
+        };
     }
 }
 
