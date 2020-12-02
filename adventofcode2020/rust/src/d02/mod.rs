@@ -1,6 +1,8 @@
 use crate::utils::err;
 use crate::utils::file;
 
+use itertools::Itertools;
+
 struct Pw<'a> {
     min: u32,
     max: u32,
@@ -37,18 +39,31 @@ fn parse(input: &str) -> err::Result<Vec<Pw>> {
         .trim()
         .lines()
         .map(|line| {
-            let mut s = line.split_whitespace();
-            let mut min_max_iter = s.next().unwrap().split('-');
-            let min = min_max_iter.next().unwrap().parse::<u32>()?;
-            let max = min_max_iter.next().unwrap().parse::<u32>()?;
-            let character = s.next().unwrap().chars().next().unwrap();
-            let pw = s.next().unwrap();
-            Ok(Pw {
-                min,
-                max,
-                character,
-                pw,
-            })
+            // 1-3 a: abcde
+            if let Some((min_max_part, char_part, pw_part)) =
+                line.split_whitespace().collect_tuple()
+            {
+                if let Some((min_s, max_s)) = min_max_part.split('-').collect_tuple() {
+                    let min = min_s.parse::<u32>()?;
+                    let max = max_s.parse::<u32>()?;
+
+                    let character = char_part
+                        .chars()
+                        .next()
+                        .ok_or_else(|| format!("invalid char part: {}", char_part))?;
+                    let pw = pw_part;
+                    Ok(Pw {
+                        min,
+                        max,
+                        character,
+                        pw,
+                    })
+                } else {
+                    Err(format!("invalid min/max format: {}", min_max_part).into())
+                }
+            } else {
+                Err(format!("invalid line format: {}", line).into())
+            }
         })
         .collect::<err::Result<Vec<_>>>()?)
 }
