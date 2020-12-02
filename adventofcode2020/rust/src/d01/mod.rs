@@ -89,9 +89,9 @@ pub fn run() -> err::Result<()> {
 
     input.sort_unstable();
     let (ms, res) = time!(smart::part1(&input)?);
-    println!("d01 | p1[{}ms]: {}", ms, res);
+    println!("  -> p1[{}ms]: {}", ms, res);
     let (ms, res) = time!(smart::part2(&input)?);
-    println!("d01 | p2[{}ms]: {}", ms, res);
+    println!("  -> p2[{}ms]: {}", ms, res);
     Ok(())
 }
 

@@ -34,6 +34,7 @@ impl<'a> Pw<'a> {
 
 fn parse(input: &str) -> err::Result<Vec<Pw>> {
     Ok(input
+        .trim()
         .lines()
         .map(|line| {
             let mut s = line.split_whitespace();
@@ -80,8 +81,21 @@ pub fn run() -> err::Result<()> {
 
 #[cfg(test)]
 mod test {
+    use super::*;
+    static INPUT: &str = r##"
+1-3 a: abcde
+1-3 b: cdefg
+2-9 c: ccccccccc
+"##;
+
     #[test]
     fn test_p1() {
-        assert!(true)
+        let input = parse(INPUT).expect("parse fail");
+        assert_eq!(part1(&input).expect("p1 fail"), 2);
+    }
+    #[test]
+    fn test_p2() {
+        let input = parse(INPUT).expect("parse fail");
+        assert_eq!(part2(&input).expect("p2 fail"), 1);
     }
 }
