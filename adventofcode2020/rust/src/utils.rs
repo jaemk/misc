@@ -56,11 +56,11 @@ macro_rules! time {
 #[macro_export]
 macro_rules! map {
     () => {
-        HashMap::new()
+        std::collections::HashMap::new()
     };
     ($($k:expr => $v:expr),* $(,)*) => {
         {
-            let mut map = HashMap::new();
+            let mut map = std::collections::HashMap::new();
             $(
                 map.insert($k, $v);
             )*
@@ -72,11 +72,11 @@ macro_rules! map {
 #[macro_export]
 macro_rules! set {
     () => {
-        HashSet::new()
+        std::collections::HashSet::new()
     };
     ($($k:expr),* $(,)*) => {
         {
-            let mut set = HashSet::new();
+            let mut set = std::collections::HashSet::new();
             $(
                 set.insert($k);
             )*
