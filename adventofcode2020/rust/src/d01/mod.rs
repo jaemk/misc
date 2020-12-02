@@ -58,16 +58,21 @@ mod smart {
 
     pub fn part2(input: &[u32]) -> err::Result<u32> {
         let size = input.len();
+        let mut seen = set!(size = size);
         for i in 0..(size - 2) {
+            let current_a = input[i];
+            seen.insert(current_a);
+
             let mut next = i + 1;
             while next < (size - 1) {
-                let current_a = input[i];
                 let current_b = input[next];
+                seen.insert(current_b);
+
                 let want = 2020_u32.saturating_sub(current_a).saturating_sub(current_b);
                 if want > 0 {
                     let n = next + 1;
                     let candidates = &input[n..size];
-                    if candidates.binary_search(&want).is_ok() {
+                    if seen.contains(&want) || candidates.binary_search(&want).is_ok() {
                         return Ok(current_a * current_b * want);
                     }
                 }

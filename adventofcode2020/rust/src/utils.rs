@@ -74,6 +74,9 @@ macro_rules! set {
     () => {
         std::collections::HashSet::new()
     };
+    (size=$s:expr) => {
+        std::collections::HashSet::with_capacity($s)
+    };
     ($($k:expr),* $(,)*) => {
         {
             let mut set = std::collections::HashSet::new();

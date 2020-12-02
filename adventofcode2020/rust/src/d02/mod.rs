@@ -11,7 +11,7 @@ struct Pw<'a> {
 }
 
 impl<'a> Pw<'a> {
-    fn is_valid(&self) -> bool {
+    fn is_valid_1(&self) -> bool {
         let c_count = self
             .pw
             .chars()
@@ -71,7 +71,7 @@ fn parse(input: &str) -> err::Result<Vec<Pw>> {
 fn part1(input: &[Pw]) -> err::Result<u32> {
     Ok(input
         .iter()
-        .map(|pw| if pw.is_valid() { 1 } else { 0 })
+        .map(|pw| if pw.is_valid_1() { 1 } else { 0 })
         .sum())
 }
 
