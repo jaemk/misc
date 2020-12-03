@@ -7,10 +7,12 @@ struct Row<'a> {
     line: &'a [u8],
 }
 impl<'a> Row<'a> {
-    fn get(&self, index: usize) -> u8 {
+    #[inline]
+    fn is_tree(&self, index: usize) -> bool {
         let size = self.line.len();
         let adjusted = index % size;
-        unsafe { *self.line.get_unchecked(adjusted) }
+        let c = unsafe { *self.line.get_unchecked(adjusted) };
+        c == TREE
     }
 }
 
@@ -30,7 +32,7 @@ fn part1(input: &[Row]) -> err::Result<u64> {
         .enumerate()
         .map(|(i, row)| {
             let index = i * 3;
-            if row.get(index) == TREE {
+            if row.is_tree(index) {
                 1
             } else {
                 0
@@ -58,7 +60,7 @@ fn part2(input: &[Row]) -> err::Result<u64> {
             let mut y = 0;
             while y < end {
                 let row = unsafe { input.get_unchecked(y) };
-                if row.get(x) == TREE {
+                if row.is_tree(x) {
                     count += 1
                 }
 
