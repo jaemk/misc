@@ -4,11 +4,13 @@ use crate::utils::file;
 use itertools::iproduct;
 
 fn parse(input: &str) -> err::Result<Vec<u32>> {
-    Ok(input
+    let mut res = input
         .trim()
         .lines()
         .map(|line| Ok(line.parse::<u32>()?))
-        .collect::<err::Result<_>>()?)
+        .collect::<err::Result<Vec<_>>>()?;
+    res.sort_unstable();
+    Ok(res)
 }
 
 #[allow(unused)]
@@ -84,15 +86,20 @@ mod smart {
 }
 
 pub fn run() -> err::Result<()> {
-    let input = file::read("../input/d01.txt")?;
-    let mut input = parse(&input)?;
+    let input = time!(
+        file::read("../input/d01.txt")?,
+        (ms) -> println!("  -> read[{}ms]", ms),
+    );
+    let input = time!(
+        parse(&input)?,
+        (ms) -> println!("  -> parse[{}ms]", ms),
+    );
 
     // let (ms, res) = time!(brute::part1(&input)?);
     // println!("d01 | p1[{}ms]: {}", ms, res);
     // let (ms, res) = time!(brute::part2(&input)?);
     // println!("d01 | p2[{}ms]: {}", ms, res);
 
-    input.sort_unstable();
     let (ms, res) = time!(smart::part1(&input)?);
     println!("  -> p1[{}ms]: {}", ms, res);
     let (ms, res) = time!(smart::part2(&input)?);

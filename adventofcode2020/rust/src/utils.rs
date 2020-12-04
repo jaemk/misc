@@ -41,15 +41,42 @@ pub mod file {
     }
 }
 
+macro_rules! _millis_since_instant {
+    ($inst:expr) => {{
+        let elapsed = $inst.elapsed();
+        let millis = (elapsed.as_secs() as f64 * 1000.) + (elapsed.subsec_micros() as f64 / 1000.);
+        millis
+    }};
+}
+
 #[macro_export]
 macro_rules! time {
     ($body:expr) => {{
         use ::std::time;
         let start = time::Instant::now();
         let res = { $body };
-        let elapsed = start.elapsed();
-        let millis = (elapsed.as_secs() as f64 * 1000.) + (elapsed.subsec_micros() as f64 / 1000.);
+        let millis = _millis_since_instant!(start);
         (millis, res)
+    }};
+    ($body:expr,
+     ($ms:ident) -> $report:expr
+     $(,)*) => {{
+        use ::std::time;
+        let start = time::Instant::now();
+        let res = { $body };
+        let $ms = _millis_since_instant!(start);
+        $report;
+        res
+    }};
+    ($body:expr,
+     ($result:ident, $ms:ident) -> $report:expr
+     $(,)*) => {{
+        use ::std::time;
+        let start = time::Instant::now();
+        let $result = { $body };
+        let $ms = _millis_since_instant!(start);
+        $report;
+        $result
     }};
 }
 

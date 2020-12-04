@@ -83,8 +83,14 @@ fn part2(input: &[Pw]) -> err::Result<u32> {
 }
 
 pub fn run() -> err::Result<()> {
-    let input = file::read("../input/d02.txt")?;
-    let input = parse(&input)?;
+    let input = time!(
+        file::read("../input/d02.txt")?,
+        (ms) -> println!("  -> read[{}ms]", ms),
+    );
+    let input = time!(
+        parse(&input)?,
+        (ms) -> println!("  -> parse[{}ms]", ms),
+    );
 
     let (ms, res) = time!(part1(&input)?);
     println!("  -> p1[{}ms]: {}", ms, res);
