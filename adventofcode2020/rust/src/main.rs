@@ -4,6 +4,7 @@ mod utils;
 mod d01;
 mod d02;
 mod d03;
+mod d04;
 
 macro_rules! report {
     ($day:expr, $body:expr) => {{
@@ -17,6 +18,7 @@ fn run() -> utils::err::Result<()> {
     report!("1", d01::run()?);
     report!("2", d02::run()?);
     report!("3", d03::run()?);
+    report!("4", d04::run()?);
     Ok(())
 }
 

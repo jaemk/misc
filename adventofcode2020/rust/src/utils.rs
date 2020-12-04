@@ -85,6 +85,9 @@ macro_rules! map {
     () => {
         std::collections::HashMap::new()
     };
+    (size=$s:expr) => {
+        std::collections::HashMap::with_capacity($s)
+    };
     ($($k:expr => $v:expr),* $(,)*) => {
         {
             let mut map = std::collections::HashMap::new();
