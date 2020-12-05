@@ -18,10 +18,29 @@ fn make_id(row: usize, col: usize) -> usize {
     (row * 8) + col
 }
 
+const BIT_FLAGS: &[usize] = &[64, 32, 16, 8, 4, 2, 1];
+
 #[inline]
-fn reduce_code(code: &str, zero: &str, one: &str) -> usize {
-    let code = code.replace(zero, "0").replace(one, "1");
-    usize::from_str_radix(&code, 2).expect("invaid code")
+fn reduce_code(code: &str, one: u8) -> usize {
+    // FBFBBFF -> 0101100
+    // LRR -> 011
+    let code_len = code.len();
+    let flags_len = BIT_FLAGS.len();
+    let starting_flag = flags_len - code_len;
+
+    // FBFBBFF -> [64, 32, 16, 8, 4, 2, 1]
+    // LRR -> [4, 2, 1]
+    let bit_flags = &BIT_FLAGS[starting_flag..];
+
+    code.bytes()
+        .zip(bit_flags.iter())
+        .fold(0, |acc, (char_flag, bit_flag)| {
+            if char_flag == one {
+                acc | bit_flag
+            } else {
+                acc
+            }
+        })
 }
 
 fn parse(input: &str) -> err::Result<Vec<Seat>> {
@@ -29,9 +48,9 @@ fn parse(input: &str) -> err::Result<Vec<Seat>> {
         .lines()
         .map(|code| {
             let fbs = &code[..7];
-            let row = reduce_code(fbs, "F", "B");
+            let row = reduce_code(fbs, b'B');
             let lrs = &code[7..];
-            let col = reduce_code(lrs, "L", "R");
+            let col = reduce_code(lrs, b'R');
             let id = make_id(row, col);
 
             let s = Seat { code, row, col, id };
