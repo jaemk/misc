@@ -44,19 +44,15 @@ fn reduce_code(code: &str, one: u8) -> usize {
 }
 
 fn parse(input: &str) -> err::Result<Vec<Seat>> {
-    let mut seats = input
-        .lines()
-        .map(|code| {
-            let fbs = &code[..7];
-            let row = reduce_code(fbs, b'B');
-            let lrs = &code[7..];
-            let col = reduce_code(lrs, b'R');
-            let id = make_id(row, col);
-
-            let s = Seat { code, row, col, id };
-            Ok(s)
-        })
-        .collect::<err::Result<Vec<_>>>()?;
+    let mut seats = Vec::with_capacity(1000);
+    seats.extend(input.lines().map(|code| {
+        let fbs = &code[..7];
+        let row = reduce_code(fbs, b'B');
+        let lrs = &code[7..];
+        let col = reduce_code(lrs, b'R');
+        let id = make_id(row, col);
+        Seat { code, row, col, id }
+    }));
     seats.sort_unstable_by_key(|s| s.id);
     Ok(seats)
 }
