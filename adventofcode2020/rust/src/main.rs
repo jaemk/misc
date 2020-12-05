@@ -5,6 +5,7 @@ mod d01;
 mod d02;
 mod d03;
 mod d04;
+mod d05;
 
 macro_rules! report {
     ($day:expr, $body:expr) => {{
@@ -19,6 +20,7 @@ fn run() -> utils::err::Result<()> {
     report!("2", d02::run()?);
     report!("3", d03::run()?);
     report!("4", d04::run()?);
+    report!("5", d05::run()?);
     Ok(())
 }
 
