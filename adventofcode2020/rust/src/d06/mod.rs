@@ -3,8 +3,8 @@ use crate::utils::file;
 use std::arch::x86_64::_popcnt64;
 
 struct Group {
-    unique_answer_count: usize,
-    joint_answer_count: usize,
+    unique_answer_count: i32,
+    joint_answer_count: i32,
 }
 
 fn parse(input: &str) -> err::Result<Vec<Group>> {
@@ -29,18 +29,18 @@ fn parse(input: &str) -> err::Result<Vec<Group>> {
                 }
             }
             Group {
-                unique_answer_count: unsafe { _popcnt64(unique_answers) as usize },
-                joint_answer_count: unsafe { _popcnt64(joint_answers) as usize },
+                unique_answer_count: unsafe { _popcnt64(unique_answers) },
+                joint_answer_count: unsafe { _popcnt64(joint_answers) },
             }
         })
         .collect())
 }
 
-fn part1(groups: &[Group]) -> err::Result<usize> {
+fn part1(groups: &[Group]) -> err::Result<i32> {
     Ok(groups.iter().map(|g| g.unique_answer_count).sum())
 }
 
-fn part2(groups: &[Group]) -> err::Result<usize> {
+fn part2(groups: &[Group]) -> err::Result<i32> {
     Ok(groups.iter().map(|g| g.joint_answer_count).sum())
 }
 
