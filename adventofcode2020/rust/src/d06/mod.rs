@@ -1,43 +1,37 @@
 use crate::utils::err;
 use crate::utils::file;
-use std::collections::HashSet;
+use std::arch::x86_64::_popcnt64;
 
 struct Group {
     unique_answer_count: usize,
     joint_answer_count: usize,
 }
 
-fn count_unique(resp: &str) -> usize {
-    let set = resp
-        .split_whitespace()
-        .map(|line| line.chars())
-        .flatten()
-        .collect::<HashSet<_>>();
-    set.len()
-}
-
-fn count_joint(resp: &str) -> usize {
-    let set = resp
-        .split_whitespace()
-        .map(|line| line.chars().collect::<HashSet<_>>())
-        .enumerate()
-        .fold(set!(), |acc, (i, next)| {
-            if i == 0 {
-                next
-            } else {
-                acc.intersection(&next).cloned().collect()
-            }
-        });
-    set.len()
-}
-
 fn parse(input: &str) -> err::Result<Vec<Group>> {
     Ok(input
         .trim()
         .split("\n\n")
-        .map(|response| Group {
-            unique_answer_count: count_unique(response),
-            joint_answer_count: count_joint(response),
+        .map(|response| {
+            let mut unique_answers = 0;
+            let mut joint_answers = 0;
+
+            for (i, individual) in response.lines().enumerate() {
+                let mut individual_answers = 0;
+                for b in individual.bytes() {
+                    let pos = b - b'a';
+                    individual_answers |= 1 << pos;
+                }
+                unique_answers |= individual_answers;
+                if i == 0 {
+                    joint_answers |= individual_answers;
+                } else {
+                    joint_answers &= individual_answers;
+                }
+            }
+            Group {
+                unique_answer_count: unsafe { _popcnt64(unique_answers) as usize },
+                joint_answer_count: unsafe { _popcnt64(joint_answers) as usize },
+            }
         })
         .collect())
 }
