@@ -23,13 +23,13 @@ fn ensure_input(day: &str) -> utils::err::Result<bool> {
     println!("  -> retrieving input for day {}", day);
     let session_cookie = std::env::var("SESSION_COOKIE")
         .map_err(|e| format!("missing SESSION_COOKIE env var: {}", e))?;
-    // url=https://adventofcode.com/2020/day/$day/input
     let resp = ureq::get(&format!("https://adventofcode.com/2020/day/{}/input", day))
         .set("cookie", &format!("session={}", session_cookie))
         .call();
     if let Some(e) = resp.synthetic_error() {
         return Err(format!("request error: {:?}", e).into());
     }
+
     let mut new_file = std::fs::File::create(input_file)?;
     std::io::copy(&mut resp.into_reader(), &mut new_file)?;
 
