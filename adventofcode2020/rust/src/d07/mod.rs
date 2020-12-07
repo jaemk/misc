@@ -42,22 +42,19 @@ fn parse(input: &str) -> err::Result<(Rules, Rules)> {
 }
 
 fn part1(rules: &Rules) -> err::Result<usize> {
-    fn collect(rules: &Rules, color: &str) -> HashSet<String> {
+    fn collect<'a, 'b>(seen: &'a mut HashSet<&'b str>, rules: &'b Rules, color: &'b str) {
+        seen.insert(color);
         match rules.get(color) {
-            None => {
-                set!(color.to_string())
-            }
-            Some(containers) => containers.keys().fold(HashSet::new(), |mut acc, k| {
-                let mut s = collect(rules, &k);
-                s.insert(color.to_string());
-                acc.extend(s.into_iter());
-                acc
+            None => {}
+            Some(containers) => containers.keys().for_each(|k| {
+                collect(seen, rules, &k);
             }),
         }
     }
-    let mut c = collect(rules, "shiny gold");
-    c.remove("shiny gold");
-    Ok(c.len())
+    let mut seen = set!(size = 200);
+    collect(&mut seen, rules, "shiny gold");
+    seen.remove("shiny gold");
+    Ok(seen.len())
 }
 
 fn part2(rules: &Rules) -> err::Result<usize> {
