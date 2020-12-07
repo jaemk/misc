@@ -3,14 +3,18 @@ use crate::utils::file;
 use itertools::Itertools;
 use std::collections::{HashMap, HashSet};
 
-type Rules = HashMap<String, HashMap<String, usize>>;
+type Rules<'a> = HashMap<(&'a str, &'a str), HashMap<(&'a str, &'a str), usize>>;
 
 fn parse(input: &str) -> err::Result<(Rules, Rules)> {
     Ok(input.trim().lines().fold(
-        (map!(), map!()),
+        (map!(size = 600), map!(size = 600)),
         |(mut reverse, mut forward): (Rules, Rules), line| {
             // reverse: colorA -> map<colorB-that-contains-colorA, how-many-colorA's-colorB-holds>
             // forward: colorA -> map<colorB-that-colorA-holds, how-many-colorB's-colorA-holds>
+            //
+            // colors are saved as (&str, &str) like ("pale", "lime") so
+            // they can be saved as references since combining them would
+            // require allocating a String
 
             // pale lime bags contain 3 faded indigo bags, 5 dark indigo bags, 4 dull blue bags, 1 faded lavender bag.
             let (container_color, contents): (&str, &str) =
@@ -21,20 +25,22 @@ fn parse(input: &str) -> err::Result<(Rules, Rules)> {
                 return (reverse, forward);
             }
 
+            let container_color: (&str, &str) =
+                container_color.split_whitespace().collect_tuple().unwrap();
             let fwd_container = forward
-                .entry(container_color.to_string())
-                .or_insert_with(HashMap::new);
+                .entry(container_color)
+                .or_insert_with(|| map!(size = 6));
             for content in contents.split(',') {
                 // 3 faded indigo bags
                 // 1 faded lavender bag.
                 let mut bag = content.split_whitespace();
                 let count = bag.next().unwrap().parse::<usize>().unwrap();
-                let color = bag.take(2).join(" ");
+                let color: (&str, &str) = bag.take(2).collect_tuple().unwrap();
 
-                fwd_container.insert(color.clone(), count);
+                fwd_container.insert(color, count);
 
-                let e = reverse.entry(color).or_insert_with(HashMap::new);
-                e.insert(container_color.to_string(), count);
+                let e = reverse.entry(color).or_insert_with(|| map!(size = 6));
+                e.insert(container_color, count);
             }
             (reverse, forward)
         },
@@ -42,31 +48,35 @@ fn parse(input: &str) -> err::Result<(Rules, Rules)> {
 }
 
 fn part1(rules: &Rules) -> err::Result<usize> {
-    fn collect<'a, 'b>(seen: &'a mut HashSet<&'b str>, rules: &'b Rules, color: &'b str) {
+    fn collect<'a, 'b>(
+        seen: &'a mut HashSet<(&'b str, &'b str)>,
+        rules: &'b Rules,
+        color: (&'b str, &'b str),
+    ) {
         seen.insert(color);
-        match rules.get(color) {
+        match rules.get(&color) {
             None => {}
             Some(containers) => containers.keys().for_each(|k| {
-                collect(seen, rules, &k);
+                collect(seen, rules, *k);
             }),
         }
     }
     let mut seen = set!(size = 200);
-    collect(&mut seen, rules, "shiny gold");
-    seen.remove("shiny gold");
+    collect(&mut seen, rules, ("shiny", "gold"));
+    seen.remove(&("shiny", "gold"));
     Ok(seen.len())
 }
 
 fn part2(rules: &Rules) -> err::Result<usize> {
-    fn count(rules: &Rules, color: &str, multiplier: usize) -> usize {
-        match rules.get(color) {
+    fn count(rules: &Rules, color: (&str, &str), multiplier: usize) -> usize {
+        match rules.get(&color) {
             None => 0,
             Some(sub_bags) => sub_bags.iter().fold(0, |acc, (next, next_count)| {
-                acc + (multiplier * next_count) + count(rules, &next, multiplier * next_count)
+                acc + (multiplier * next_count) + count(rules, *next, multiplier * next_count)
             }),
         }
     }
-    Ok(count(rules, "shiny gold", 1))
+    Ok(count(rules, ("shiny", "gold"), 1))
 }
 
 pub fn run() -> err::Result<()> {
