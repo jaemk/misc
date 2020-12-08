@@ -3,8 +3,9 @@ use crate::utils::file;
 use itertools::Itertools;
 use std::str::FromStr;
 
+#[derive(Debug)]
 enum Op {
-    Nop,
+    Nop(isize),
     Acc(i64),
     Jmp(isize),
 }
@@ -12,17 +13,31 @@ impl FromStr for Op {
     type Err = err::Error;
     fn from_str(op: &str) -> err::Result<Self> {
         Ok(match op.split_whitespace().collect_tuple() {
-            Some(("nop", _)) => Op::Nop,
+            Some(("nop", n)) => Op::Nop(n.parse::<isize>()?),
             Some(("acc", n)) => Op::Acc(n.parse::<i64>()?),
             Some(("jmp", n)) => Op::Jmp(n.parse::<isize>()?),
             _ => return Err(format!("unexpected op: {:?}", op).into()),
         })
     }
 }
+impl Op {
+    fn swap(&self) -> Self {
+        match *self {
+            Op::Nop(n) => Op::Jmp(n),
+            Op::Jmp(n) => Op::Nop(n),
+            Op::Acc(n) => Op::Acc(n),
+        }
+    }
+}
 
 struct Instr {
     op: Op,
     seen: bool,
+}
+
+enum Complete {
+    Ok(i64),
+    Loop(i64),
 }
 
 struct Vm {
@@ -50,17 +65,25 @@ impl Vm {
     fn reset(&mut self) {
         self.ptr = 0;
         self.accumulator = 0;
+        for instr in self.instructions.iter_mut() {
+            instr.seen = false;
+        }
     }
 
-    fn run_to_duplicate_instruction(&mut self) -> err::Result<i64> {
+    fn run_to_completion(&mut self) -> err::Result<Complete> {
         loop {
+            if self.ptr < 0 {
+                return Err(format!("under-flowed instructions: {}", self.ptr).into());
+            } else if self.ptr > (self.instructions.len() - 1) as isize {
+                return Ok(Complete::Ok(self.accumulator));
+            }
             let instr = self.instructions.get_mut(self.ptr as usize).unwrap();
             if instr.seen {
-                return Ok(self.accumulator);
+                return Ok(Complete::Loop(self.accumulator));
             }
             instr.seen = true;
             match instr.op {
-                Op::Nop => self.ptr += 1,
+                Op::Nop(_) => self.ptr += 1,
                 Op::Acc(n) => {
                     self.accumulator += n;
                     self.ptr += 1;
@@ -73,16 +96,50 @@ impl Vm {
     }
 }
 
+fn modify_next_nop_jmp(vm: &mut Vm, prev_nop_jmp_index: isize) -> err::Result<isize> {
+    if prev_nop_jmp_index >= 0 {
+        let prev = vm
+            .instructions
+            .get_mut(prev_nop_jmp_index as usize)
+            .unwrap();
+        prev.op = prev.op.swap();
+    }
+    let split_index = prev_nop_jmp_index + 1;
+    let (_seen, to_search) = vm.instructions.split_at_mut(split_index as usize);
+    for (search_index, instr) in to_search.iter_mut().enumerate() {
+        match instr.op {
+            Op::Nop(_) | Op::Jmp(_) => {
+                instr.op = instr.op.swap();
+                let modified_index = split_index + search_index as isize;
+                return Ok(modified_index);
+            }
+            _ => continue,
+        }
+    }
+    Err("no more nop's/jmp's found".into())
+}
+
 fn parse(input: &str) -> err::Result<Vm> {
     Ok(Vm::from_code(input)?)
 }
 
 fn part1(vm: &mut Vm) -> err::Result<i64> {
-    Ok(vm.run_to_duplicate_instruction()?)
+    match vm.run_to_completion()? {
+        Complete::Loop(n) => Ok(n),
+        _ => Err("expected completion by infinite loop".into()),
+    }
 }
 
-fn part2(_vm: &mut Vm) -> err::Result<i64> {
-    Ok(1)
+fn part2(vm: &mut Vm) -> err::Result<i64> {
+    let mut modified_index = -1;
+    loop {
+        vm.reset();
+        modified_index = modify_next_nop_jmp(vm, modified_index)?;
+        match vm.run_to_completion()? {
+            Complete::Ok(n) => return Ok(n),
+            Complete::Loop(_) => continue,
+        }
+    }
 }
 
 pub fn run() -> err::Result<()> {
@@ -97,7 +154,6 @@ pub fn run() -> err::Result<()> {
 
     let (ms, res) = time!(part1(&mut input)?);
     println!("  -> p1[{}ms]: {}", ms, res);
-    input.reset();
     let (ms, res) = time!(part2(&mut input)?);
     println!("  -> p2[{}ms]: {}", ms, res);
 
@@ -125,9 +181,9 @@ acc +6
         assert_eq!(part1(&mut input).expect("p1 fail"), 5);
     }
 
-    // #[test]
-    // fn test_p2() {
-    //     let mut input = parse(INPUT).expect("parse fail");
-    //     assert_eq!(part2(&mut input).expect("p2 fail"), 32);
-    // }
+    #[test]
+    fn test_p2() {
+        let mut input = parse(INPUT).expect("parse fail");
+        assert_eq!(part2(&mut input).expect("p2 fail"), 8);
+    }
 }
