@@ -3,7 +3,7 @@ use crate::utils::file;
 use itertools::Itertools;
 use std::str::FromStr;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 enum Op {
     Nop(isize),
     Acc(i64),
@@ -28,10 +28,19 @@ impl Op {
             Op::Acc(n) => Op::Acc(n),
         }
     }
+
+    fn is_swappable(&self) -> bool {
+        match *self {
+            Op::Nop(_) => false,
+            Op::Jmp(_) => true,
+            Op::Acc(_) => true,
+        }
+    }
 }
 
+#[derive(Clone)]
 struct Instr {
-    op: Op,
+    pub op: Op,
     seen: bool,
 }
 
@@ -40,8 +49,9 @@ enum Complete {
     Loop(i64),
 }
 
+#[derive(Clone)]
 struct Vm {
-    instructions: Vec<Instr>,
+    pub instructions: Vec<Instr>,
     ptr: isize,
     accumulator: i64,
 }
@@ -142,6 +152,39 @@ fn part2(vm: &mut Vm) -> err::Result<i64> {
     }
 }
 
+#[allow(unused)]
+fn part2_parallel(vm: &mut Vm) -> err::Result<i64> {
+    vm.reset();
+    let tp = threadpool::ThreadPool::new(num_cpus::get());
+    let (res_in, res_out) = std::sync::mpsc::channel();
+    let done = std::sync::Arc::new(std::sync::Mutex::new(false));
+    for (i, instr) in vm.instructions.iter().enumerate() {
+        if instr.op.is_swappable() {
+            let mut fork = vm.clone();
+            let instr = fork.instructions.get_mut(i).unwrap();
+            instr.op = instr.op.swap();
+            let ch = res_in.clone();
+            let done = done.clone();
+            tp.execute(move || {
+                {
+                    if *done.lock().unwrap() {
+                        return;
+                    }
+                }
+                if let Complete::Ok(n) = fork.run_to_completion().expect("error executing fork") {
+                    let mut done_flag = done.lock().unwrap();
+                    if !*done_flag {
+                        ch.send(n).unwrap();
+                        *done_flag = true
+                    }
+                }
+            })
+        }
+    }
+    let res = res_out.recv().unwrap();
+    Ok(res)
+}
+
 pub fn run() -> err::Result<()> {
     let input = time!(
         file::read("../input/d08.txt")?,
@@ -156,6 +199,8 @@ pub fn run() -> err::Result<()> {
     println!("  -> p1[{}ms]: {}", ms, res);
     let (ms, res) = time!(part2(&mut input)?);
     println!("  -> p2[{}ms]: {}", ms, res);
+    // let (ms, res) = time!(part2_parallel(&mut input)?);
+    // println!("  -> p2 parallel[{}ms]: {}", ms, res);
 
     Ok(())
 }
