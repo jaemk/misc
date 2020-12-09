@@ -2,6 +2,8 @@ use crate::utils::err;
 use crate::utils::file;
 use itertools::Itertools;
 use std::str::FromStr;
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::{mpsc, Arc};
 
 #[derive(Debug, Clone)]
 enum Op {
@@ -156,8 +158,8 @@ fn part2(vm: &mut Vm) -> err::Result<i64> {
 fn part2_parallel(vm: &mut Vm) -> err::Result<i64> {
     vm.reset();
     let tp = threadpool::ThreadPool::new(num_cpus::get());
-    let (res_in, res_out) = std::sync::mpsc::channel();
-    let done = std::sync::Arc::new(std::sync::Mutex::new(false));
+    let (res_in, res_out) = mpsc::channel();
+    let done = Arc::new(AtomicBool::new(false));
     for (i, instr) in vm.instructions.iter().enumerate() {
         if instr.op.is_swappable() {
             let mut fork = vm.clone();
@@ -167,15 +169,14 @@ fn part2_parallel(vm: &mut Vm) -> err::Result<i64> {
             let done = done.clone();
             tp.execute(move || {
                 {
-                    if *done.lock().unwrap() {
+                    if done.load(Ordering::Acquire) {
                         return;
                     }
                 }
                 if let Complete::Ok(n) = fork.run_to_completion().expect("error executing fork") {
-                    let mut done_flag = done.lock().unwrap();
-                    if !*done_flag {
+                    let was_done = done.swap(true, Ordering::AcqRel);
+                    if !was_done {
                         ch.send(n).unwrap();
-                        *done_flag = true
                     }
                 }
             })
