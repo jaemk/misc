@@ -27,8 +27,8 @@ fn part1(data: &[i64], preamble_length: usize) -> err::Result<i64> {
         if !valid {
             return Ok(candidate);
         }
-        let last_of_parts = data[ptr - preamble_length];
-        past.remove(&last_of_parts);
+        let last_of_past = data[ptr - preamble_length];
+        past.remove(&last_of_past);
         past.insert(candidate);
         ptr += 1;
     }
@@ -36,23 +36,25 @@ fn part1(data: &[i64], preamble_length: usize) -> err::Result<i64> {
 }
 
 fn part2(data: &[i64], weakness: i64) -> err::Result<i64> {
-    let mut ptr = 0;
-    while ptr < data.len() - 1 {
-        let mut next = ptr + 1;
-        let mut acc = data[ptr];
-        while next < data.len() && acc < weakness {
-            acc += data[next];
-            next += 1;
-        }
-        if acc == weakness && ptr != next {
-            let values = &data[ptr..next];
+    let mut left = 0;
+    let mut right = 0;
+    let mut acc = 0;
+    while right < data.len() {
+        if acc == weakness {
+            let values = &data[left..right];
             if let MinMaxResult::MinMax(min, max) = values.iter().minmax() {
                 return Ok(min + max);
             } else {
                 return Err(format!("no minmax found for range: {:?}", values).into());
             }
         }
-        ptr += 1;
+        if acc < weakness {
+            acc += data[right];
+            right += 1;
+        } else {
+            acc -= data[left];
+            left += 1;
+        }
     }
     Err("no encryption weakness found".into())
 }
