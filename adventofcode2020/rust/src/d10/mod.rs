@@ -2,11 +2,11 @@ use crate::utils::err;
 use crate::utils::file;
 use itertools::Itertools;
 
-fn parse(input: &str) -> err::Result<Vec<u128>> {
+fn parse(input: &str) -> err::Result<Vec<u64>> {
     let mut jolts = input
         .trim()
         .lines()
-        .map(|line| Ok(line.parse::<u128>()?))
+        .map(|line| Ok(line.parse::<u64>()?))
         .collect::<err::Result<Vec<_>>>()?;
     jolts.push(0);
     jolts.sort_unstable();
@@ -14,7 +14,7 @@ fn parse(input: &str) -> err::Result<Vec<u128>> {
     Ok(jolts)
 }
 
-fn part1(jolts: &[u128]) -> err::Result<u128> {
+fn part1(jolts: &[u64]) -> err::Result<u64> {
     let mut ones = 0;
     let mut threes = 0;
     for (a, b) in jolts.iter().tuple_windows() {
@@ -28,8 +28,8 @@ fn part1(jolts: &[u128]) -> err::Result<u128> {
     Ok(ones * threes)
 }
 
-fn count_removal_permutations(jolts: &[u128]) -> u128 {
-    fn remove(jolts: Vec<u128>, start: usize) -> u128 {
+fn count_removal_permutations(jolts: &[u64]) -> u64 {
+    fn remove(jolts: Vec<u64>, start: usize) -> u64 {
         let mut removals = 0;
         for (a, b, c) in (start..jolts.len()).tuple_windows() {
             if (jolts[c] - jolts[a]) <= 3 {
@@ -43,8 +43,13 @@ fn count_removal_permutations(jolts: &[u128]) -> u128 {
     remove(jolts.to_vec(), 0) + 1
 }
 
-fn part2(jolts: &[u128]) -> err::Result<u128> {
-    // collect groups that can have permutations within the full input
+fn part2(jolts: &[u64]) -> err::Result<u64> {
+    // Collect groups that can have permutations within the full input.
+    // Values adjacent to barriers "|" can't be modified.
+    // Groups smaller than 3 cannot have permutations.
+    // Total possible permutations is the product of each group's
+    // possible permutations.
+    // [0 1 | 4 5 6 7 | 10 11 12 | 15 16 | 19 22]
     let mut groups = vec![];
     let mut last_end = 0;
     let mut ptr = 1;
