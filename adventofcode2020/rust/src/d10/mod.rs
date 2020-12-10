@@ -55,9 +55,10 @@ fn part2(jolts: &[u64]) -> err::Result<u64> {
     let mut ptr = 1;
     while ptr < jolts.len() {
         if jolts[ptr] - jolts[ptr - 1] >= 3 {
+            // new barrier
             if ptr - last_end > 2 {
-                // new permutation group
-                let group = jolts[last_end..ptr].to_vec();
+                // group is large enough to have permutations
+                let group = &jolts[last_end..ptr];
                 groups.push(group);
             }
             last_end = ptr;
