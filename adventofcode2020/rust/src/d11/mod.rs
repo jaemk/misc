@@ -1,6 +1,67 @@
 use crate::utils::err;
 use crate::utils::file;
 
+// macro to run an expression against all surrounding points
+// similar to the result of itertools::iproduct!(&[-1, 0, -1], &[-1, 0, -1]))
+macro_rules! with_surrounding {
+    (
+        // current point and the grid's height/width
+        ($row:expr, $col:expr, $height:expr, $width:expr),
+        // identity to bind the change in row/col to
+        ($dr:ident, $dc:ident)
+        // expression to execute with dr/dc set
+        -> $ex:expr) => {{
+            if $row > 0 {
+                if $col > 0 {
+                    // left up
+                    let $dr = -1;
+                    let $dc = -1;
+                    $ex
+                }
+                // up
+                let $dr = -1;
+                let $dc = 0;
+                $ex
+                if $col < $width - 1 {
+                    // right up
+                    let $dr = -1;
+                    let $dc = 1;
+                    $ex
+                }
+            }
+            if $row < $height - 1 {
+                if $col > 0 {
+                    // down left
+                    let $dr = 1;
+                    let $dc = -1;
+                    $ex
+                }
+                // down
+                let $dr = 1;
+                let $dc = 0;
+                $ex
+                if $col < $width - 1 {
+                    // down right
+                    let $dr = 1;
+                    let $dc = 1;
+                    $ex
+                }
+            }
+            if $col > 0 {
+                // left
+                let $dr = 0;
+                let $dc = -1;
+                $ex
+            }
+            if $col < $width - 1 {
+                // right
+                let $dr = 0;
+                let $dc = 1;
+                $ex
+            }
+    }};
+}
+
 const FREE: char = 'L';
 const OCCUPIED: char = '#';
 
@@ -40,56 +101,18 @@ impl Seats {
 
     #[inline]
     fn count_adj_occupied(&self, row: usize, col: usize) -> u32 {
-        // gross
         let mut count = 0;
-        if row > 0 {
-            if col > 0 {
-                // left up
-                if self.grid[row - 1][col - 1] == OCCUPIED {
+        let r = row as isize;
+        let c = col as isize;
+        with_surrounding!(
+            (row, col, self.height, self.width), (dr, dc) -> {
+                let r = r + dr;
+                let c = c + dc;
+                if self.grid[r as usize][c as usize] == OCCUPIED {
                     count += 1;
                 }
             }
-            // up
-            if self.grid[row - 1][col] == OCCUPIED {
-                count += 1;
-            }
-            if col < self.width - 1 {
-                // right up
-                if self.grid[row - 1][col + 1] == OCCUPIED {
-                    count += 1;
-                }
-            }
-        }
-        if row < self.height - 1 {
-            if col > 0 {
-                // down left
-                if self.grid[row + 1][col - 1] == OCCUPIED {
-                    count += 1;
-                }
-            }
-            // down
-            if self.grid[row + 1][col] == OCCUPIED {
-                count += 1;
-            }
-            if col < self.width - 1 {
-                // down right
-                if self.grid[row + 1][col + 1] == OCCUPIED {
-                    count += 1;
-                }
-            }
-        }
-        if col > 0 {
-            // left
-            if self.grid[row][col - 1] == OCCUPIED {
-                count += 1;
-            }
-        }
-        if col < self.width - 1 {
-            // right
-            if self.grid[row][col + 1] == OCCUPIED {
-                count += 1;
-            }
-        }
+        );
         count
     }
 
@@ -131,54 +154,11 @@ impl Seats {
 
     fn count_visible_occupied(&self, row: usize, col: usize) -> u32 {
         let mut count = 0;
-        if row > 0 {
-            if col > 0 {
-                // left up
-                if self.look_is_occupied(row, col, -1, -1) {
-                    count += 1;
-                }
+        with_surrounding!(
+            (row, col, self.height, self.width), (dr, dc) -> {
+                if self.look_is_occupied(row, col, dr, dc) { count += 1; }
             }
-            // up
-            if self.look_is_occupied(row, col, -1, 0) {
-                count += 1;
-            }
-            if col < self.width - 1 {
-                // right up
-                if self.look_is_occupied(row, col, -1, 1) {
-                    count += 1;
-                }
-            }
-        }
-        if row < self.height - 1 {
-            if col > 0 {
-                // down left
-                if self.look_is_occupied(row, col, 1, -1) {
-                    count += 1;
-                }
-            }
-            // down
-            if self.look_is_occupied(row, col, 1, 0) {
-                count += 1;
-            }
-            if col < self.width - 1 {
-                // down right
-                if self.look_is_occupied(row, col, 1, 1) {
-                    count += 1;
-                }
-            }
-        }
-        if col > 0 {
-            // left
-            if self.look_is_occupied(row, col, 0, -1) {
-                count += 1;
-            }
-        }
-        if col < self.width - 1 {
-            // right
-            if self.look_is_occupied(row, col, 0, 1) {
-                count += 1;
-            }
-        }
+        );
         count
     }
 
