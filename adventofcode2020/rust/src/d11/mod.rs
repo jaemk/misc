@@ -11,6 +11,8 @@ const OCCUPIED: char = '#';
 struct Seats {
     grid: Vec<Vec<char>>,
     next: Vec<Vec<char>>,
+    height: usize,
+    width: usize,
 }
 impl Seats {
     fn display(&self) {
@@ -19,10 +21,14 @@ impl Seats {
             println!("{:?}", row)
         }
     }
-    fn done(&self) -> bool {
+
+    #[inline]
+    fn is_done(&self) -> bool {
         self.grid == self.next
     }
-    fn occupied(&self) -> u32 {
+
+    #[inline]
+    fn count_occupied(&self) -> u32 {
         let mut n = 0;
         for row in self.next.iter() {
             for c in row.iter() {
@@ -33,21 +39,61 @@ impl Seats {
         }
         n
     }
+
+    #[inline]
+    fn count_adj_occupied(&self, row: usize, col: usize) -> u32 {
+        // gross
+        let mut count = 0;
+        if row > 0 {
+            if col > 0 {
+                if self.grid[row - 1][col - 1] == OCCUPIED {
+                    count += 1;
+                }
+            }
+            if self.grid[row - 1][col] == OCCUPIED {
+                count += 1;
+            }
+            if col < self.width - 1 {
+                if self.grid[row - 1][col + 1] == OCCUPIED {
+                    count += 1;
+                }
+            }
+        }
+        if row < self.height - 1 {
+            if col > 0 {
+                if self.grid[row + 1][col - 1] == OCCUPIED {
+                    count += 1;
+                }
+            }
+            if self.grid[row + 1][col] == OCCUPIED {
+                count += 1;
+            }
+            if col < self.width - 1 {
+                if self.grid[row + 1][col + 1] == OCCUPIED {
+                    count += 1;
+                }
+            }
+        }
+        if col > 0 {
+            if self.grid[row][col - 1] == OCCUPIED {
+                count += 1;
+            }
+        }
+        if col < self.width - 1 {
+            if self.grid[row][col + 1] == OCCUPIED {
+                count += 1;
+            }
+        }
+        count
+    }
+
     fn step(&mut self) {
         self.grid = self.next.clone();
-        let height = self.grid.len();
-        let width = self.grid[0].len();
-        for row in 0..height {
-            for col in 0..width {
+        for row in 0..self.height {
+            for col in 0..self.width {
                 let seat = self.grid[row][col];
 
-                let mut occ = 0;
-                for (i, j) in adj(row, col, height - 1, width - 1).into_iter() {
-                    if self.grid[i][j] == OCCUPIED {
-                        occ += 1;
-                    }
-                }
-
+                let occ = self.count_adj_occupied(row, col);
                 if seat == FREE && occ == 0 {
                     self.next[row][col] = OCCUPIED
                 } else if seat == OCCUPIED && occ >= 4 {
@@ -58,34 +104,15 @@ impl Seats {
     }
 }
 
-fn adj(row: usize, col: usize, max_row: usize, max_col: usize) -> HashSet<(usize, usize)> {
-    let mut s = set!(
-        (row.saturating_sub(1), col.saturating_sub(1)),
-        (row.saturating_sub(1), col),
-        (row, col.saturating_sub(1)),
-    );
-    if row < max_row {
-        s.insert((row.saturating_add(1), col.saturating_sub(1)));
-        s.insert((row.saturating_add(1), col));
-        if col < max_col {
-            s.insert((row.saturating_add(1), col.saturating_add(1)));
-        }
-    }
-    if col < max_col {
-        s.insert((row.saturating_sub(1), col.saturating_add(1)));
-        s.insert((row, col.saturating_add(1)));
-    }
-    s.remove(&(row, col));
-    s
-}
-
 fn parse(input: &str) -> err::Result<Seats> {
     let grid = input
         .trim()
         .lines()
-        .map(|row| row.chars().collect())
+        .map(|row| row.chars().collect::<Vec<_>>())
         .collect::<Vec<_>>();
     Ok(Seats {
+        height: grid.len(),
+        width: grid[0].len(),
         grid: grid.clone(),
         next: grid,
     })
@@ -95,8 +122,8 @@ fn part1(mut seats: Seats) -> err::Result<u32> {
     let mut runs = 0;
     loop {
         // seats.display();
-        if runs > 0 && seats.done() {
-            return Ok(seats.occupied());
+        if runs > 0 && seats.is_done() {
+            return Ok(seats.count_occupied());
         }
         seats.step();
         runs += 1;
