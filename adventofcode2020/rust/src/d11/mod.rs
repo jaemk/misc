@@ -64,6 +64,7 @@ macro_rules! with_surrounding {
 
 const FREE: char = 'L';
 const OCCUPIED: char = '#';
+const FLOOR: char = '.';
 
 #[derive(Clone)]
 struct Seats {
@@ -121,6 +122,9 @@ impl Seats {
         for row in 0..self.height {
             for col in 0..self.width {
                 let seat = self.grid[row][col];
+                if seat == FLOOR {
+                    continue;
+                }
 
                 let occ = self.count_adj_occupied(row, col);
                 if seat == FREE && occ == 0 {
@@ -167,6 +171,9 @@ impl Seats {
         for row in 0..self.height {
             for col in 0..self.width {
                 let seat = self.grid[row][col];
+                if seat == FLOOR {
+                    continue;
+                }
 
                 let occ = self.count_visible_occupied(row, col);
                 if seat == FREE && occ == 0 {
