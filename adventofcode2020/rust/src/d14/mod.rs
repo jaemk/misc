@@ -89,8 +89,8 @@ fn part2(mops: &[MaskedOp], mem: &mut HashMap<u64, u64>) -> err::Result<u64> {
         }
         // println!("{:0b} masks: {:?}", mop.open_mask, mask_inds);
 
-        // set the two variations where the mask is all zero and all 1
-        // mask-perms has two complimentary masks to represent the bits
+        // set the two variations where the mask is all zero and all 1.
+        // `mask_perms` has two complimentary masks to represent the bits
         // that should be overridden to one and the bits that should be
         // overridden to zero.
         // for the first example section:
@@ -120,6 +120,7 @@ fn part2(mops: &[MaskedOp], mem: &mut HashMap<u64, u64>) -> err::Result<u64> {
         if mask_inds.len() >= 2 {
             for n in 2..mask_inds.len() {
                 for combo in mask_inds.iter().combinations(n) {
+                    // join the set bits back to a masking int
                     let mask = combo.iter().fold(0, |acc, &&i| acc | 1 << i);
                     let anti_mask = mop.open_mask ^ mask;
                     mask_perms.push((mask, anti_mask));
@@ -132,7 +133,7 @@ fn part2(mops: &[MaskedOp], mem: &mut HashMap<u64, u64>) -> err::Result<u64> {
         // }
 
         for op in &mop.ops {
-            let addr = op.addr as u64 | mop.one_mask;
+            let addr = op.addr | mop.one_mask;
             for (one_mask, zero_mask) in &mask_perms {
                 let addr = (addr | one_mask | zero_mask) ^ zero_mask;
                 // println!("addr: {:0b} {}", addr, addr);
