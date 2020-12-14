@@ -14,6 +14,7 @@ mod d10;
 mod d11;
 mod d12;
 mod d13;
+mod d14;
 
 #[inline]
 fn ensure_input(day: &str) -> utils::err::Result<bool> {
@@ -73,6 +74,7 @@ fn run() -> utils::err::Result<()> {
     day!("11", d11::run()?);
     day!("12", d12::run()?);
     day!("13", d13::run()?);
+    day!("14", d14::run()?);
     Ok(())
 }
 
