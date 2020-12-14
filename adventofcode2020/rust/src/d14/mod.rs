@@ -73,6 +73,46 @@ fn part1(mops: &[MaskedOp], mem: &mut HashMap<u64, u64>) -> err::Result<u64> {
     Ok(mem.values().sum())
 }
 
+fn with_combinations<T: Copy + Default, F: FnMut(&[T])>(
+    buf: &mut Vec<T>,
+    source: &[T],
+    size: usize,
+    mut func: F,
+) {
+    // make sure the buffer is empty and big enough for the window `size` requested
+    buf.clear();
+    if buf.capacity() < size {
+        buf.reserve(size - buf.capacity());
+    }
+
+    // fill the buffer with default values so we can index into it
+    for _ in 0..size {
+        buf.push(T::default());
+    }
+
+    fn inner<T: Copy, F: FnMut(&[T])>(
+        buf: &mut Vec<T>,
+        source: &[T],
+        start: usize,
+        end: usize,
+        index: usize,
+        size: usize,
+        func: &mut F,
+    ) {
+        if index == size {
+            func(&buf[0..size]);
+        } else {
+            let mut i = start;
+            while i <= end && end - i + 1 >= size - index {
+                buf[index] = source[i];
+                inner(buf, source, i + 1, end, index + 1, size, func);
+                i += 1;
+            }
+        }
+    }
+    inner(buf, source, 0, source.len() - 1, 0, size, &mut func);
+}
+
 fn part2(mops: &[MaskedOp], mem: &mut HashMap<u64, u64>) -> err::Result<u64> {
     for mop in mops {
         // preallocate for all permutations
@@ -118,13 +158,23 @@ fn part2(mops: &[MaskedOp], mem: &mut HashMap<u64, u64>) -> err::Result<u64> {
         // save all the possible combinations of combination-sizes
         // up to the total number of open bits
         if mask_inds.len() >= 2 {
+            let mut buf = Vec::with_capacity(10);
             for n in 2..mask_inds.len() {
-                for combo in mask_inds.iter().combinations(n) {
+                // allocates a vec for each combo
+                // for combo in mask_inds.iter().combinations(n) {
+                //     // join the set bits back to a masking int
+                //     let mask = combo.iter().fold(0, |acc, &&i| acc | 1 << i);
+                //     let anti_mask = mop.open_mask ^ mask;
+                //     mask_perms.push((mask, anti_mask));
+                // }
+
+                // without allocating vecs
+                with_combinations(&mut buf, &mask_inds, n, |combo| {
                     // join the set bits back to a masking int
-                    let mask = combo.iter().fold(0, |acc, &&i| acc | 1 << i);
+                    let mask = combo.iter().fold(0, |acc, &i| acc | 1 << i);
                     let anti_mask = mop.open_mask ^ mask;
                     mask_perms.push((mask, anti_mask));
-                }
+                });
             }
         }
 
@@ -205,5 +255,16 @@ mem[26] = 1
     fn test_p2() {
         let input = parse(INPUT_2).expect("parse fail");
         assert_eq!(part2(&input, &mut map!()).expect("p2 fail"), 208);
+    }
+
+    #[test]
+    fn test_with_combinations() {
+        let source = vec![1, 2, 3, 4, 5];
+        let mut counter = 0;
+        let mut buf = Vec::new();
+        with_combinations(&mut buf, &source, 3, |_combo| {
+            counter += 1;
+        });
+        assert_eq!(counter, 10);
     }
 }
