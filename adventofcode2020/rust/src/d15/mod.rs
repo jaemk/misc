@@ -10,29 +10,28 @@ fn parse(input: &str) -> err::Result<Vec<usize>> {
 }
 
 fn solve(input: &[usize], end: usize) -> err::Result<usize> {
-    let mut mem = vec![vec![0; 2]; end + 1];
+    let mut mem = vec![0; (end + 1) * 2];
 
     let mut turn = 1;
     let mut last_spoken = 0;
     for n in input {
-        let v = mem.get_mut(*n).unwrap();
-        v[0] = turn;
+        mem[2 * n] = turn;
         turn += 1;
         last_spoken = *n;
     }
 
     while turn <= end {
         let speak = {
-            let spoken_at = mem.get_mut(last_spoken).unwrap();
-            if spoken_at[1] == 0 {
+            let i = last_spoken * 2;
+            if mem[i + 1] == 0 {
                 0
             } else {
-                spoken_at[0] - spoken_at[1]
+                mem[i] - mem[i + 1]
             }
         };
-        let spoken = mem.get_mut(speak).unwrap();
-        spoken.swap(0, 1);
-        spoken[0] = turn;
+        let i = speak * 2;
+        mem.swap(i, i + 1);
+        mem[i] = turn;
         last_spoken = speak;
         turn += 1;
     }
