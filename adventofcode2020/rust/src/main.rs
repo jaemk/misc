@@ -1,3 +1,5 @@
+use itertools::Itertools;
+
 #[macro_use]
 mod utils;
 
@@ -16,6 +18,7 @@ mod d12;
 mod d13;
 mod d14;
 mod d15;
+mod d16;
 
 #[inline]
 fn ensure_input(day: &str) -> utils::err::Result<bool> {
@@ -46,44 +49,52 @@ fn ensure_input(day: &str) -> utils::err::Result<bool> {
 }
 
 macro_rules! day {
-    ($day:expr, $body:expr) => {{
-        println!("Day {}:", $day);
-        time!(ensure_input($day)?,
-        (res, ms) ->  {
-            if res {
-                println!("  -> input[{}ms] found existing file", ms);
-            } else {
-                println!("  -> input[{}ms] retrieved new file", ms);
-            }
-        });
-        let (millis, _) = time!($body);
-        println!("time: {}ms\n", millis);
+    ($req_day:expr, $day:expr, $body:expr) => {{
+        let should_run = if let Some(req_day) = $req_day {
+            req_day == $day
+        } else { true };
+        if should_run {
+            println!("Day {}:", $day);
+            time!(ensure_input($day)?,
+            (res, ms) ->  {
+                if res {
+                    println!("  -> input[{}ms] found existing file", ms);
+                } else {
+                    println!("  -> input[{}ms] retrieved new file", ms);
+                }
+            });
+            let (millis, _) = time!($body);
+            println!("time: {}ms\n", millis);
+        }
     }};
 }
 
-fn run() -> utils::err::Result<()> {
-    day!("1", d01::run()?);
-    day!("2", d02::run()?);
-    day!("3", d03::run()?);
-    day!("4", d04::run()?);
-    day!("5", d05::run()?);
-    day!("6", d06::run()?);
-    day!("7", d07::run()?);
-    day!("8", d08::run()?);
-    day!("9", d09::run()?);
-    day!("10", d10::run()?);
-    day!("11", d11::run()?);
-    day!("12", d12::run()?);
-    day!("13", d13::run()?);
-    day!("14", d14::run()?);
-    day!("15", d15::run()?);
+fn run(day: Option<&str>) -> utils::err::Result<()> {
+    day!(day, "1", d01::run()?);
+    day!(day, "2", d02::run()?);
+    day!(day, "3", d03::run()?);
+    day!(day, "4", d04::run()?);
+    day!(day, "5", d05::run()?);
+    day!(day, "6", d06::run()?);
+    day!(day, "7", d07::run()?);
+    day!(day, "8", d08::run()?);
+    day!(day, "9", d09::run()?);
+    day!(day, "10", d10::run()?);
+    day!(day, "11", d11::run()?);
+    day!(day, "12", d12::run()?);
+    day!(day, "13", d13::run()?);
+    day!(day, "14", d14::run()?);
+    day!(day, "15", d15::run()?);
+    day!(day, "16", d16::run()?);
     Ok(())
 }
 
 fn main() {
     println!("Advent of code 2020!\n");
+    let args = std::env::args().collect_vec();
+    let day = args.get(1).map(|s| s.as_str());
     let (millis, _) = time!({
-        if let Err(e) = run() {
+        if let Err(e) = run(day) {
             eprintln!("Error: {:?}", e);
         }
     });
