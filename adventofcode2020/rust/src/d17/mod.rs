@@ -1,6 +1,7 @@
 use crate::utils::err;
 use crate::utils::file;
 use itertools::iproduct;
+use itertools::Itertools;
 use std::collections::HashSet;
 
 mod part1 {
@@ -21,48 +22,25 @@ mod part1 {
             self.inner.len()
         }
 
-        #[inline]
-        fn surrounding(coord: Coord) -> [Coord; 26] {
-            let (x, y, z) = coord;
-
-            [
-                // same plane
-                (x, y + 1, z),
-                (x, y - 1, z),
-                (x + 1, y, z),
-                (x - 1, y, z),
-                (x - 1, y - 1, z),
-                (x - 1, y + 1, z),
-                (x + 1, y - 1, z),
-                (x + 1, y + 1, z),
-                // above
-                (x, y, z + 1),
-                (x, y + 1, z + 1),
-                (x, y - 1, z + 1),
-                (x + 1, y, z + 1),
-                (x - 1, y, z + 1),
-                (x - 1, y - 1, z + 1),
-                (x - 1, y + 1, z + 1),
-                (x + 1, y - 1, z + 1),
-                (x + 1, y + 1, z + 1),
-                // below
-                (x, y, z - 1),
-                (x, y + 1, z - 1),
-                (x, y - 1, z - 1),
-                (x + 1, y, z - 1),
-                (x - 1, y, z - 1),
-                (x - 1, y - 1, z - 1),
-                (x - 1, y + 1, z - 1),
-                (x + 1, y - 1, z - 1),
-                (x + 1, y + 1, z - 1),
-            ]
+        fn offsets() -> Vec<Coord> {
+            iproduct!(-1..=1, -1..=1, -1..=1)
+                .filter_map(|(x, y, z)| {
+                    let c = (x, y, z);
+                    if c == (0, 0, 0) {
+                        None
+                    } else {
+                        Some(c)
+                    }
+                })
+                .collect_vec()
         }
 
         #[inline]
-        fn count_set(&self, coords: &[Coord], stop_if_gte: usize) -> usize {
+        fn count_set(&self, c: Coord, offsets: &[Coord], stop_if_gte: usize) -> usize {
             let mut count = 0;
-            for coord in coords {
-                if self.inner.contains(coord) {
+            for off in offsets {
+                let oc = (c.0 + off.0, c.1 + off.1, c.2 + off.2);
+                if self.inner.contains(&oc) {
                     count += 1;
                 }
                 if count >= stop_if_gte {
@@ -133,6 +111,7 @@ mod part1 {
     }
 
     pub fn solve(input: &Grid) -> err::Result<usize> {
+        let offsets = Grid::offsets();
         let mut current = input.clone();
         let mut next = input.clone();
 
@@ -148,8 +127,7 @@ mod part1 {
                 let is_set = current.is_set((x, y, z));
                 let stop_if_gte = 4;
 
-                let surr = Grid::surrounding((x, y, z));
-                let n_set = current.count_set(&surr, stop_if_gte);
+                let n_set = current.count_set((x, y, z), &offsets, stop_if_gte);
                 if is_set && (n_set == 2 || n_set == 3) {
                     next.toggle_on((x, y, z));
                 } else if is_set {
@@ -165,7 +143,6 @@ mod part1 {
 
 mod part2 {
     use super::*;
-    use itertools::Itertools;
 
     type Coord = (i64, i64, i64, i64);
 
