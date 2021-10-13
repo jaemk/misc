@@ -24,3 +24,17 @@ Cargo.lock
 *classes/
 **/build/*
 !**/build/.gitkeep
+
+*.abcl
+*.fasl
+*.dx32fsl
+*.dx64fsl
+*.lx32fsl
+*.lx64fsl
+*.x86f
+*~
+.#*
+build/
+commit_hash.txt
+.env*
+system-index.txt
