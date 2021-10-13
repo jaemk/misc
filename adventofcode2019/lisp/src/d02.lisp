@@ -49,7 +49,6 @@
         return code
       )))
 
-;(exec #(1 0 0 1 99))
 
 (defun part-1 (in)
   (->>
