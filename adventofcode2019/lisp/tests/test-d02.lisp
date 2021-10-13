@@ -17,4 +17,6 @@
 (test test-day02-part1-05
   (is (equalp #(30 1 1 4 2 5 6 0 99) (advent19.d02:exec #(1 1 1 4 99 5 6 0 99)))))
 
+(test test-day02-part1-real
+  (is (= 3706713 (advent19.d02:part-1 (advent19.d02:input)))))
 

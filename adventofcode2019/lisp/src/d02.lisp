@@ -50,11 +50,18 @@
       )))
 
 
+(defun prepare-1202 (code)
+  (setf (aref code 1) 12)
+  (setf (aref code 2) 2)
+  code)
+
 (defun part-1 (in)
-  (->>
+  (->
     in
-    (mapcar #'mass->fuel)
-    (reduce #'+)))
+    (prepare-1202)
+    (exec)
+    (aref 0)
+    ))
 
 (defun part-2 (in)
   (->>
