@@ -20,3 +20,6 @@
 (test test-day02-part1-real
   (is (= 3706713 (advent19.d02:part-1 (advent19.d02:input)))))
 
+(test test-day02-part2-real
+  (is (= 8609 (advent19.d02:part-2 (advent19.d02:input)))))
+

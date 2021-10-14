@@ -3,6 +3,7 @@
   (:export
     :now-millis
     :get-error-backtrace
+    :with-timing
     :aget
     :trim-to-nil))
 
@@ -26,6 +27,14 @@
   (:export
     :input
     :exec
+    :part-1
+    :part-2
+    :run))
+
+(defpackage advent19.d03
+  (:use :cl :arrow-macros :metabang-bind)
+  (:export
+    :input
     :part-1
     :part-2
     :run))

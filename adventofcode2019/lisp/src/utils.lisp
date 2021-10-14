@@ -30,3 +30,13 @@
          (trivial-backtrace:print-backtrace ,e :output ,s)
          (get-output-stream-string ,s)))))
 
+
+(defmacro with-timing (&rest forms)
+  (bind ((s (gensym))
+         (r (gensym))
+         (ms (gensym)))
+    `(bind ((,s (advent19.utils:now-millis))
+            (,r (progn ,@forms))
+            (,ms (- (advent19.utils:now-millis) ,s)))
+       (values ,r ,ms))))
+

@@ -39,6 +39,7 @@
 
 (defun run ()
   (let ((in (input)))
-    (format t "~&Part 1: ~a" (part-1 in))
-    (format t "~&Part 2: ~a" (part-2 in))))
-
+    (bind (((:values res ms) (advent19.utils:with-timing (part-1 in))))
+        (format t "~&Part 1 (~ams): ~a" ms res))
+    (bind (((:values res ms) (advent19.utils:with-timing (part-2 in))))
+        (format t "~&Part 2 (~ams): ~a" ms res))))
