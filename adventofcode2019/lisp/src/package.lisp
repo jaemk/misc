@@ -35,6 +35,7 @@
   (:use :cl :arrow-macros :metabang-bind)
   (:export
     :input
+    :parse
     :part-1
     :part-2
     :run))

@@ -25,7 +25,7 @@
   (loop for (day run-day) in (mapcar #'list (alexandria:iota (length *days*) :start 1) *days*) do
     (format t "~&=======================~%* Day ~a *~%" day)
     (bind (((:values r ms) (advent19.utils:with-timing (funcall run-day))))
-      (format t "~&>>> ~ams" ms))
+      (format t "~&>>> ~ams~%" ms))
     ))
 
 
