@@ -3,14 +3,6 @@
 (named-readtables:in-readtable :interpol-syntax)
 
 
-;; handle any errors if they aren't cause by the catch-all handler in 'main
-(setf
-  *debugger-hook*
-  (lambda (c old-hook)
-    (declare (ignore old-hook))
-    (format *error-output* "~&Unhandled error: ~a~%" c)
-    (sb-ext:quit :unix-status 1)))
-
 
 (defun test-1 () (format t "ok 1!"))
 
@@ -30,6 +22,14 @@
 
 
 (defun main (argvs)
+  ;; handle any errors if they aren't cause by the catch-all handler in 'main
+  (setf
+    *debugger-hook*
+    (lambda (c old-hook)
+      (declare (ignore old-hook))
+      (format *error-output* "~&Unhandled error: ~a~%" c)
+      (sb-ext:quit :unix-status 1)))
+
   (handler-case
     (progn
       (log:config (advent19.config:value :log-level))
