@@ -13,8 +13,11 @@
     (str:from-file "../input/d03.txt")
     (parse)))
 
-(defun find-intersections (moves seen can-intersect)
-  "return intersections"
+(defun watch-steps (moves seen &key (collect-intersections nil))
+  "Iterate over all moves, tracking seen locations and steps to reach.
+   If collecting, return a list of intersections and the total number of steps
+   taken to reach the intersection by each line.
+   ( (steps (x y)), ... )"
   (bind ((loc (list 0 0))
          (steps 0)
          (ints nil))
@@ -31,22 +34,24 @@
                 ((string= dir "L") (decf (first loc)))
                 ((string= dir "R") (incf (first loc))))
               (let ((loc- (copy-list loc)))
-                (if can-intersect
+                (if collect-intersections
                   (let ((prev-steps (gethash loc- seen)))
                     (when prev-steps
                       (push (list (+ steps prev-steps) loc-) ints)))
                   (setf (gethash loc- seen) steps))))))))
     ints))
 
-(defun from-zero (point)
-  (bind (((steps point) point))
+(defun from-zero (steps-point)
+  "For a (steps (x y)) pair, return a new triple of
+   (grid-distance steps (x y))"
+  (bind (((steps point) steps-point))
     (list (apply #'+ (mapcar #'abs point)) steps point)))
 
 (defun part-1 (in)
   (bind (((a b) in)
          (seen (make-hash-table :test #'equal))
-         (intsa (find-intersections a seen nil))
-         (intsb (find-intersections b seen t))
+         (intsa (watch-steps a seen))
+         (intsb (watch-steps b seen :collect-intersections t))
          (ints (union intsa intsb))
          (dist-steps-ints (mapcar #'from-zero ints)))
     (first (first (sort dist-steps-ints #'< :key #'first)))))
@@ -54,8 +59,8 @@
 (defun part-2 (in)
   (bind (((a b) in)
          (seen (make-hash-table :test #'equal))
-         (intsa (find-intersections a seen nil))
-         (intsb (find-intersections b seen t))
+         (intsa (watch-steps a seen))
+         (intsb (watch-steps b seen :collect-intersections t))
          (ints (union intsa intsb))
          (dist-steps-ints (mapcar #'from-zero ints)))
     (second (first (sort dist-steps-ints #'< :key #'second)))))
