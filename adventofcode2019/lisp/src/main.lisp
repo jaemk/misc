@@ -11,6 +11,7 @@
     advent19.d01:run
     advent19.d02:run
     advent19.d03:run
+    advent19.d04:run
     ))
 
 (defun run ()
