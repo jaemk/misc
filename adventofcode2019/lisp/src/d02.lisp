@@ -1,3 +1,11 @@
+(defpackage advent19.d02
+  (:use :cl :arrow-macros :metabang-bind)
+  (:export
+    :input
+    :exec
+    :part-1
+    :part-2
+    :run))
 (in-package advent19.d02)
 (named-readtables:in-readtable :interpol-syntax)
 

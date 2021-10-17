@@ -23,8 +23,7 @@
   :serial t
   :components ((:module "src"
                 :components
-                ((:file "package")
-                 (:file "utils")
+                ((:file "utils")
                  (:file "config")
                  (:file "d01")
                  (:file "d02")

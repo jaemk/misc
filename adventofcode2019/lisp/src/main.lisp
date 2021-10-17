@@ -1,10 +1,10 @@
+(defpackage advent19
+  (:use :cl :arrow-macros :metabang-bind)
+  (:export
+    :main))
 (in-package :advent19)
-
 (named-readtables:in-readtable :interpol-syntax)
 
-
-
-(defun test-1 () (format t "ok 1!"))
 
 (defparameter *days*
   '(
@@ -13,6 +13,7 @@
     advent19.d03:run
     advent19.d04:run
     ))
+
 
 (defun run ()
   (loop for (day run-day) in (mapcar #'list (alexandria:iota (length *days*) :start 1) *days*) do

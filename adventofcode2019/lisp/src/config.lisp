@@ -1,5 +1,10 @@
+(defpackage advent19.config
+  (:use :cl :arrow-macros :metabang-bind)
+  (:export
+    :value
+    :*values*
+    :load-values))
 (in-package :advent19.config)
-
 (named-readtables:in-readtable :interpol-syntax)
 
 

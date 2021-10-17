@@ -1,5 +1,12 @@
+(defpackage advent19.utils
+  (:use :cl :arrow-macros :metabang-bind)
+  (:export
+    :now-millis
+    :get-error-backtrace
+    :with-timing
+    :aget
+    :trim-to-nil))
 (in-package :advent19.utils)
-
 (named-readtables:in-readtable :interpol-syntax)
 
 
