@@ -57,7 +57,6 @@
     (when (= 6 (length pw))
       (if (loop
             for c in pw
-            for i from 1
             do (progn
                  (bind (((_ ppp pp p) prev))
                    (pop prev)
