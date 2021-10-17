@@ -29,7 +29,7 @@
     *debugger-hook*
     (lambda (c old-hook)
       (declare (ignore old-hook))
-      (format *error-output* "~&Unhandled error: ~a~%" c)
+      (format *error-output* "~&Unhandled error: ~a~%" (advent19.utils:get-error-backtrace c))
       (sb-ext:quit :unix-status 1)))
 
   (handler-case
@@ -51,6 +51,6 @@
     (error
       (e)
       (progn
-        (format *error-output* "~&Error: ~a~%" e)
+        (format *error-output* "~&Error: ~a~%" (advent19.utils:get-error-backtrace e))
         (sb-ext:quit :unix-status 1)))))
 

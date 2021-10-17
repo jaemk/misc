@@ -10,3 +10,6 @@
 (def-suite all
   :description "Tests")
 
+(setf fiveam:*on-failure* :backtrace)
+(setf fiveam:*on-error* :backtrace)
+
