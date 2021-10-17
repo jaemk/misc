@@ -2,6 +2,8 @@
   (:use :cl :arrow-macros :metabang-bind)
   (:export
     :input
+    :valid-a?
+    :valid-b?
     :part-1
     :part-2
     :run))
@@ -48,8 +50,39 @@
               (incf num))))
     num))
 
+(defun valid-b? (pw-int)
+  (bind ((pw (map 'list #'char-int #?"${pw-int}"))
+         (prev (list #.(char-int #\0) #.(char-int #\0) #.(char-int #\0) #.(char-int #\0)))
+         (has-double nil))
+    (when (= 6 (length pw))
+      (if (loop
+            for c in pw
+            for i from 1
+            do (progn
+                 (bind (((_ ppp pp p) prev))
+                   (pop prev)
+                   (nconc prev (list c))
+                   (when (> c p)
+                     (when (and (= pp p) (not (= ppp p)))
+                       (setf has-double t)))
+                   (when (< c p)
+                     (return t)))))
+          nil
+          (bind (((p4 p3 p2 p1) prev))
+            (or has-double
+                (and (= p3 p2) (not (= p4 p3)) (not (= p2 p1)))
+                (and (= p2 p1) (not (= p3 p2)))))))))
+
 (defun part-2 (in)
-  in)
+  (bind (((start end) in)
+         (seen (make-hash-table :size (- end start)))
+         (num 0))
+    (loop for pw from (+ 1 start) below end do
+          (when (not (gethash pw seen))
+            (setf (gethash pw seen) t)
+            (when (valid-b? pw)
+              (incf num))))
+    num))
 
 (defun run ()
   (let ((in (input)))
