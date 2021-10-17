@@ -1,7 +1,9 @@
 (defpackage advent19/tests
   (:use :cl
-        :advent19
-        :fiveam)
+        :metabang-bind
+        :arrow-macros
+        :fiveam
+        :advent19)
   (:export :all))
 (in-package :advent19/tests)
 

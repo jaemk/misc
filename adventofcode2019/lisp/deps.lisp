@@ -1,4 +1,4 @@
-(defconstant +deps+
+(defparameter deps
   (list
     "uuid"
     "ironclad"
@@ -18,6 +18,6 @@
     "alexandria"
     ))
 
-(loop for d in +deps+ do
+(loop for d in deps do
   (ql:quickload d))
 

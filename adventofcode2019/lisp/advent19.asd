@@ -25,6 +25,7 @@
                 :components
                 ((:file "utils")
                  (:file "config")
+                 (:file "vm")
                  (:file "d01")
                  (:file "d02")
                  (:file "d03")
