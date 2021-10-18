@@ -50,6 +50,7 @@
                  (:file "test-d02")
                  (:file "test-d03")
                  (:file "test-d04")
+                 (:file "test-d05")
                  )))
   :description "Test system for advent19"
   :perform (test-op (op sys)

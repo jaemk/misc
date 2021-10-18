@@ -13,3 +13,7 @@
 (setf fiveam:*on-failure* :backtrace)
 (setf fiveam:*on-error* :backtrace)
 
+(log:config (advent19.config:value :log-level))
+(log:config :sane2)
+(log:config :nofile)
+

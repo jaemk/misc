@@ -13,31 +13,19 @@
 (defun input ()
   (advent19.vm:read-code-from-file "../input/d05.txt"))
 
-(defun exec (code &optional noun verb)
-  (->
-    code
-    (advent19.vm:run-vm-with :noun noun :verb verb)
-    (advent19.vm:vm-code)
-    (aref 0)))
-
 (defun part-1 (in)
-  (->
-    in
-    (exec 12 2)))
+  (bind ((res nil)
+         (vmi (advent19.vm:start-vm-with
+                (input)
+                :write-fn (lambda (vmi val)
+                            (push val res))))
+         (in-ch (advent19.vm:vm-in-ch vmi)))
+    (chanl:send in-ch 1)
+    (advent19.vm:wait-vm vmi)
+    (first res)))
 
 (defun part-2 (in)
-  (bind ((result nil))
-    (loop
-      for noun from 0 to 99
-      do
-        (->
-          (loop
-            for verb from 0 to 99
-            when (= 19690720 (exec in noun verb))
-              return (+ (* 100 noun) verb))
-          ((lambda (res) (when res (setf result res)))))
-      when result
-        return result)))
+  nil)
 
 (defun run ()
   (let ((in (input)))
