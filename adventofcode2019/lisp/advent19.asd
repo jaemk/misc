@@ -19,6 +19,7 @@
       "bordeaux-threads"
       "uiop"
       "alexandria"
+      "chanl"
   )
   :serial t
   :components ((:module "src"
@@ -30,6 +31,7 @@
                  (:file "d02")
                  (:file "d03")
                  (:file "d04")
+                 (:file "d05")
                  (:file "main")
                  )))
   :description ""

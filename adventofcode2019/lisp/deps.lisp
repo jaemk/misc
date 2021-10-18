@@ -16,6 +16,7 @@
     "bordeaux-threads"
     "uiop"
     "alexandria"
+    "chanl"
     ))
 
 (loop for d in deps do
