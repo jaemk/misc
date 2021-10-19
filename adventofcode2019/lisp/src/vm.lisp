@@ -8,6 +8,7 @@
     :run-vm-with
     :start-vm-with
     :wait-vm
+    :reset-vm
     :parse-op-code
 
     ;; accessors
@@ -24,6 +25,9 @@
      :initarg :code
      :initform (vector)
      :accessor vm-code)
+   (og-code
+     :initform (vector)
+     :accessor vm-og-code)
    (name
      :initarg :name
      :initform (format nil "~a" (uuid:make-v4-uuid))
@@ -40,7 +44,9 @@
      :initform (lambda (vmi val) (format (vm-stdout vmi) "~a~&" val))
      :accessor vm-write-fn)
    (handle
+     :initform nil
      :accessor vm-thread-handle)))
+
 
 (defun read-code-from-file (file-path)
   (->>
@@ -52,7 +58,10 @@
     ((lambda (l) (coerce l 'vector)))))
 
 (defun make-vm (code &key (noun nil) (verb nil) (stdout nil) (write-fn nil))
-  (bind ((vmi (make-instance 'vm :code (coerce (copy-seq code) 'vector))))
+  (bind ((code (coerce (copy-seq code) 'vector))
+         (og-code (copy-seq code))
+         (vmi (make-instance 'vm :code code)))
+    (setf (vm-og-code vmi) og-code)
     (when noun
       (setf (aref (vm-code vmi) 1) noun))
     (when verb
@@ -79,8 +88,16 @@
     vmi))
 
 (defmethod wait-vm ((vmi vm))
-  (-> (vm-thread-handle vmi) bt:join-thread) vmi)
+  (->
+    (vm-thread-handle vmi)
+    bt:join-thread)
+  vmi)
 
+(defmethod reset-vm ((vmi vm))
+  (->>
+    (vm-og-code vmi)
+    (setf (vm-code vmi)))
+  vmi)
 
 ; (defun to-mode (c)
 ;   (cond ((eql #\1 c) :imd)
@@ -128,6 +145,7 @@
          (in-ch (vm-in-ch vmi))
          (write-fn (vm-write-fn vmi))
          (ptr 0))
+    (log:trace "vm ~a running code:~%~a" (vm-name vmi) code)
     (loop
       do
         (progn
@@ -136,18 +154,40 @@
             (log:trace "code: ~a >> op: ~a, modes: (~a, ~a, ~a)" op-code op m1 m2 m3)
             (case op
               (99 (return))
+              ;; add
               (1 (progn
                    (do-add ptr code m1 m2)
                    (setf ptr (+ 4 ptr))))
+              ;; mul
               (2 (progn
                    (do-mul ptr code m1 m2)
                    (setf ptr (+ 4 ptr))))
+              ;; read
               (3 (progn
                    (do-read ptr code in-ch)
                    (setf ptr (+ 2 ptr))))
+              ;; write
               (4 (progn
                    (do-write ptr code m1 write-fn vmi)
                    (setf ptr (+ 2 ptr))))
+              ;; jump if true
+              (5 (bind ((new-ptr (do-jump-if-true ptr code m1 m2)))
+                   (if new-ptr
+                     (setf ptr new-ptr)
+                     (setf ptr (+ 3 ptr)))))
+              ;; jump if false
+              (6 (bind ((new-ptr (do-jump-if-false ptr code m1 m2)))
+                   (if new-ptr
+                     (setf ptr new-ptr)
+                     (setf ptr (+ 3 ptr)))))
+              ;; less than
+              (7 (progn
+                   (do-less-than ptr code m1 m2)
+                   (setf ptr (+ 4 ptr))))
+              ;; equals
+              (8 (progn
+                   (do-equals ptr code m1 m2)
+                   (setf ptr (+ 4 ptr))))
               ))))
     (log:debug "vm ~a complete" (vm-name vmi))))
 
@@ -155,6 +195,42 @@
   (if (eql :imd mode)
     ptr
     (aref code ptr)))
+
+(defun do-jump-if-true (ptr code m1 m2)
+  (bind ((in-1-ptr (aref code (+ 1 ptr)))
+         (in-2-ptr (aref code (+ 2 ptr)))
+         (in-1-val (val-in-mode code in-1-ptr m1))
+         (in-2-val (val-in-mode code in-2-ptr m2)))
+    (when (not (zerop in-1-val))
+      in-2-val)))
+
+(defun do-jump-if-false (ptr code m1 m2)
+  (bind ((in-1-ptr (aref code (+ 1 ptr)))
+         (in-2-ptr (aref code (+ 2 ptr)))
+         (in-1-val (val-in-mode code in-1-ptr m1))
+         (in-2-val (val-in-mode code in-2-ptr m2)))
+    (when (zerop in-1-val)
+      in-2-val)))
+
+(defun do-less-than (ptr code m1 m2)
+  (bind ((in-1-ptr (aref code (+ 1 ptr)))
+         (in-2-ptr (aref code (+ 2 ptr)))
+         (in-3-ptr (aref code (+ 3 ptr)))
+         (in-1-val (val-in-mode code in-1-ptr m1))
+         (in-2-val (val-in-mode code in-2-ptr m2)))
+    (if (< in-1-val in-2-val)
+      (setf (aref code in-3-ptr) 1)
+      (setf (aref code in-3-ptr) 0))))
+
+(defun do-equals (ptr code m1 m2)
+  (bind ((in-1-ptr (aref code (+ 1 ptr)))
+         (in-2-ptr (aref code (+ 2 ptr)))
+         (in-3-ptr (aref code (+ 3 ptr)))
+         (in-1-val (val-in-mode code in-1-ptr m1))
+         (in-2-val (val-in-mode code in-2-ptr m2)))
+    (if (= in-1-val in-2-val)
+      (setf (aref code in-3-ptr) 1)
+      (setf (aref code in-3-ptr) 0))))
 
 (defun do-add (ptr code m1 m2)
   (bind ((in-1-ptr (aref code (+ 1 ptr)))

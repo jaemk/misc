@@ -78,3 +78,50 @@
     (is (eql 15386262 (reduce #'+ res)))
     (is (eql 15386262 (first res)))))
 
+(test test-day05-part2-01
+  (bind ((res nil)
+         (vmi (advent19.vm:start-vm-with
+                #(
+                  3 21 1008 21 8 20 1005 20 22 107 8 21 20 1006 20 31
+                  1106 0 36 98 0 0 1002 21 125 20 4 20 1105 1 46 104
+                  999 1105 1 46 1101 1000 1 20 4 20 1105 1 46 98 99
+                  )
+                :write-fn (lambda (vmi val)
+                            (declare (ignore vmi))
+                            (push val res))))
+         (in-ch (advent19.vm:vm-in-ch vmi)))
+    ;; less-than 8 => 999
+    (chanl:send in-ch 7)
+    (advent19.vm:wait-vm vmi)
+    (is (eql 999 (first res)))
+
+    ;; equal 8 => 1000
+    (advent19.vm:reset-vm vmi)
+    (advent19.vm:start-vm vmi)
+    (chanl:send in-ch 8)
+    (advent19.vm:wait-vm vmi)
+    (is (eql 1000 (first res)))
+    (advent19.vm:reset-vm vmi)
+
+    ;; greater-than 8 => 1001
+    (advent19.vm:reset-vm vmi)
+    (advent19.vm:start-vm vmi)
+    (chanl:send in-ch 9)
+    (advent19.vm:wait-vm vmi)
+    (is (eql 1001 (first res)))
+    (advent19.vm:reset-vm vmi)))
+
+(test test-day05-part2-real
+  (bind ((res nil)
+         (vmi (advent19.vm:start-vm-with
+                (advent19.d05:input)
+                :write-fn (lambda (vmi val)
+                            (when (and (< 0 val) (not (= 10376124 val)))
+                              (format (advent19.vm:vm-stdout vmi) "~&****ERROR***** ~a~&" val))
+                            (push val res))))
+         (in-ch (advent19.vm:vm-in-ch vmi)))
+    (chanl:send in-ch 5)
+    (advent19.vm:wait-vm vmi)
+    (is (eql 10376124 (reduce #'+ res)))
+    (is (eql 10376124 (first res)))))
+

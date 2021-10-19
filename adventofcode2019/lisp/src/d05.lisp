@@ -2,7 +2,6 @@
   (:use :cl :arrow-macros :metabang-bind)
   (:export
     :input
-    :exec
     :part-1
     :part-2
     :run))
@@ -16,7 +15,7 @@
 (defun part-1 (in)
   (bind ((res nil)
          (vmi (advent19.vm:start-vm-with
-                (input)
+                in
                 :write-fn (lambda (vmi val)
                             (push val res))))
          (in-ch (advent19.vm:vm-in-ch vmi)))
@@ -25,7 +24,15 @@
     (first res)))
 
 (defun part-2 (in)
-  nil)
+  (bind ((res nil)
+         (vmi (advent19.vm:start-vm-with
+                in
+                :write-fn (lambda (vmi val)
+                            (push val res))))
+         (in-ch (advent19.vm:vm-in-ch vmi)))
+    (chanl:send in-ch 5)
+    (advent19.vm:wait-vm vmi)
+    (first res)))
 
 (defun run ()
   (let ((in (input)))
