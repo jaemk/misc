@@ -5,6 +5,7 @@
     :read-code-from-file
     :run-vm
     :start-vm
+    :send-vm
     :run-vm-with
     :start-vm-with
     :wait-vm
@@ -31,7 +32,7 @@
    (name
      :initarg :name
      :initform (format nil "~a" (uuid:make-v4-uuid))
-     :reader vm-name)
+     :accessor vm-name)
    (in-ch
      :initform (make-instance 'chanl:bounded-channel :size 10)
      :reader vm-in-ch)
@@ -57,11 +58,13 @@
     (mapcar #'parse-integer)
     ((lambda (l) (coerce l 'vector)))))
 
-(defun make-vm (code &key (noun nil) (verb nil) (stdout nil) (write-fn nil))
+(defun make-vm (code &key (name nil) (noun nil) (verb nil) (stdout nil) (write-fn nil))
   (bind ((code (coerce (copy-seq code) 'vector))
          (og-code (copy-seq code))
          (vmi (make-instance 'vm :code code)))
     (setf (vm-og-code vmi) og-code)
+    (when name
+      (setf (vm-name vmi) name))
     (when noun
       (setf (aref (vm-code vmi) 1) noun))
     (when verb
@@ -73,7 +76,6 @@
     vmi))
 
 (defun start-vm-with (&rest args)
-  (log:debug "starting vm with ~a~%" args)
   (bind ((vmi (apply #'make-vm args)))
     (start-vm vmi)))
 
@@ -85,18 +87,28 @@
 (defmethod start-vm ((vmi vm))
   (bind ((handle (bt:make-thread (lambda () (do-run-vm vmi)))))
     (setf (vm-thread-handle vmi) handle)
+  (log:trace "started vm ~a" (vm-name vmi))
     vmi))
+
+(defmethod send-vm ((vmi vm) val)
+  (-> (vm-in-ch vmi) (chanl:send val))
+  (log:trace "sent ~a to ~a" val (vm-name vmi))
+  vmi)
 
 (defmethod wait-vm ((vmi vm))
   (->
     (vm-thread-handle vmi)
     bt:join-thread)
+  (log:trace "waited for vm ~a" (vm-name vmi))
   vmi)
 
 (defmethod reset-vm ((vmi vm))
   (->>
     (vm-og-code vmi)
+    #'copy-seq
     (setf (vm-code vmi)))
+  (setf (vm-thread-handle vmi) nil)
+  (log:trace "reset vm ~a" (vm-name vmi))
   vmi)
 
 ; (defun to-mode (c)
@@ -141,17 +153,18 @@
       (values remainder m1 m2 m3))))
 
 (defun do-run-vm (vmi)
-  (bind ((code (vm-code vmi))
+  (bind ((name (vm-name vmi))
+         (code (vm-code vmi))
          (in-ch (vm-in-ch vmi))
          (write-fn (vm-write-fn vmi))
          (ptr 0))
-    (log:trace "vm ~a running code:~%~a" (vm-name vmi) code)
+    (log:trace "vm ~a running code:~%~a" name code)
     (loop
       do
         (progn
           (bind ((op-code (aref code ptr))
                  ((:values op m1 m2 m3) (parse-op-code op-code)))
-            (log:trace "code: ~a >> op: ~a, modes: (~a, ~a, ~a)" op-code op m1 m2 m3)
+            (log:trace "~a code: ~a >> op: ~a, modes: (~a, ~a, ~a)" name op-code op m1 m2 m3)
             (case op
               (99 (return))
               ;; add
@@ -189,7 +202,7 @@
                    (do-equals ptr code m1 m2)
                    (setf ptr (+ 4 ptr))))
               ))))
-    (log:debug "vm ~a complete" (vm-name vmi))))
+    (log:trace "vm ~a complete" (vm-name vmi))))
 
 (defun val-in-mode (code ptr mode)
   (if (eql :imd mode)

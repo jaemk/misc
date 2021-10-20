@@ -17,6 +17,7 @@
     "uiop"
     "alexandria"
     "chanl"
+    "cl-permutation"
     ))
 
 (loop for d in deps do
