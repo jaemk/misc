@@ -17,6 +17,7 @@
     :vm-name
     :vm-in-ch
     :vm-stdout
+    :vm-write-fn
     ))
 (in-package advent19.vm)
 (named-readtables:in-readtable :interpol-syntax)
