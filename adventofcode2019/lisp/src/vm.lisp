@@ -1,6 +1,7 @@
 (defpackage advent19.vm
   (:use :cl :arrow-macros :metabang-bind)
   (:export
+    ;; vm
     :make-vm
     :read-code-from-file
     :run-vm
@@ -11,24 +12,130 @@
     :wait-vm
     :reset-vm
     :parse-op-code
-
     ;; accessors
     :vm-code
+    :vm-mem
     :vm-name
     :vm-in-ch
     :vm-stdout
     :vm-write-fn
+
+    ;; page
+    :make-page
+
+    ;; mem
+    :make-memory
+    :partition-code
+    ;; accessors
+    :mem-get
     ))
 (in-package advent19.vm)
 (named-readtables:in-readtable :interpol-syntax)
 
-(defclass vm ()
-  ((code
+;; TODO:
+;;   - make vm-code a method that concats all memory pages
+;;   - remove vm-code accessor
+;;   - use mem-get for all access instead of vm-code
+
+(defparameter page-size 64)
+
+(defclass page ()
+  ((start
+     :initarg :start
+     :initform (error "page :start is required")
+     :accessor page-start
+     :documentation "the starting index of the page in virtual memory space")
+   (code
      :initarg :code
-     :initform (vector)
+     :initform (make-array (list page-size) :initial-element 0)
+     :accessor page-code)))
+
+(defun make-page (start &key (code nil) (item-absloc nil))
+  (bind ((args (list 'page :start start))
+         (args (if code (append args (list :code code)) args))
+         (p (apply #'make-instance args)))
+    (when item-absloc
+      (bind (((item absloc) item-absloc)
+             (loc (- absloc start)))
+        (setf (aref (page-code p) loc) item)))
+    p))
+
+(defmethod print-object ((p page) stream)
+  (print-unreadable-object (p stream :type t)
+    (with-accessors ((start page-start)) p
+      (format stream "~a" start))))
+
+
+(defclass memory ()
+  ((pages
+     :initarg :pages
+     :initform (error "memory :pages is required")
+     :accessor memory-pages)
+   (page-cache
+     :initarg :page-cache
+     :initform (error "memory :page-cache is required")
+     :accessor memory-page-cache)))
+
+(defun partition-code (code page-size)
+  (bind ((code-len (length code)))
+    (loop for start from 0 to code-len by page-size
+          for remaining = (- code-len start)
+          for offset = (min remaining page-size)
+          collect (subseq code start (+ start offset)))))
+
+(defun make-memory (code)
+  (bind ((paged-code (partition-code code page-size))
+         (pages (make-hash-table :test #'eq)))
+    (loop for code-page in paged-code
+          for i from 0
+          do (bind ((start (* i page-size))
+                    (page (make-page start :code code-page)))
+               (setf (gethash start pages) page)))
+    (make-instance 'memory :pages pages :page-cache (gethash 0 pages))))
+
+(defmethod print-object ((m memory) stream)
+  (print-unreadable-object (m stream :type t)
+    (with-accessors ((pages memory-pages)) m
+      (bind ((starts (alexandria:hash-table-keys pages))
+             (starts (sort starts #'<)))
+        (format stream "~{~a~^, ~}" starts)))))
+
+(defmethod mem-page-start-for-index ((m memory) index)
+  (bind (((:values page-start-num rel-index) (floor index page-size)))
+    (values (* page-start-num page-size) rel-index)))
+
+(defun get-or-create-page (page-start-num pages)
+  (alexandria:if-let (page (gethash page-start-num pages))
+    page
+    (bind ((new-page (make-page page-start-num)))
+      (setf (gethash page-start-num pages) new-page)
+      new-page)))
+
+(defmethod mem-goc-page-for-index ((m memory) index)
+  (bind (((:values page-start-num rel-index) (mem-page-start-for-index m index))
+         (page-cache (memory-page-cache m))
+         (page-cache-start (page-start page-cache))
+         (pages (memory-pages m)))
+    (if (= page-cache-start page-start-num)
+      (values page-cache rel-index)
+      (values (get-or-create-page page-start-num pages) rel-index))))
+
+(defmethod mem-get ((m memory) index)
+  (bind (((:values page rel-index) (mem-goc-page-for-index m index)))
+    (aref (page-code page) rel-index)))
+
+
+(defclass vm ()
+  ((mem
+     :initarg :mem
+     :initform (error "vm :mem required")
+     :accessor vm-mem)
+   (code
+     :initarg :code
+     :initform (error "vm :code required")
      :accessor vm-code)
    (og-code
-     :initform (vector)
+     :initform nil
      :accessor vm-og-code)
    (name
      :initarg :name
@@ -49,6 +156,11 @@
      :initform nil
      :accessor vm-thread-handle)))
 
+(defmethod print-object ((vmi vm) stream)
+  (print-unreadable-object (vmi stream :type t)
+    (with-accessors ((mem vm-mem)) vmi
+      (format stream "~a" (mem-get mem 0)))))
+
 
 (defun read-code-from-file (file-path)
   (->>
@@ -59,17 +171,23 @@
     (mapcar #'parse-integer)
     ((lambda (l) (coerce l 'vector)))))
 
+
+(defun prepare-code (code noun verb)
+  (when noun
+    (setf (aref code 1) noun))
+  (when verb
+    (setf (aref code 2) verb))
+  code)
+
 (defun make-vm (code &key (name nil) (noun nil) (verb nil) (stdout nil) (write-fn nil))
   (bind ((code (coerce (copy-seq code) 'vector))
+         (code (prepare-code code noun verb))
          (og-code (copy-seq code))
-         (vmi (make-instance 'vm :code code)))
+         (mem (make-memory code))
+         (vmi (make-instance 'vm :mem mem :code code)))
     (setf (vm-og-code vmi) og-code)
     (when name
       (setf (vm-name vmi) name))
-    (when noun
-      (setf (aref (vm-code vmi) 1) noun))
-    (when verb
-      (setf (aref (vm-code vmi) 2) verb))
     (when stdout
       (setf (vm-stdout vmi) stdout))
     (when write-fn
