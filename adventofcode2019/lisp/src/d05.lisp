@@ -18,7 +18,7 @@
                 in
                 :write-fn (lambda (vmi val)
                             (push val res))))
-         (in-ch (advent19.vm:vm-in-ch vmi)))
+         (in-ch (advent19.vm:get-vm-in-ch vmi)))
     (chanl:send in-ch 1)
     (advent19.vm:wait-vm vmi)
     (first res)))
@@ -29,7 +29,7 @@
                 in
                 :write-fn (lambda (vmi val)
                             (push val res))))
-         (in-ch (advent19.vm:vm-in-ch vmi)))
+         (in-ch (advent19.vm:get-vm-in-ch vmi)))
     (chanl:send in-ch 5)
     (advent19.vm:wait-vm vmi)
     (first res)))

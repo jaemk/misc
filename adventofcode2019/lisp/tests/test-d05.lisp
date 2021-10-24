@@ -42,13 +42,13 @@
   (is (equalp '(1002 4 3 4 99)
               (->
                 (advent19.vm:run-vm-with #(1002 4 3 4 33))
-                (advent19.vm:get-vm-code 0 5)))))
+                (advent19.vm:vm-mem-range 0 5)))))
 
 (test test-day05-modes-02
   (is (equalp '(1101 100 -1 4 99)
               (->
                 (advent19.vm:run-vm-with #(1101 100 -1 4 0))
-                (advent19.vm:get-vm-code 0 5)))))
+                (advent19.vm:vm-mem-range 0 5)))))
 
 (test test-day05-part1-01
   (bind ((res nil)
@@ -57,7 +57,7 @@
                 :write-fn (lambda (vmi val)
                             (declare (ignore vmi))
                             (push val res))))
-         (in-ch (advent19.vm:vm-in-ch vmi))
+         (in-ch (advent19.vm:get-vm-in-ch vmi))
          (input-value 123))
     (chanl:send in-ch input-value)
     (advent19.vm:wait-vm vmi)
@@ -70,9 +70,9 @@
                 (advent19.d05:input)
                 :write-fn (lambda (vmi val)
                             (when (and (< 0 val) (not (= 15386262 val)))
-                              (format (advent19.vm:vm-stdout vmi) "~&****ERROR***** ~a~&" val))
+                              (format (advent19.vm:get-vm-stdout vmi) "~&****ERROR***** ~a~&" val))
                             (push val res))))
-         (in-ch (advent19.vm:vm-in-ch vmi)))
+         (in-ch (advent19.vm:get-vm-in-ch vmi)))
     (chanl:send in-ch 1)
     (advent19.vm:wait-vm vmi)
     (is (eql 15386262 (reduce #'+ res)))
@@ -89,7 +89,7 @@
                 :write-fn (lambda (vmi val)
                             (declare (ignore vmi))
                             (push val res))))
-         (in-ch (advent19.vm:vm-in-ch vmi)))
+         (in-ch (advent19.vm:get-vm-in-ch vmi)))
     ;; less-than 8 => 999
     (chanl:send in-ch 7)
     (advent19.vm:wait-vm vmi)
@@ -117,9 +117,9 @@
                 (advent19.d05:input)
                 :write-fn (lambda (vmi val)
                             (when (and (< 0 val) (not (= 10376124 val)))
-                              (format (advent19.vm:vm-stdout vmi) "~&****ERROR***** ~a~&" val))
+                              (format (advent19.vm:get-vm-stdout vmi) "~&****ERROR***** ~a~&" val))
                             (push val res))))
-         (in-ch (advent19.vm:vm-in-ch vmi)))
+         (in-ch (advent19.vm:get-vm-in-ch vmi)))
     (chanl:send in-ch 5)
     (advent19.vm:wait-vm vmi)
     (is (eql 10376124 (reduce #'+ res)))

@@ -16,7 +16,7 @@
   (->
     code
     (advent19.vm:run-vm-with :noun noun :verb verb)
-    (advent19.vm:get-vm-code 0 1)
+    (advent19.vm:vm-mem-range 0 1)
     (first)))
 
 (defun part-1 (in)

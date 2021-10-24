@@ -12,12 +12,12 @@
     :wait-vm
     :reset-vm
     :parse-op-code
-    :get-vm-code
+    :vm-mem-range
     ;; accessors
-    :vm-name
-    :vm-rel-base
-    :vm-in-ch
-    :vm-stdout
+    :get-vm-name
+    :get-vm-rel-base
+    :get-vm-in-ch
+    :get-vm-stdout
     :vm-write-fn
 
     ;; page
@@ -26,13 +26,18 @@
     ;; mem
     :make-memory
     :partition-code
+    :mem-range
     ;; accessors
+    :get-memory-max-page-start
     ))
 (in-package advent19.vm)
 (named-readtables:in-readtable :interpol-syntax)
 
 
-(defparameter page-size 64)
+;; ===============
+;; page
+;; ===============
+(defparameter default-page-size 64)
 
 (defclass page ()
   ((start
@@ -42,7 +47,7 @@
      :documentation "the starting index of the page in virtual memory space")
    (code
      :initarg :code
-     :initform (make-array (list page-size) :initial-element 0)
+     :initform (make-array (list default-page-size) :initial-element 0)
      :accessor page-code)))
 
 (defun make-page (start &key (code nil) (item-absloc nil))
@@ -61,14 +66,22 @@
       (format stream "~a" start))))
 
 
+;; ===============
+;; memory
+;; ===============
 (defclass memory ()
   ((pages
      :initarg :pages
      :initform (error "memory :pages is required")
      :accessor memory-pages)
+   (page-size
+     :initarg :page-size
+     :initform (error "memory :page-size is required")
+     :accessor memory-page-size)
    (max-page-start
      :initarg :max-page-start
      :initform (error "memory :max-page-start is required")
+     :reader get-memory-max-page-start
      :accessor memory-max-page-start)
    (page-cache
      :initarg :page-cache
@@ -77,17 +90,18 @@
 
 (defun partition-code (code page-size)
   (bind ((code-len (length code)))
-    (loop for start from 0 to code-len by page-size
+    (loop for start from 0 to (1- code-len) by page-size
           for end = (+ start page-size)
           collect (coerce
-                    (loop for i from start to end
+                    (loop for i from start to (1- end)
                           collect (if (> code-len i)
                                     (aref code i)
                                     0))
                     'vector))))
 
-(defun make-memory (code)
-  (bind ((paged-code (partition-code code page-size))
+(defun make-memory (code &key (page-size nil))
+  (bind ((page-size (or page-size default-page-size))
+         (paged-code (partition-code code page-size))
          (pages (make-hash-table :test #'eq))
          (max-page-start 0))
     (loop for code-page in paged-code
@@ -98,6 +112,7 @@
                (setf (gethash start pages) page)))
     (make-instance 'memory
                    :pages pages
+                   :page-size page-size
                    :max-page-start max-page-start
                    :page-cache (gethash 0 pages))))
 
@@ -109,7 +124,8 @@
         (format stream "~{~a~^, ~}" starts)))))
 
 (defmethod mem-page-start-for-index ((m memory) index)
-  (bind (((:values page-start-num rel-index) (floor index page-size))
+  (bind ((page-size (memory-page-size m))
+         ((:values page-start-num rel-index) (floor index page-size))
          (page-start-ind (* page-start-num page-size)))
     (log:trace "mem-page-start-for-index ~a => ~a/~a"
                index page-start-ind rel-index)
@@ -147,6 +163,9 @@
         collect (mem-get m i)))
 
 
+;; ===============
+;; VM
+;; ===============
 (defclass vm ()
   ((mem
      :initarg :mem
@@ -159,17 +178,21 @@
    (rel-base
      :initarg :rel-base
      :initform 0
+     :reader get-vm-rel-base
      :accessor vm-rel-base)
    (name
      :initarg :name
      :initform (format nil "~a" (uuid:make-v4-uuid))
+     :reader get-vm-name
      :accessor vm-name)
    (in-ch
      :initform (make-instance 'chanl:bounded-channel :size 10)
+     :reader get-vm-in-ch
      :reader vm-in-ch)
    (stdout
      :initarg :stdout
      :initform *standard-output*
+     :reader get-vm-stdout
      :accessor vm-stdout)
    (write-fn
      :initarg :write-fn
@@ -254,7 +277,7 @@
   (log:trace "reset vm ~a" (vm-name vmi))
   vmi)
 
-(defmethod get-vm-code ((vmi vm) start end)
+(defmethod vm-mem-range ((vmi vm) start end)
   (->
     (vm-mem vmi)
     (mem-range start end)))
@@ -366,6 +389,10 @@
               ))))
     (log:trace "vm ~a complete" (vm-name vmi))))
 
+
+;; ===============
+;; operations
+;; ===============
 (defun val-in-mode (vmi mem ptr mode)
   (alexandria:eswitch (mode :test #'eq)
     (:imd ptr)

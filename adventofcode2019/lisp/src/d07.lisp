@@ -23,12 +23,12 @@
          (next nil))
     (loop for i from 1 to size
           do (bind ((write-fn (if next
-                                (bind ((to-vm (advent19.vm:vm-name next))
-                                       (to-ch (advent19.vm:vm-in-ch next)))
+                                (bind ((to-vm (advent19.vm:get-vm-name next))
+                                       (to-ch (advent19.vm:get-vm-in-ch next)))
                                   (lambda (vminst val)
                                     (log:trace "sending ~a from ~a to ~a"
                                                val
-                                               (advent19.vm:vm-name vminst)
+                                               (advent19.vm:get-vm-name vminst)
                                                to-vm)
                                     (chanl:send to-ch val)))
                                 last-write))
@@ -109,7 +109,7 @@
         (start-chain chain)
         (wait-chain chain)
         (bind ((head (first chain))
-               (res (chanl:recv (advent19.vm:vm-in-ch head) :blockp t)))
+               (res (chanl:recv (advent19.vm:get-vm-in-ch head) :blockp t)))
           (log:trace "perm: ~a, result: ~a" perm res)
           (when (or (null m) (> res m))
             (setf m res)
