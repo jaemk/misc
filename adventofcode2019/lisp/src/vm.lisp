@@ -12,9 +12,8 @@
     :wait-vm
     :reset-vm
     :parse-op-code
+    :get-vm-code
     ;; accessors
-    :vm-code
-    :vm-mem
     :vm-name
     :vm-in-ch
     :vm-stdout
@@ -27,15 +26,10 @@
     :make-memory
     :partition-code
     ;; accessors
-    :mem-get
     ))
 (in-package advent19.vm)
 (named-readtables:in-readtable :interpol-syntax)
 
-;; TODO:
-;;   - make vm-code a method that concats all memory pages
-;;   - remove vm-code accessor
-;;   - use mem-get for all access instead of vm-code
 
 (defparameter page-size 64)
 
@@ -71,6 +65,10 @@
      :initarg :pages
      :initform (error "memory :pages is required")
      :accessor memory-pages)
+   (max-page-start
+     :initarg :max-page-start
+     :initform (error "memory :max-page-start is required")
+     :accessor memory-max-page-start)
    (page-cache
      :initarg :page-cache
      :initform (error "memory :page-cache is required")
@@ -85,13 +83,18 @@
 
 (defun make-memory (code)
   (bind ((paged-code (partition-code code page-size))
-         (pages (make-hash-table :test #'eq)))
+         (pages (make-hash-table :test #'eq))
+         (max-page-start 0))
     (loop for code-page in paged-code
           for i from 0
           do (bind ((start (* i page-size))
                     (page (make-page start :code code-page)))
+               (setf max-page-start start)
                (setf (gethash start pages) page)))
-    (make-instance 'memory :pages pages :page-cache (gethash 0 pages))))
+    (make-instance 'memory
+                   :pages pages
+                   :max-page-start max-page-start
+                   :page-cache (gethash 0 pages))))
 
 (defmethod print-object ((m memory) stream)
   (print-unreadable-object (m stream :type t)
@@ -104,11 +107,12 @@
   (bind (((:values page-start-num rel-index) (floor index page-size)))
     (values (* page-start-num page-size) rel-index)))
 
-(defun get-or-create-page (page-start-num pages)
+(defmethod get-or-create-page ((m memory) page-start-num pages)
   (alexandria:if-let (page (gethash page-start-num pages))
     page
     (bind ((new-page (make-page page-start-num)))
       (setf (gethash page-start-num pages) new-page)
+      (setf (memory-max-page-start m) (max (memory-max-page-start m) page-start-num))
       new-page)))
 
 (defmethod mem-goc-page-for-index ((m memory) index)
@@ -118,11 +122,21 @@
          (pages (memory-pages m)))
     (if (= page-cache-start page-start-num)
       (values page-cache rel-index)
-      (values (get-or-create-page page-start-num pages) rel-index))))
+      (values (get-or-create-page m page-start-num pages) rel-index))))
+
+(defmethod mem-set ((m memory) index val)
+  (bind (((:values page rel-index) (mem-goc-page-for-index m index)))
+    (->
+      (aref (page-code page) rel-index)
+      (setf val))))
 
 (defmethod mem-get ((m memory) index)
   (bind (((:values page rel-index) (mem-goc-page-for-index m index)))
     (aref (page-code page) rel-index)))
+
+(defmethod mem-range ((m memory) start end)
+  (loop for i from start to (1- end)
+        collect (mem-get m i)))
 
 
 (defclass vm ()
@@ -134,9 +148,6 @@
      :initarg :code
      :initform (error "vm :code required")
      :accessor vm-code)
-   (og-code
-     :initform nil
-     :accessor vm-og-code)
    (name
      :initarg :name
      :initform (format nil "~a" (uuid:make-v4-uuid))
@@ -182,10 +193,8 @@
 (defun make-vm (code &key (name nil) (noun nil) (verb nil) (stdout nil) (write-fn nil))
   (bind ((code (coerce (copy-seq code) 'vector))
          (code (prepare-code code noun verb))
-         (og-code (copy-seq code))
          (mem (make-memory code))
          (vmi (make-instance 'vm :mem mem :code code)))
-    (setf (vm-og-code vmi) og-code)
     (when name
       (setf (vm-name vmi) name))
     (when stdout
@@ -223,12 +232,18 @@
 
 (defmethod reset-vm ((vmi vm))
   (->>
-    (vm-og-code vmi)
+    (vm-code vmi)
     #'copy-seq
-    (setf (vm-code vmi)))
+    (make-memory)
+    (setf (vm-mem vmi)))
   (setf (vm-thread-handle vmi) nil)
   (log:trace "reset vm ~a" (vm-name vmi))
   vmi)
+
+(defmethod get-vm-code ((vmi vm) start end)
+  (->
+    (vm-mem vmi)
+    (mem-range start end)))
 
 ; (defun to-mode (c)
 ;   (cond ((eql #\1 c) :imd)
@@ -274,6 +289,7 @@
 (defun do-run-vm (vmi)
   (bind ((name (vm-name vmi))
          (code (vm-code vmi))
+         (mem (vm-mem vmi))
          (in-ch (vm-in-ch vmi))
          (write-fn (vm-write-fn vmi))
          (ptr 0))
@@ -281,112 +297,112 @@
     (loop
       do
         (progn
-          (bind ((op-code (aref code ptr))
+          (bind ((op-code (mem-get mem ptr))
                  ((:values op m1 m2 m3) (parse-op-code op-code)))
             (log:trace "~a code: ~a >> op: ~a, modes: (~a, ~a, ~a)" name op-code op m1 m2 m3)
             (case op
               (99 (return))
               ;; add
               (1 (progn
-                   (do-add ptr code m1 m2)
+                   (do-add ptr mem m1 m2)
                    (setf ptr (+ 4 ptr))))
               ;; mul
               (2 (progn
-                   (do-mul ptr code m1 m2)
+                   (do-mul ptr mem m1 m2)
                    (setf ptr (+ 4 ptr))))
               ;; read
               (3 (progn
-                   (do-read ptr code in-ch)
+                   (do-read ptr mem in-ch)
                    (setf ptr (+ 2 ptr))))
               ;; write
               (4 (progn
-                   (do-write ptr code m1 write-fn vmi)
+                   (do-write ptr mem m1 write-fn vmi)
                    (setf ptr (+ 2 ptr))))
               ;; jump if true
-              (5 (bind ((new-ptr (do-jump-if-true ptr code m1 m2)))
+              (5 (bind ((new-ptr (do-jump-if-true ptr mem m1 m2)))
                    (if new-ptr
                      (setf ptr new-ptr)
                      (setf ptr (+ 3 ptr)))))
               ;; jump if false
-              (6 (bind ((new-ptr (do-jump-if-false ptr code m1 m2)))
+              (6 (bind ((new-ptr (do-jump-if-false ptr mem m1 m2)))
                    (if new-ptr
                      (setf ptr new-ptr)
                      (setf ptr (+ 3 ptr)))))
               ;; less than
               (7 (progn
-                   (do-less-than ptr code m1 m2)
+                   (do-less-than ptr mem m1 m2)
                    (setf ptr (+ 4 ptr))))
               ;; equals
               (8 (progn
-                   (do-equals ptr code m1 m2)
+                   (do-equals ptr mem m1 m2)
                    (setf ptr (+ 4 ptr))))
               ))))
     (log:trace "vm ~a complete" (vm-name vmi))))
 
-(defun val-in-mode (code ptr mode)
+(defun val-in-mode (mem ptr mode)
   (if (eql :imd mode)
     ptr
-    (aref code ptr)))
+    (mem-get mem ptr)))
 
-(defun do-jump-if-true (ptr code m1 m2)
-  (bind ((in-1-ptr (aref code (+ 1 ptr)))
-         (in-2-ptr (aref code (+ 2 ptr)))
-         (in-1-val (val-in-mode code in-1-ptr m1))
-         (in-2-val (val-in-mode code in-2-ptr m2)))
+(defun do-jump-if-true (ptr mem m1 m2)
+  (bind ((in-1-ptr (mem-get mem (+ 1 ptr)))
+         (in-2-ptr (mem-get mem (+ 2 ptr)))
+         (in-1-val (val-in-mode mem in-1-ptr m1))
+         (in-2-val (val-in-mode mem in-2-ptr m2)))
     (when (not (zerop in-1-val))
       in-2-val)))
 
-(defun do-jump-if-false (ptr code m1 m2)
-  (bind ((in-1-ptr (aref code (+ 1 ptr)))
-         (in-2-ptr (aref code (+ 2 ptr)))
-         (in-1-val (val-in-mode code in-1-ptr m1))
-         (in-2-val (val-in-mode code in-2-ptr m2)))
+(defun do-jump-if-false (ptr mem m1 m2)
+  (bind ((in-1-ptr (mem-get mem (+ 1 ptr)))
+         (in-2-ptr (mem-get mem (+ 2 ptr)))
+         (in-1-val (val-in-mode mem in-1-ptr m1))
+         (in-2-val (val-in-mode mem in-2-ptr m2)))
     (when (zerop in-1-val)
       in-2-val)))
 
-(defun do-less-than (ptr code m1 m2)
-  (bind ((in-1-ptr (aref code (+ 1 ptr)))
-         (in-2-ptr (aref code (+ 2 ptr)))
-         (in-3-ptr (aref code (+ 3 ptr)))
-         (in-1-val (val-in-mode code in-1-ptr m1))
-         (in-2-val (val-in-mode code in-2-ptr m2)))
+(defun do-less-than (ptr mem m1 m2)
+  (bind ((in-1-ptr (mem-get mem (+ 1 ptr)))
+         (in-2-ptr (mem-get mem (+ 2 ptr)))
+         (in-3-ptr (mem-get mem (+ 3 ptr)))
+         (in-1-val (val-in-mode mem in-1-ptr m1))
+         (in-2-val (val-in-mode mem in-2-ptr m2)))
     (if (< in-1-val in-2-val)
-      (setf (aref code in-3-ptr) 1)
-      (setf (aref code in-3-ptr) 0))))
+      (mem-set mem in-3-ptr 1)
+      (mem-set mem in-3-ptr 0))))
 
-(defun do-equals (ptr code m1 m2)
-  (bind ((in-1-ptr (aref code (+ 1 ptr)))
-         (in-2-ptr (aref code (+ 2 ptr)))
-         (in-3-ptr (aref code (+ 3 ptr)))
-         (in-1-val (val-in-mode code in-1-ptr m1))
-         (in-2-val (val-in-mode code in-2-ptr m2)))
+(defun do-equals (ptr mem m1 m2)
+  (bind ((in-1-ptr (mem-get mem (+ 1 ptr)))
+         (in-2-ptr (mem-get mem (+ 2 ptr)))
+         (in-3-ptr (mem-get mem (+ 3 ptr)))
+         (in-1-val (val-in-mode mem in-1-ptr m1))
+         (in-2-val (val-in-mode mem in-2-ptr m2)))
     (if (= in-1-val in-2-val)
-      (setf (aref code in-3-ptr) 1)
-      (setf (aref code in-3-ptr) 0))))
+      (mem-set mem in-3-ptr 1)
+      (mem-set mem in-3-ptr 0))))
 
-(defun do-add (ptr code m1 m2)
-  (bind ((in-1-ptr (aref code (+ 1 ptr)))
-         (in-2-ptr (aref code (+ 2 ptr)))
-         (in-3-ptr (aref code (+ 3 ptr)))
-         (in-1-val (val-in-mode code in-1-ptr m1))
-         (in-2-val (val-in-mode code in-2-ptr m2)))
-    (setf (aref code in-3-ptr) (+ in-1-val in-2-val))))
+(defun do-add (ptr mem m1 m2)
+  (bind ((in-1-ptr (mem-get mem (+ 1 ptr)))
+         (in-2-ptr (mem-get mem (+ 2 ptr)))
+         (in-3-ptr (mem-get mem (+ 3 ptr)))
+         (in-1-val (val-in-mode mem in-1-ptr m1))
+         (in-2-val (val-in-mode mem in-2-ptr m2)))
+    (mem-set mem in-3-ptr (+ in-1-val in-2-val))))
 
-(defun do-mul (ptr code m1 m2)
-  (bind ((in-1-ptr (aref code (+ 1 ptr)))
-         (in-2-ptr (aref code (+ 2 ptr)))
-         (in-3-ptr (aref code (+ 3 ptr)))
-         (in-1-val (val-in-mode code in-1-ptr m1))
-         (in-2-val (val-in-mode code in-2-ptr m2)))
-    (setf (aref code in-3-ptr) (* in-1-val in-2-val))))
+(defun do-mul (ptr mem m1 m2)
+  (bind ((in-1-ptr (mem-get mem (+ 1 ptr)))
+         (in-2-ptr (mem-get mem (+ 2 ptr)))
+         (in-3-ptr (mem-get mem (+ 3 ptr)))
+         (in-1-val (val-in-mode mem in-1-ptr m1))
+         (in-2-val (val-in-mode mem in-2-ptr m2)))
+    (mem-set mem in-3-ptr (* in-1-val in-2-val))))
 
-(defun do-read (ptr code in-ch)
-  (bind ((in-1-ptr (aref code (+ 1 ptr)))
+(defun do-read (ptr mem in-ch)
+  (bind ((in-1-ptr (mem-get mem (+ 1 ptr)))
          (value (chanl:recv in-ch :blockp t)))
-    (setf (aref code in-1-ptr) value)))
+    (mem-set mem in-1-ptr value)))
 
-(defun do-write (ptr code m1 write-fn vmi)
-  (bind ((in-1-ptr (aref code (+ 1 ptr)))
-         (value (val-in-mode code in-1-ptr m1)))
+(defun do-write (ptr mem m1 write-fn vmi)
+  (bind ((in-1-ptr (mem-get mem (+ 1 ptr)))
+         (value (val-in-mode mem in-1-ptr m1)))
     (funcall write-fn vmi value)))
 

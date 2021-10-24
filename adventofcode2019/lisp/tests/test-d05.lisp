@@ -39,16 +39,16 @@
     (is (eql :pos m3))))
 
 (test test-day05-modes-01
-  (is (equalp #(1002 4 3 4 99)
+  (is (equalp '(1002 4 3 4 99)
               (->
                 (advent19.vm:run-vm-with #(1002 4 3 4 33))
-                (advent19.vm:vm-code)))))
+                (advent19.vm:get-vm-code 0 5)))))
 
 (test test-day05-modes-02
-  (is (equalp #(1101 100 -1 4 99)
+  (is (equalp '(1101 100 -1 4 99)
               (->
                 (advent19.vm:run-vm-with #(1101 100 -1 4 0))
-                (advent19.vm:vm-code)))))
+                (advent19.vm:get-vm-code 0 5)))))
 
 (test test-day05-part1-01
   (bind ((res nil)
