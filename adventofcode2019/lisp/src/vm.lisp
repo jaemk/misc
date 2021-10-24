@@ -131,31 +131,39 @@
                index page-start-ind rel-index)
     (values page-start-ind rel-index)))
 
-(defmethod get-or-create-page ((m memory) page-start-num pages)
-  (alexandria:if-let (page (gethash page-start-num pages))
-    page
-    (bind ((new-page (make-page page-start-num)))
-      (setf (gethash page-start-num pages) new-page)
-      (setf (memory-max-page-start m) (max (memory-max-page-start m) page-start-num))
-      new-page)))
+(defmethod get-or-create-page ((m memory) page-start-num pages &key (update-cache nil))
+  (bind ((page (alexandria:if-let (page (gethash page-start-num pages))
+                 page
+                 (bind ((new-page (make-page page-start-num)))
+                   (setf (gethash page-start-num pages) new-page)
+                   (setf (memory-max-page-start m) (max (memory-max-page-start m) page-start-num))
+                   new-page))))
+    (when update-cache
+      (setf (memory-page-cache m) page))
+    page))
 
-(defmethod mem-goc-page-for-index ((m memory) index)
-  (bind (((:values page-start-num rel-index) (mem-page-start-for-index m index))
-         (page-cache (memory-page-cache m))
+(defmethod mem-goc-page-for-index ((m memory) index &key (update-cache nil))
+  (bind ((page-cache (memory-page-cache m))
          (page-cache-start (page-start page-cache))
-         (pages (memory-pages m)))
-    (if (= page-cache-start page-start-num)
-      (values page-cache rel-index)
-      (values (get-or-create-page m page-start-num pages) rel-index))))
+         (page-cache-end (+ page-cache-start (memory-page-size m))))
+    (if (and (<= page-cache-start index) (< index page-cache-end))
+      (progn
+        (log:trace "page-cache hit (~a)" page-cache-start)
+        (values page-cache (- index page-cache-start)))
+      (bind (((:values page-start-num rel-index) (mem-page-start-for-index m index))
+             (pages (memory-pages m)))
+        (values (get-or-create-page
+                  m page-start-num pages :update-cache update-cache)
+                rel-index)))))
 
-(defmethod mem-set ((m memory) index val)
-  (bind (((:values page rel-index) (mem-goc-page-for-index m index)))
+(defmethod mem-set ((m memory) index val &key (update-cache nil))
+  (bind (((:values page rel-index) (mem-goc-page-for-index m index :update-cache update-cache)))
     (->
       (aref (page-code page) rel-index)
       (setf val))))
 
-(defmethod mem-get ((m memory) index)
-  (bind (((:values page rel-index) (mem-goc-page-for-index m index)))
+(defmethod mem-get ((m memory) index &key (update-cache t))
+  (bind (((:values page rel-index) (mem-goc-page-for-index m index :update-cache update-cache)))
     (aref (page-code page) rel-index)))
 
 (defmethod mem-range ((m memory) start end)
@@ -396,10 +404,10 @@
 (defun val-in-mode (vmi mem ptr mode)
   (alexandria:eswitch (mode :test #'eq)
     (:imd ptr)
-    (:pos (mem-get mem ptr))
+    (:pos (mem-get mem ptr :update-cache nil))
     (:rel (->> (vm-rel-base vmi) (+ ptr)
-               (lambda (p) (log:trace "rel ptr: ~a => ~a" ptr p) p)
-               (mem-get mem)))))
+               ((lambda (p) (log:trace "rel ptr: ~a => ~a" ptr p) p))
+               ((lambda (p) (mem-get mem p :update-cache nil)))))))
 
 (defun set-val-in-mode (vmi mem ptr mode val)
   (bind ((p (alexandria:eswitch (mode :test #'eq)
@@ -407,7 +415,7 @@
               (:pos ptr)
               (:rel (->> (vm-rel-base vmi) (+ ptr)
                          (lambda (p) (log:trace "set rel ptr: ~a => ~a" ptr p) p))))))
-    (mem-set mem p val)))
+    (mem-set mem p val :update-cache nil)))
 
 
 (defun do-jump-if-true (vmi ptr mem m1 m2)
@@ -419,7 +427,7 @@
     (log:trace "do-jmp-if-true (~a):~a, (~a):~a => ~a"
                in-1-ptr in-1-val
                in-2-ptr in-2-val
-               res)
+               should-jump)
     (when should-jump
       in-2-val)))
 
@@ -432,7 +440,7 @@
     (log:trace "do-jmp-if-false (~a):~a, (~a):~a => ~a"
                in-1-ptr in-1-val
                in-2-ptr in-2-val
-               res)
+               should-jump)
     (when should-jump
       in-2-val)))
 
