@@ -156,3 +156,9 @@
     (is (= 1 (length res)))
     (is (= 3507134798 (first res)))))
 
+(test test-day09-part2-real
+  (bind ((in (advent19.d09:input))
+         (res (advent19.d09:part-2 in)))
+    (is (= 1 (length res)))
+    (is (= 84513 (first res)))))
+
