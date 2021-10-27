@@ -17,6 +17,7 @@
     advent19.d07:run
     advent19.d08:run
     advent19.d09:run
+    advent19.d10:run
     ))
 
 
