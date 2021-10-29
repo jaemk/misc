@@ -134,3 +134,15 @@
               (-> (advent19.d10:input)
                 (advent19.d10:part-1)))))
 
+(test test-day10-part2-sample
+  (is (= 802
+         (-> sample-in-5
+           (advent19.d10:parse)
+           (advent19.d10:part-2 (list 11 13))))))
+
+(test test-day10-part2-real
+  (is (= 504
+         (-> (advent19.d10:input)
+           ;; second input pos is the "best" position from part1-real
+           (advent19.d10:part-2 (list 22 25))))))
+
