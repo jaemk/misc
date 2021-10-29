@@ -17,6 +17,8 @@
     :get-vm-name
     :get-vm-rel-base
     :get-vm-in-ch
+    :get-vm-is-done
+    :get-vm-is-reading
     :get-vm-stdout
     :vm-write-fn
 
@@ -208,7 +210,14 @@
      :accessor vm-write-fn)
    (handle
      :initform nil
-     :accessor vm-thread-handle)))
+     :accessor vm-thread-handle)
+   (is-done
+     :initform nil
+     :reader get-vm-is-done
+     :accessor vm-is-done)
+   (is-reading
+     :initform (make-instance 'chanl:bounded-channel :size 10)
+     :accessor vm-is-reading)))
 
 (defmethod print-object ((vmi vm) stream)
   (print-unreadable-object (vmi stream :type t)
@@ -281,9 +290,14 @@
     #'copy-seq
     (make-memory)
     (setf (vm-mem vmi)))
+  (setf (vm-is-done vmi) nil)
   (setf (vm-thread-handle vmi) nil)
   (log:trace "reset vm ~a" (vm-name vmi))
   vmi)
+
+(defmethod get-vm-is-reading ((vmi vm))
+  (bind (((:values v would-block) (chanl:recv (vm-is-reading vmi) :blockp nil)))
+    (-> v #'not #'not)))
 
 (defmethod vm-mem-range ((vmi vm) start end)
   (->
@@ -348,6 +362,7 @@
          (write-fn (vm-write-fn vmi))
          (ptr 0))
     (log:trace "vm ~a running code:~%~a" name code)
+    (setf (vm-is-done vmi) nil)
     (loop
       do
         (progn
@@ -395,6 +410,7 @@
               ;; end
               (99 (return))
               ))))
+    (setf (vm-is-done vmi) t)
     (log:trace "vm ~a complete" (vm-name vmi))))
 
 
@@ -498,10 +514,12 @@
     (set-val-in-mode vmi mem in-3-ptr m3 res)))
 
 (defun do-read (vmi ptr mem in-ch m1)
-  (bind ((in-1-ptr (mem-get mem (+ 1 ptr)))
-         (value (chanl:recv in-ch :blockp t)))
-    (log:trace "do-read (~a):~a" in-1-ptr value)
-    (set-val-in-mode vmi mem in-1-ptr m1 value)))
+  (bind ((in-1-ptr (mem-get mem (+ 1 ptr))))
+    (log:trace "priming read to ptr:~a" in-1-ptr)
+    (chanl:send (vm-is-reading vmi) t :blockp nil)
+    (bind ((value (chanl:recv in-ch :blockp t)))
+      (log:trace "do-read (~a):~a" in-1-ptr value)
+      (set-val-in-mode vmi mem in-1-ptr m1 value))))
 
 (defun do-write (vmi ptr mem m1 write-fn)
   (bind ((in-1-ptr (mem-get mem (+ 1 ptr)))
