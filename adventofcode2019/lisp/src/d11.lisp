@@ -63,16 +63,29 @@
   r)
 
 
-(defmethod robot-run ((r robot))
-  (bind ((buf nil))
+(defmethod robot-run ((r robot) &key (initial 0))
+  (bind ((buf nil)
+         (minx nil)
+         (miny nil)
+         (maxx nil)
+         (maxy nil)
+         (first-loop t))
     (advent19.vm:start-vm (robot-vm r))
     (loop
       do (bind ((vmi (robot-vm r))
                 ((x y) (robot-pos r))
                 (pos #?"${x},${y}")
                 (grid (robot-grid r))
-                (pos-val (gethash pos grid))
+                (pos-val (if first-loop
+                           initial
+                           (progn
+                             (setf first-loop nil)
+                             (gethash pos grid))))
                 )
+           (setf minx (if (null minx) x (min minx x)))
+           (setf miny (if (null miny) y (min miny y)))
+           (setf maxx (if (null maxx) x (max maxx x)))
+           (setf maxy (if (null maxy) y (max maxy y)))
            (alexandria:if-let (out (chanl:recv (robot-out r) :blockp nil))
              (push out buf)
              nil)
@@ -99,7 +112,8 @@
                       1))))
              (t nil))
           )
-      )))
+      )
+    (list minx miny maxx maxy)))
 
 (defmethod robot-count-painted ((r robot))
   (hash-table-count (robot-grid r)))
@@ -109,9 +123,24 @@
     (robot-run r)
     (robot-count-painted r)))
 
-
 (defun part-2 (in)
-  nil)
+  (bind ((r (make-robot in))
+         ((minx miny maxx maxy) (robot-run r :initial 1))
+         (out (make-string-output-stream))
+         )
+    ; (format out "~&printing from ~a,~a to ~a,~a~%" minx miny maxx maxy)
+    (format out "~%")
+    (loop for yy from miny to maxy
+          for yyy = (- maxy yy)
+          for y = (+ miny yyy)
+          do (progn
+               (loop for x from minx to maxx
+                     do (bind ((xy #?"${x},${y}")
+                               (val (gethash xy (robot-grid r)))
+                               (s (if (eq 1 val) "X" " ")))
+                          (format out "~a" s)))
+               (format out "~%")))
+    (get-output-stream-string out)))
 
 (defun run ()
   (let ((in (input)))
