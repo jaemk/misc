@@ -51,6 +51,21 @@
               "pos=<x=~a, y=~a, z=~a>, vel=<x=~a, y=~a, z=~a>"
               x y z dx dy dz))))
 
+(defun body-xs (bodies)
+  (str:join ","
+            (loop for b in bodies
+                  collect (format nil "~a:~a" (body-x b) (body-dx b)))))
+
+(defun body-ys (bodies)
+  (str:join ","
+            (loop for b in bodies
+                  collect (format nil "~a:~a" (body-y b) (body-dy b)))))
+
+(defun body-zs (bodies)
+  (str:join ","
+            (loop for b in bodies
+                  collect (format nil "~a:~a" (body-z b) (body-dz b)))))
+
 (defun format-bodies (bodies)
   (bind ((s (make-string-output-stream)))
     (loop for b in bodies
@@ -138,7 +153,39 @@
   (apply #'+ (mapcar #'calculate-total-energy in)))
 
 (defun part-2 (in)
-  nil)
+  (bind ((steps 0)
+         (periodx nil)
+         (periody nil)
+         (periodz nil)
+         (seenx (make-hash-table :test #'equal))
+         (seeny (make-hash-table :test #'equal))
+         (seenz (make-hash-table :test #'equal))
+         )
+    (setf (gethash (body-xs in) seenx) t)
+    (setf (gethash (body-ys in) seeny) t)
+    (setf (gethash (body-zs in) seenz) t)
+    (loop
+      when (and periodx periody periodz)
+        do (return)
+      do (progn
+           (step-bodies in)
+           (incf steps)
+           (bind ((xs (body-xs in))
+                  (ys (body-ys in))
+                  (zs (body-zs in)))
+             (when (null periodx)
+               (if (gethash xs seenx)
+                 (setf periodx steps)
+                 (setf (gethash xs seenx) t)))
+             (when (null periody)
+               (if (gethash ys seeny)
+                 (setf periody steps)
+                 (setf (gethash ys seeny) t)))
+             (when (null periodz)
+               (if (gethash zs seenz)
+                 (setf periodz steps)
+                 (setf (gethash zs seenz) t))))))
+    (lcm periodx periody periodz)))
 
 (defun run ()
   (let ((in (input)))

@@ -81,3 +81,20 @@
          (-> (advent19.d12:input)
              (advent19.d12:part-1)))))
 
+(defvar part2-02-input "
+<x=-8, y=-10, z=0>
+<x=5, y=5, z=10>
+<x=2, y=-7, z=3>
+<x=9, y=-8, z=-3>
+")
+
+(test test-day12-part2-01
+  (is (= 2772
+         (-> (advent19.d12:parse part1-01-input)
+             (advent19.d12:part-2)))))
+
+(test test-day12-part2-02
+  (is (= 4686774924
+         (-> (advent19.d12:parse part2-02-input)
+             (advent19.d12:part-2)))))
+
