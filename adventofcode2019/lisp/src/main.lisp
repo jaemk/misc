@@ -40,25 +40,24 @@
       (format *error-output* "~&Unhandled error: ~a~%" (advent19.utils:get-error-backtrace c))
       (sb-ext:quit :unix-status 1)))
 
-  (handler-case
-    (progn
-      (log:config (advent19.config:value :log-level))
-      (log:config :sane2)
-      (log:config :nofile)
-      (log:debug "args: ~a" argvs)
-      (run))
+  (handler-bind
+    (
+      ;; C-c
+      (sb-sys:interactive-interrupt
+        (lambda (c)
+          (format t "~&Aborting...~%")
+          (sb-ext:quit :unix-status 1)))
 
-    ;; C-c
-    (sb-sys:interactive-interrupt
-      ()
+      ;; everything else
+      (error
+        (lambda (c)
+          (format *error-output* "~&Error: ~a~%" (advent19.utils:get-error-backtrace c))
+          (sb-ext:quit :unix-status 1)))
+    )
       (progn
-        (format t "~&Aborting...~%")
-        (sb-ext:quit :unix-status 1)))
-
-    ;; everything else
-    (error
-      (e)
-      (progn
-        (format *error-output* "~&Error: ~a~%" (advent19.utils:get-error-backtrace e))
-        (sb-ext:quit :unix-status 1)))))
+        (log:config (advent19.config:value :log-level))
+        (log:config :sane2)
+        (log:config :nofile)
+        (log:debug "args: ~a" argvs)
+        (run))))
 
