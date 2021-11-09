@@ -11,7 +11,7 @@
 (defun input ()
   (->>
     (str:from-file "../input/d01.txt")
-    (str:split #?"\n")
+    (str:split #?|\n|)
     (remove-if #'str:empty?)
     (mapcar #'parse-integer)))
 

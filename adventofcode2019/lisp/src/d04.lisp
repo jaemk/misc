@@ -23,7 +23,7 @@
     (parse)))
 
 (defun valid-a? (pw-int)
-  (bind ((pw (map 'list #'char-int #?"${pw-int}"))
+  (bind ((pw (map 'list #'char-int #?|${pw-int}|))
          (prev #.(char-int #\0))
          (has-double nil))
     (when (= 6 (length pw))
@@ -51,7 +51,7 @@
     num))
 
 (defun valid-b? (pw-int)
-  (bind ((pw (map 'list #'char-int #?"${pw-int}"))
+  (bind ((pw (map 'list #'char-int #?|${pw-int}|))
          (prev (list #.(char-int #\0) #.(char-int #\0) #.(char-int #\0) #.(char-int #\0)))
          (has-double nil))
     (when (= 6 (length pw))

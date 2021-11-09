@@ -51,7 +51,7 @@
       p)))
 
 (defun parse (s)
-  (bind ((lines (->> (str:trim s) (str:split #?"\n") (remove-if #'str:empty?)))
+  (bind ((lines (->> (str:trim s) (str:split #?|\n|) (remove-if #'str:empty?)))
          (planets (make-hash-table :test #'equal)))
     (loop for relation in lines
           do (bind (((parent child) (str:split ")" relation)))

@@ -48,7 +48,7 @@
     ((eq current 'right) (if (eq dir 'right) 'down 'up))
     ((eq current 'down) (if (eq dir 'right) 'left 'right))
     ((eq current 'left) (if (eq dir 'right) 'up 'down))
-    (t (error #?"unknown direction ${current}"))
+    (t (error #?|unknown direction ${current}|))
     ))
 
 (defmethod robot-step ((r robot))
@@ -74,7 +74,7 @@
     (loop
       do (bind ((vmi (robot-vm r))
                 ((x y) (robot-pos r))
-                (pos #?"${x},${y}")
+                (pos #?|${x},${y}|)
                 (grid (robot-grid r))
                 (pos-val (if first-loop
                            initial
@@ -135,7 +135,7 @@
           for y = (+ miny yyy)
           do (progn
                (loop for x from minx to maxx
-                     do (bind ((xy #?"${x},${y}")
+                     do (bind ((xy #?|${x},${y}|)
                                (val (gethash xy (robot-grid r)))
                                (s (if (eq 1 val) "X" " ")))
                           (format out "~a" s)))

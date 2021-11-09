@@ -91,7 +91,7 @@
 (defun parse (s)
   (->>
     (str:trim s)
-    (str:split #?"\n")
+    (str:split #?|\n|)
     (mapcar #'parse-body)))
 
 (defun input ()

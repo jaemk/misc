@@ -32,7 +32,7 @@
                                                to-vm)
                                     (chanl:send to-ch val)))
                                 last-write))
-                    (vmi (advent19.vm:make-vm code :name #?"vm-${(- size i)}" :write-fn write-fn)))
+                    (vmi (advent19.vm:make-vm code :name #?|vm-${(- size i)}| :write-fn write-fn)))
                (push vmi chain)
                (setf next vmi)))
     chain))

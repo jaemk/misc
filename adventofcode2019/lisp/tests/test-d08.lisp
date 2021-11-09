@@ -21,7 +21,7 @@
                               :display nil))))
 
 (test test-day08-part2-01
-  (is (equal #?"\n X\nX " (advent19.d08:part-2
+  (is (equal #?|\n X\nX | (advent19.d08:part-2
                               (advent19.d08:parse "0222112222120000" :size '(2 2))
                               :display '(2 2)))))
 

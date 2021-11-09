@@ -12,9 +12,9 @@
 (defun parse (s)
   (->> s
     (str:trim)
-    (str:split #?"\n")
+    (str:split #?|\n|)
     (mapcar #'str:trim)
-    (mapcar (lambda (s) (str:split #?"," s)))))
+    (mapcar (lambda (s) (str:split #?|,| s)))))
 
 (defun input ()
   (->>

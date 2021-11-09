@@ -229,7 +229,7 @@
   (->>
     (str:from-file file-path)
     (str:trim)
-    (str:split #?",")
+    (str:split #?|,|)
     (remove-if #'str:empty?)
     (mapcar #'parse-integer)
     ((lambda (l) (coerce l 'vector)))))
@@ -304,29 +304,6 @@
     (vm-mem vmi)
     (mem-range start end)))
 
-; (defun to-mode (c)
-;   (cond ((eql #\1 c) :imd)
-;         ((eql nil c) :pos)
-;         ((eql #\0 c) :pos)
-;         (t (error #?"found ${c} in mode place, expected 1's"))))
-
-; (defun parse-op-code (oc)
-;   (if (> 100 oc)
-;     (values oc :pos :pos :pos)
-;     (bind ((ocs #?"${oc}")
-;            (len (length ocs))
-;            (op (parse-integer (str:substring (- len 2) len ocs)))
-;            (chars (map 'list #'identity (str:substring 0 (- len 2) ocs)))
-;            (modes (reverse chars)))
-;       (values
-;         op
-;         (to-mode (nth 0 modes))
-;         (to-mode (nth 1 modes))
-;         (to-mode (nth 2 modes))
-;         ))))
-
-;;; not sure if the math way is safe since this assumes only
-;;; 1's will be in higher places, so keeping above around for now
 (defun parse-op-code (oc)
   (if (> 100 oc)
     (values oc :pos :pos :pos)

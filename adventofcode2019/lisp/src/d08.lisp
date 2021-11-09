@@ -52,7 +52,7 @@
             for end = (+ start w)
             when (>= len end)
               collect (format nil "~{~a~}" (subseq layer start end)))
-      (str:join #?"\n"))))
+      (str:join #?|\n|))))
 
 (defun part-2 (layers &key (display '(25 6)))
   (bind ((final (first layers))

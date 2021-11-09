@@ -17,7 +17,7 @@
    where `1` denotes an asteroid"
   (->>
     (str:trim s)
-    (str:split #?"\n")
+    (str:split #?|\n|)
     (map 'vector (lambda (line)
                    (map 'vector (lambda (c) (if (eql c #\#) 1 0)) line)))))
 
