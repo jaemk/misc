@@ -1,0 +1,49 @@
+(defpackage advent.utils
+  (:use :cl :arrow-macros :metabang-bind)
+  (:export
+    :now-millis
+    :get-error-backtrace
+    :with-timing
+    :aget
+    :trim-to-nil))
+(in-package :advent.utils)
+(named-readtables:in-readtable :interpol-syntax)
+
+
+(defun now-millis ()
+  (bind ((now (local-time:now)))
+    (+ (* 1000 (local-time:timestamp-to-unix now))
+     (local-time:timestamp-millisecond now))))
+
+
+(defun aget (key alist)
+  (->> (assoc key alist) rest))
+
+
+(defun trim-to-nil (s)
+  (some->
+    s
+    str:trim
+    ((lambda (s)
+       (if (zerop (length s))
+         nil
+         s)))))
+
+
+(defmacro get-error-backtrace (e)
+  (bind ((s (gensym)))
+    `(bind ((,s (make-string-output-stream)))
+       (progn
+         (trivial-backtrace:print-backtrace ,e :output ,s)
+         (get-output-stream-string ,s)))))
+
+
+(defmacro with-timing (&rest forms)
+  (bind ((s (gensym))
+         (r (gensym))
+         (ms (gensym)))
+    `(bind ((,s (advent.utils:now-millis))
+            (,r (progn ,@forms))
+            (,ms (- (advent.utils:now-millis) ,s)))
+       (values ,r ,ms))))
+
