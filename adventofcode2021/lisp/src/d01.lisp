@@ -19,7 +19,8 @@
   (bind ((prev nil)
          (total 0))
     (loop for val in input
-          when (and (not (null prev)) (> val prev))
+          when (and (not (null prev))
+                    (> val prev))
             do (incf total)
           do (setf prev val))
     total))
@@ -34,7 +35,8 @@
               and b = b0 then c
               and a = a0 then b
               for sum = (+ a b c)
-              when (and (not (null prev-sum)) (> sum prev-sum))
+              when (and (not (null prev-sum))
+                        (> sum prev-sum))
                 do (incf total)
               do (setf prev-sum sum))
     total))
