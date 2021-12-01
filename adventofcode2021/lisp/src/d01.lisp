@@ -26,17 +26,16 @@
 
 (defun part-2 (input)
   (bind ((input (copy-list input))
-         (prev-sum most-positive-fixnum)
          (total 0)
          (a0 (pop input))
-         (b0 (pop input)))
-    (loop for c in input
+         (b0 (pop input))
+         (c0 (pop input)))
+    (loop for d in input
+              and c = c0 then d
               and b = b0 then c
               and a = a0 then b
-              for sum = (+ a b c)
-              when (> sum prev-sum)
-                do (incf total)
-              do (setf prev-sum sum))
+              when (> d a)
+                do (incf total))
     total))
 
 (defun run ()
