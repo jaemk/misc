@@ -16,18 +16,17 @@
     (mapcar #'parse-integer)))
 
 (defun part-1 (input)
-  (bind ((prev nil)
+  (bind ((prev most-positive-fixnum)
          (total 0))
     (loop for val in input
-          when (and (not (null prev))
-                    (> val prev))
+          when (> val prev)
             do (incf total)
           do (setf prev val))
     total))
 
 (defun part-2 (input)
   (bind ((input (copy-list input))
-         (prev-sum nil)
+         (prev-sum most-positive-fixnum)
          (total 0)
          (a0 (pop input))
          (b0 (pop input)))
@@ -35,8 +34,7 @@
               and b = b0 then c
               and a = a0 then b
               for sum = (+ a b c)
-              when (and (not (null prev-sum))
-                        (> sum prev-sum))
+              when (> sum prev-sum)
                 do (incf total)
               do (setf prev-sum sum))
     total))
