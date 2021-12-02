@@ -36,5 +36,5 @@ Cargo.lock
 .#*
 build/
 commit_hash.txt
-.env*
+.env.*
 system-index.txt
