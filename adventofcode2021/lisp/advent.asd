@@ -28,6 +28,7 @@
                 ((:file "utils")
                  (:file "config")
                  (:file "d01")
+                 (:file "d02")
                  (:file "main")
                  )))
   :description ""
@@ -43,6 +44,7 @@
                 :components
                 ((:file "main")
                  (:file "test-d01")
+                 (:file "test-d02")
                  )))
   :description "Test system for advent"
   :perform (test-op (op sys)
