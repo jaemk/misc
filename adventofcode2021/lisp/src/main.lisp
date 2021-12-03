@@ -10,6 +10,7 @@
   '(
     advent.d01:run
     advent.d02:run
+    advent.d03:run
     ))
 
 

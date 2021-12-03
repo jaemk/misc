@@ -5,6 +5,7 @@
     :get-error-backtrace
     :with-timing
     :aget
+    :make-adjustable-string
     :trim-to-nil))
 (in-package :advent.utils)
 (named-readtables:in-readtable :interpol-syntax)
@@ -46,4 +47,11 @@
             (,r (progn ,@forms))
             (,ms (- (advent.utils:now-millis) ,s)))
        (values ,r ,ms))))
+
+(defun make-adjustable-string (s)
+  (make-array (length s)
+              :fill-pointer (length s)
+              :adjustable t
+              :initial-contents s
+              :element-type (array-element-type s)))
 

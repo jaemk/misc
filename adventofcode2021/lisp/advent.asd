@@ -29,6 +29,7 @@
                  (:file "config")
                  (:file "d01")
                  (:file "d02")
+                 (:file "d03")
                  (:file "main")
                  )))
   :description ""
@@ -45,6 +46,7 @@
                 ((:file "main")
                  (:file "test-d01")
                  (:file "test-d02")
+                 (:file "test-d03")
                  )))
   :description "Test system for advent"
   :perform (test-op (op sys)
