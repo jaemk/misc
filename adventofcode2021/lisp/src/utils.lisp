@@ -5,7 +5,7 @@
     :get-error-backtrace
     :with-timing
     :aget
-    :make-adjustable-string
+    :make-str
     :trim-to-nil))
 (in-package :advent.utils)
 (named-readtables:in-readtable :interpol-syntax)
@@ -48,10 +48,16 @@
             (,ms (- (advent.utils:now-millis) ,s)))
        (values ,r ,ms))))
 
-(defun make-adjustable-string (s)
-  (make-array (length s)
-              :fill-pointer (length s)
-              :adjustable t
-              :initial-contents s
-              :element-type (array-element-type s)))
+(defun make-str (s &key (capacity nil) (adjustable t))
+  (when (and capacity (< capacity (length s)))
+    (error #?|capacity: ${capacity} cannot be less than initial str len: ${(length s)}|))
+  (bind ((out (make-array (max (length s) (or capacity 0))
+                          :adjustable adjustable
+                          :fill-pointer (length s)
+                          :element-type 'character)))
+    (when (or (not capacity) (>= capacity (length s)))
+      (loop for c across s
+            for i from 0 do
+            (setf (aref out i) c)))
+    out))
 

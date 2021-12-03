@@ -3,19 +3,21 @@
 (def-suite* test-d03 :in all)
 
 (defparameter *test-input-day03-01*
-  (vector
-    (vector 0 0 1 0 0)
-    (vector 1 1 1 1 0)
-    (vector 1 0 1 1 0)
-    (vector 1 0 1 1 1)
-    (vector 1 0 1 0 1)
-    (vector 0 1 1 1 1)
-    (vector 0 0 1 1 1)
-    (vector 1 1 1 0 0)
-    (vector 1 0 0 0 0)
-    (vector 1 1 0 0 1)
-    (vector 0 0 0 1 0)
-    (vector 0 1 0 1 0)))
+  (list
+    5
+    (list
+      (parse-integer "00100" :radix 2)
+      (parse-integer "11110" :radix 2)
+      (parse-integer "10110" :radix 2)
+      (parse-integer "10111" :radix 2)
+      (parse-integer "10101" :radix 2)
+      (parse-integer "01111" :radix 2)
+      (parse-integer "00111" :radix 2)
+      (parse-integer "11100" :radix 2)
+      (parse-integer "10000" :radix 2)
+      (parse-integer "11001" :radix 2)
+      (parse-integer "00010" :radix 2)
+      (parse-integer "01010" :radix 2))))
 
 (test test-day03-part1-01
   (is (= 198 (advent.d03:part-1 *test-input-day03-01*))))
