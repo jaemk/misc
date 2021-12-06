@@ -31,3 +31,9 @@
 (test test-day04-part1-real
   (is (= 44736 (advent.d04:part-1 (advent.d04:input)))))
 
+(test test-day04-part2-01
+  (is (= 1924 (advent.d04:part-2 (advent.d04:parse *test-input-day04-01*)))))
+
+(test test-day04-part2-real
+  (is (= 1827 (advent.d04:part-2 (advent.d04:input)))))
+

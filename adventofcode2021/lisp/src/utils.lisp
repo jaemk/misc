@@ -8,10 +8,11 @@
     :make-str
     :trim-to-nil
     :make-hashset
+    :hashset-map
     :hashset-empty?
     :hashset-length
     :hashset-insert
-    :hashset-extend
+    :hashset-insert-all
     :hashset-get
     :hashset-remove
     ))
@@ -82,6 +83,10 @@
          (set (make-instance 'hashset :table table)))
     set))
 
+(defmethod hashset-map ((hs hashset) f)
+  (bind ((table (hashset-table hs)))
+    (maphash (lambda (k v) (funcall f k)) table)))
+
 (defmethod hashset-length ((hs hashset))
   (bind ((table (hashset-table hs)))
     (hash-table-count table)))
@@ -93,7 +98,7 @@
   (bind ((table (hashset-table hs)))
     (setf (gethash value table) t)))
 
-(defmethod hashset-extend ((hs hashset) vals)
+(defmethod hashset-insert-all ((hs hashset) vals)
   (loop for v in vals do
         (hashset-insert hs v)))
 
