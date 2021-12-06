@@ -2,7 +2,6 @@
   (:use :cl :arrow-macros :metabang-bind)
   (:export
     :input
-    :parse
     :part-1
     :part-2
     :run))
@@ -39,6 +38,10 @@
 
 (defun part-2 (input &key (days nil))
   (bind (;; on a 7 day cycle
+         ;; for each day, the first value is the number
+         ;; of fish that spawn that day, the second value
+         ;; is the additional number of fish that will spawn
+         ;; that day starting next week
          (week (make-array '(7 2) :initial-element 0))
          ;; where today is the first day
          (day 0)
