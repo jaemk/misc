@@ -6,7 +6,15 @@
     :with-timing
     :aget
     :make-str
-    :trim-to-nil))
+    :trim-to-nil
+    :make-hashset
+    :hashset-empty?
+    :hashset-length
+    :hashset-insert
+    :hashset-extend
+    :hashset-get
+    :hashset-remove
+    ))
 (in-package :advent.utils)
 (named-readtables:in-readtable :interpol-syntax)
 
@@ -60,4 +68,40 @@
             for i from 0 do
             (setf (aref out i) c)))
     out))
+
+
+(defclass hashset ()
+   ((table
+     :initarg :table
+     :accessor hashset-table)))
+
+
+(defun make-hashset (&key (test nil))
+  (bind ((test (or test #'equal))
+         (table (make-hash-table :test test))
+         (set (make-instance 'hashset :table table)))
+    set))
+
+(defmethod hashset-length ((hs hashset))
+  (bind ((table (hashset-table hs)))
+    (hash-table-count table)))
+
+(defmethod hashset-empty? ((hs hashset))
+  (zerop (hashset-length hs)))
+
+(defmethod hashset-insert ((hs hashset) value)
+  (bind ((table (hashset-table hs)))
+    (setf (gethash value table) t)))
+
+(defmethod hashset-extend ((hs hashset) vals)
+  (loop for v in vals do
+        (hashset-insert hs v)))
+
+(defmethod hashset-get ((hs hashset) value)
+  (bind ((table (hashset-table hs)))
+    (gethash value table)))
+
+(defmethod hashset-remove ((hs hashset) value)
+  (bind ((table (hashset-table hs)))
+    (remhash value table)))
 
