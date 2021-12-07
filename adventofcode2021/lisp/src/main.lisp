@@ -14,6 +14,7 @@
     advent.d04:run
     advent.d05:run
     advent.d06:run
+    advent.d07:run
     ))
 
 

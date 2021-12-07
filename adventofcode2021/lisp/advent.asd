@@ -33,6 +33,7 @@
                  (:file "d04")
                  (:file "d05")
                  (:file "d06")
+                 (:file "d07")
                  (:file "main")
                  )))
   :description ""
@@ -53,6 +54,7 @@
                  (:file "test-d04")
                  (:file "test-d05")
                  (:file "test-d06")
+                 (:file "test-d07")
                  )))
   :description "Test system for advent"
   :perform (test-op (op sys)
