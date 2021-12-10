@@ -38,20 +38,60 @@
   (>= 2 (abs (- (char-int a) (char-int b)))))
 
 (defun part-1 (input)
-  (bind ((found nil))
+  (bind ((invalid nil)
+         (valid nil))
     (loop for line in input do
-          (bind ((stack nil))
-            (loop for c across line do
-                  (if (not (hashset-get *closing* c))
-                    (push c stack)
-                    (bind ((prev (pop stack)))
-                      (when (not (valid-pair? c prev))
-                        (push c found)
-                        (return)))))))
-    (apply #'+ (mapcar (lambda (c) (advent.utils:aget c *scores*)) found))))
+          (block check-line
+            (bind ((stack nil))
+              (loop for c across line do
+                    (if (not (hashset-get *closing* c))
+                      (push c stack)
+                      (bind ((prev (pop stack)))
+                        (when (not (valid-pair? c prev))
+                          (push c invalid)
+                          (return-from check-line))))))
+            (push line valid)))
+    (values
+      (apply #'+ (mapcar (lambda (c) (advent.utils:aget c *scores*)) invalid))
+      valid)))
+
+(defun pair (c)
+  (ecase c
+    (#.(code-char 40) #.(code-char 41))
+    (#.(code-char 91) #.(code-char 93))
+    (#.(code-char 123) #.(code-char 125))
+    (#.(code-char 60) #.(code-char 62))))
+
+(defun complete (line)
+  (bind ((stack nil))
+    (loop for c across line do
+          (if (hashset-get *closing* c)
+            (bind ((prev (pop stack)))
+              (when (not (valid-pair? prev c))
+                (error (format nil "invalid pair: ~a, ~a" prev c))))
+            (push c stack)))
+    (loop for c in stack collect (pair c))))
+
+(defun score (tail)
+  (bind ((n 0))
+    (loop for c in tail do
+          (progn
+            (setf n (* n 5))
+            (incf n
+                  (ecase c
+                    (#.(code-char 41) 1)
+                    (#.(code-char 93) 2)
+                    (#.(code-char 125) 3)
+                    (#.(code-char 62) 4)))))
+    n))
 
 (defun part-2 (input)
-  nil)
+  (bind (((:values _ valid) (part-1 input))
+         (tails (mapcar #'complete valid))
+         (scores (mapcar #'score tails))
+         (size (length scores))
+         (middle (-> (/ size 2) #'floor)))
+    (nth middle (sort scores #'<))))
 
 (defun run ()
   (let ((in (input)))
