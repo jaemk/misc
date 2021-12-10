@@ -11,8 +11,6 @@
 9899965678
   ")
 
-(advent.d09:parse *test-input-day09-01*)
-
 (test test-day09-part1-01
   (is (= 15 (advent.d09:part-1 (advent.d09:parse *test-input-day09-01*)))))
 
