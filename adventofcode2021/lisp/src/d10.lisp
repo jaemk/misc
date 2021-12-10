@@ -22,17 +22,26 @@
     (str:from-file "../input/d10.txt")
     (parse)))
 
-(defparameter *closing* (make-hashset :from (list #.(code-char 41)  ;; )
-                                                  #.(code-char 93)  ;; ]
-                                                  #.(code-char 125) ;; }
-                                                  #.(code-char 62)  ;; >
-                                                  )))
+(defparameter *closing*
+  (make-hashset :from (list #.(aref ")" 0)
+                            #.(aref "]" 0)
+                            #.(aref "}" 0)
+                            #.(aref ">" 0))))
 
-(defparameter *scores* (list (cons #.(code-char 41) 3)
-                             (cons #.(code-char 93) 57)
-                             (cons #.(code-char 125) 1197)
-                             (cons #.(code-char 62) 25137)))
+(defparameter *scores*
+  (list (cons #.(aref ")" 0) 3)
+        (cons #.(aref "]" 0) 57)
+        (cons #.(aref "}" 0) 1197)
+        (cons #.(aref ">" 0) 25137)))
 
+;; (#\( 40)
+;; (#\) 41)
+;; (#\[ 91)
+;; (#\] 93)
+;; (#\{ 123)
+;; (#\} 125)
+;; (#\< 60)
+;; (#\> 62)
 (defun valid-pair? (a b)
   ;; valid pairs are at most 2 away from one another
   (>= 2 (abs (- (char-int a) (char-int b)))))
@@ -57,10 +66,10 @@
 
 (defun pair (c)
   (ecase c
-    (#.(code-char 40) #.(code-char 41))
-    (#.(code-char 91) #.(code-char 93))
-    (#.(code-char 123) #.(code-char 125))
-    (#.(code-char 60) #.(code-char 62))))
+    (#.(aref "(" 0) #.(aref ")" 0))
+    (#.(aref "[" 0) #.(aref "]" 0))
+    (#.(aref "{" 0) #.(aref "}" 0))
+    (#.(aref "<" 0) #.(aref ">" 0))))
 
 (defun complete (line)
   (bind ((stack nil))
@@ -79,10 +88,10 @@
             (setf n (* n 5))
             (incf n
                   (ecase c
-                    (#.(code-char 41) 1)
-                    (#.(code-char 93) 2)
-                    (#.(code-char 125) 3)
-                    (#.(code-char 62) 4)))))
+                    (#.(aref ")" 0) 1)
+                    (#.(aref "]" 0) 2)
+                    (#.(aref "}" 0) 3)
+                    (#.(aref ">" 0) 4)))))
     n))
 
 (defun part-2 (input)
