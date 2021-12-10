@@ -10,11 +10,14 @@
     :make-hashset
     :hashset-map
     :hashset-empty?
+    :hashset-equal
     :hashset-length
     :hashset-insert
     :hashset-insert-all
     :hashset-get
     :hashset-remove
+    :hashset-difference
+    :hashset->list
     ))
 (in-package :advent.utils)
 (named-readtables:in-readtable :interpol-syntax)
@@ -73,19 +76,48 @@
 
 (defclass hashset ()
    ((table
-     :initarg :table
-     :accessor hashset-table)))
+      :initarg :table
+      :accessor hashset-table)
+    (test
+      :initarg :test
+      :accessor hashset-test)))
 
+(defmethod print-object ((hs hashset) stream)
+  (print-unreadable-object (hs stream :type t)
+    (format stream "{~{~a~^, ~}}" (hashset->list hs))))
 
-(defun make-hashset (&key (test nil))
+(defun make-hashset (&key (test nil) (from nil))
   (bind ((test (or test #'equal))
          (table (make-hash-table :test test))
-         (set (make-instance 'hashset :table table)))
+         (set (make-instance 'hashset :table table :test test)))
+    (when from
+      (hashset-insert-all set from))
     set))
+
+(defmethod hashset->list ((hs hashset))
+  (bind ((res nil))
+    (hashset-map hs (lambda (k) (push k res)))
+    res))
 
 (defmethod hashset-map ((hs hashset) f)
   (bind ((table (hashset-table hs)))
     (maphash (lambda (k v) (funcall f k)) table)))
+
+(defmethod hashset-difference ((hs1 hashset) (hs2 hashset))
+  (bind ((test (hashset-test hs1))
+         (new (make-hashset :test test)))
+    (hashset-map hs1 (lambda (k) (hashset-insert new k)))
+    (hashset-map hs2 (lambda (k) (hashset-remove new k)))
+    new))
+
+(defmethod hashset-equal ((hs1 hashset) (hs2 hashset))
+  (if (not (= (hashset-length hs1) (hashset-length hs2)))
+    nil
+    (progn
+      (loop for c in (hashset->list hs1) do
+            (when (not (hashset-get hs2 c))
+              (return-from hashset-equal nil)))
+      t)))
 
 (defmethod hashset-length ((hs hashset))
   (bind ((table (hashset-table hs)))
