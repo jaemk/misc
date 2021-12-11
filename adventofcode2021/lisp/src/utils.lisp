@@ -15,6 +15,7 @@
     :hashset-insert
     :hashset-insert-all
     :hashset-get
+    :hashset-pop
     :hashset-remove
     :hashset-difference
     :hashset->list
@@ -101,7 +102,8 @@
 
 (defmethod hashset-map ((hs hashset) f)
   (bind ((table (hashset-table hs)))
-    (maphash (lambda (k v) (funcall f k)) table)))
+    (maphash (lambda (k v) (funcall f k)) table))
+  hs)
 
 (defmethod hashset-difference ((hs1 hashset) (hs2 hashset))
   (bind ((test (hashset-test hs1))
@@ -128,17 +130,26 @@
 
 (defmethod hashset-insert ((hs hashset) value)
   (bind ((table (hashset-table hs)))
-    (setf (gethash value table) t)))
+    (setf (gethash value table) t))
+  hs)
 
 (defmethod hashset-insert-all ((hs hashset) vals)
   (loop for v in vals do
-        (hashset-insert hs v)))
+        (hashset-insert hs v))
+  hs)
 
 (defmethod hashset-get ((hs hashset) value)
   (bind ((table (hashset-table hs)))
     (gethash value table)))
 
+(defmethod hashset-pop ((hs hashset))
+  (bind ((table (hashset-table hs))
+         (k (block p (maphash (lambda (k _) (return-from p k)) table))))
+    (hashset-remove hs k)
+    k))
+
 (defmethod hashset-remove ((hs hashset) value)
   (bind ((table (hashset-table hs)))
-    (remhash value table)))
+    (remhash value table))
+  hs)
 
