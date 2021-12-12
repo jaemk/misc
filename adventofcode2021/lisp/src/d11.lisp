@@ -15,6 +15,78 @@
 (in-package advent.d11)
 (named-readtables:in-readtable :interpol-syntax)
 
+(defclass grid ()
+  ((inner
+     :initarg :inner
+     :initform (error "grid :inner required")
+     :accessor grid-inner)))
+
+(defun make-grid (height width &key (initial-element nil))
+  (bind ((ie (or initial-element 0))
+         (inner (make-array (list height width) :initial-element ie))
+         (g (make-instance 'grid :inner inner)))
+    g))
+
+(defmethod grid-dims ((g grid))
+  (array-dimensions (grid-inner g)))
+
+(defmethod grid-set ((g grid) x y val)
+  (bind ((inner (grid-inner g)))
+    (setf (aref inner y x) val))
+  g)
+
+(defmethod grid-inc ((g grid) x y &key (by nil))
+  (bind ((by (or by 1))
+         (inner (grid-inner g)))
+    (incf (aref inner y x) by)))
+
+(defmethod grid-get ((g grid) x y)
+  (aref (grid-inner g) y x))
+
+(defmethod grid-around ((g grid) x y)
+  (bind ((res nil)
+         ((h w) (grid-dims g)))
+    (when (< 0 x)
+      ; add left
+      (push (list (1- x) y) res)
+      ; add top-left
+      (when (< 0 y)
+        (push (list (1- x) (1- y)) res))
+      ; add bottom-left
+      (when (> (1- h) y)
+        (push (list (1- x) (1+ y)) res)))
+    (when (< x (1- w))
+      ; add right
+      (push (list (1+ x) y) res)
+      ; add top-right
+      (when (< 0 y)
+        (push (list (1+ x) (1- y)) res))
+      ; add bottom-right
+      (when (> (1- h) y)
+        (push (list (1+ x) (1+ y)) res)))
+    (when (< 0 y)
+      (push (list x (1- y)) res))
+    (when (< y (1- w))
+      (push (list x (1+ y)) res))
+    res))
+
+(defmethod grid-print ((g grid))
+  (bind (((h w) (grid-dims g)))
+    (loop for y from 0 below h do
+          (progn
+            (format t "~&")
+            (loop for x from 0 below w do
+                  (format t "~a" (aref g y x))))))
+  (format t "~%"))
+
+(defmethod grid-copy ((g grid))
+  (bind (((h w) (grid-dims g))
+         (res (make-grid h w)))
+    (loop for y from 0 below h do
+          (loop for x from 0 below w do
+                (grid-set res x y (grid-get g x y))))
+    res))
+
 (defun parse (s)
   (->>
     (str:trim s)
@@ -24,110 +96,67 @@
     (lambda (lines)
       (bind ((height (length lines))
              (width (length (first lines)))
-             (grid (make-array (list height width) :initial-element 0)))
+             (g (make-grid height width)))
         (loop for line in lines
               for y from 0 do
               (loop for c across line
                     for x from 0 do
-                    (setf (aref grid y x) (- (char-code c) #.(char-code #\0)))))
-        grid))))
+                    (grid-set g x y (- (char-code c) #.(char-code #\0)))))
+        g))))
 
 (defun input ()
   (->>
     (str:from-file "../input/d11.txt")
     (parse)))
 
-(defun around (height width x y)
-  (bind ((res nil))
-    (when (< 0 x)
-      ; add left
-      (push (list (1- x) y) res)
-      ; add top-left
-      (when (< 0 y)
-        (push (list (1- x) (1- y)) res))
-      ; add bottom-left
-      (when (> (1- width) y)
-        (push (list (1- x) (1+ y)) res)))
-    (when (< x (1- width))
-      ; add right
-      (push (list (1+ x) y) res)
-      ; add top-right
-      (when (< 0 y)
-        (push (list (1+ x) (1- y)) res))
-      ; add bottom-right
-      (when (> (1- width) y)
-        (push (list (1+ x) (1+ y)) res)))
-    (when (< 0 y)
-      (push (list x (1- y)) res))
-    (when (< y (1- height))
-      (push (list x (1+ y)) res))
-    res))
-
-(defun print-grid (g)
-  (bind (((h w) (array-dimensions g)))
-    (loop for y from 0 below h do
-          (progn
-            (format t "~&")
-            (loop for x from 0 below w do
-                  (format t "~a" (aref g y x))))))
-  (format t "~%"))
-
-(defun copy-grid (g)
-  (bind (((h w) (array-dimensions g))
-         (res (make-array (list h w) :initial-element 0)))
-    (loop for y from 0 below h do
-          (loop for x from 0 below w do
-                (setf (aref res y x) (aref g y x))))
-    res))
-
 (defun part-1 (input &key (steps nil) (stop nil))
-  (bind ((input (copy-grid input))
+  (bind ((input (grid-copy input))
          (flashes 0)
          (max-steps (or steps 100))
          (stop (or stop (lambda (num-steps _) (>= num-steps max-steps))))
          (steps 0)
-         ((height width) (array-dimensions input)))
+         ((height width) (grid-dims input)))
     (loop while (not (funcall stop steps input)) do
           (bind ((flashed (make-hashset)))
             (incf steps)
             ;; bump by 1
             (loop for y from 0 below height do
                   (loop for x from 0 below width do
-                        (incf (aref input y x))))
+                        (grid-inc input x y)))
             ;; explode 9s
             (bind ((flashers (make-hashset)))
               ;; find initial flashers
               (loop for y from 0 below height do
                     (loop for x from 0 below width do
-                          (when (< 9 (aref input y x))
+                          (when (< 9 (grid-get input x y))
                             (hashset-insert flashers (list x y))
                             (hashset-insert flashed (list x y))
                             )))
               ;; flash and track new flashers
               (loop while (< 0 (hashset-length flashers)) do
                     (bind (((x y) (hashset-pop flashers))
-                           (others (around height width x y)))
+                           (others (grid-around input x y)))
                       (incf flashes)
-                      (setf (aref input y x) 0)
+                      (grid-set input x y 0)
                       (loop for (ox oy) in others do
                             (progn
                               (when (not (hashset-get flashed (list ox oy)))
-                                (incf (aref input oy ox))
-                                (when (and (< 9 (aref input oy ox)))
+                                (grid-inc input ox oy)
+                                (when (and (< 9 (grid-get input ox oy)))
                                   (hashset-insert flashed (list ox oy))
                                   (hashset-insert flashers (list ox oy)))))))))))
     (values flashes steps)))
 
 (defun part-2 (input)
-  (flet ((stop (_ grid)
+  (flet ((stop (_ g)
           (block b
-            (bind (((h w) (array-dimensions grid)))
+            (bind (((h w) (grid-dims g)))
               (loop for y from 0 below h do
                     (loop for x from 0 below w do
-                          (when (not (zerop (aref grid y x)))
+                          (when (not (zerop (grid-get g x y)))
                             (return-from b nil)))))
             t)))
-    (bind ((input (copy-grid input))
+    (bind ((input (grid-copy input))
            ((:values _ steps) (part-1 input :stop #'stop)))
       steps)))
 
