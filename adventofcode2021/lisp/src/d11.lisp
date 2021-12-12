@@ -64,21 +64,30 @@
     res))
 
 (defun print-grid (g)
-  (format t "~%~%~%")
   (bind (((h w) (array-dimensions g)))
     (loop for y from 0 below h do
           (progn
             (format t "~&")
             (loop for x from 0 below w do
                   (format t "~a" (aref g y x))))))
-  (format t "~&"))
+  (format t "~%"))
 
-(defun part-1 (input &key (steps nil))
-  (bind ((flashes 0)
+(defun copy-grid (g)
+  (bind (((h w) (array-dimensions g))
+         (res (make-array (list h w) :initial-element 0)))
+    (loop for y from 0 below h do
+          (loop for x from 0 below w do
+                (setf (aref res y x) (aref g y x))))
+    res))
+
+(defun part-1 (input &key (steps nil) (stop nil))
+  (bind ((input (copy-grid input))
+         (flashes 0)
          (max-steps (or steps 100))
+         (stop (or stop (lambda (num-steps _) (>= num-steps max-steps))))
          (steps 0)
          ((height width) (array-dimensions input)))
-    (loop while (< steps max-steps) do
+    (loop while (not (funcall stop steps input)) do
           (bind ((flashed (make-hashset)))
             (incf steps)
             ;; bump by 1
@@ -107,10 +116,20 @@
                                 (when (and (< 9 (aref input oy ox)))
                                   (hashset-insert flashed (list ox oy))
                                   (hashset-insert flashers (list ox oy)))))))))))
-    flashes))
+    (values flashes steps)))
 
 (defun part-2 (input)
-  nil)
+  (flet ((stop (_ grid)
+          (block b
+            (bind (((h w) (array-dimensions grid)))
+              (loop for y from 0 below h do
+                    (loop for x from 0 below w do
+                          (when (not (zerop (aref grid y x)))
+                            (return-from b nil)))))
+            t)))
+    (bind ((input (copy-grid input))
+           ((:values _ steps) (part-1 input :stop #'stop)))
+      steps)))
 
 (defun run ()
   (let ((in (input)))

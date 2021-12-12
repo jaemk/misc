@@ -18,6 +18,7 @@
     advent.d08:run
     advent.d09:run
     advent.d10:run
+    advent.d11:run
     ))
 
 

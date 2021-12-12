@@ -37,12 +37,18 @@
 (test test-day11-part1-04
   (is (= 35 (advent.d11:part-1 (advent.d11:parse *test-input-day11-02*) :steps 2))))
 
-(test test-day11-part1-04
+(test test-day11-part1-05
   (is (= 204 (advent.d11:part-1 (advent.d11:parse *test-input-day11-02*) :steps 10))))
 
-(test test-day11-part1-05
+(test test-day11-part1-06
   (is (= 1656 (advent.d11:part-1 (advent.d11:parse *test-input-day11-02*)))))
 
 (test test-day11-part1-real
   (is (= 1613 (advent.d11:part-1 (advent.d11:input)))))
+
+(test test-day11-part2-01
+  (is (= 195 (advent.d11:part-2 (advent.d11:parse *test-input-day11-02*)))))
+
+(test test-day11-part2-real
+  (is (= 510 (advent.d11:part-2 (advent.d11:input)))))
 
