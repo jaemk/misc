@@ -1,2 +1,3 @@
 (test
- (name advent))
+ (name advent_tests)
+ (libraries advent alcotest))
