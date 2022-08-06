@@ -31,19 +31,17 @@ let d1_p2_real () =
     "real input 2" 1589
     (Advent.D01.part2 (Advent.D01.input ()))
 
-let run_tests () =
-  print_endline (Filename.dirname (Sys.getcwd ()));
+let collect_tests () =
   let open Alcotest in
-  run "advent"
-    [
-      ( "Day 1",
-        [
-          test_case "Part 1-1" `Quick d1_p1_1;
-          test_case "Part 1-2" `Quick d1_p1_2;
-          test_case "Part 1-3" `Quick d1_p1_3;
-          test_case "Part 1-sample-1" `Quick d1_p1_sample_1;
-          test_case "Part 1-real" `Quick d1_p1_real;
-          test_case "Part 2-sample-1" `Quick d1_p2_sample_1;
-          test_case "Part 2-real" `Quick d1_p2_real;
-        ] );
-    ]
+  [
+    ( "Day 1",
+      [
+        test_case "Part 1-1" `Quick d1_p1_1;
+        test_case "Part 1-2" `Quick d1_p1_2;
+        test_case "Part 1-3" `Quick d1_p1_3;
+        test_case "Part 1-sample-1" `Quick d1_p1_sample_1;
+        test_case "Part 1-real" `Quick d1_p1_real;
+        test_case "Part 2-sample-1" `Quick d1_p2_sample_1;
+        test_case "Part 2-real" `Quick d1_p2_real;
+      ] );
+  ]
