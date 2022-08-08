@@ -42,7 +42,19 @@ let part1 moves =
          | Down -> dep := !dep + m.amnt);
   !pos * !dep
 
-let part2 _ = 2
+let part2 moves =
+  let pos = ref 0 in
+  let dep = ref 0 in
+  let aim = ref 0 in
+  moves
+  |> List.iter (fun m ->
+         match m.dir with
+         | Forward ->
+             pos := !pos + m.amnt;
+             dep := !dep + (!aim * m.amnt)
+         | Up -> aim := !aim - m.amnt
+         | Down -> aim := !aim + m.amnt);
+  !pos * !dep
 
 let run () =
   let data = input () |> parse in

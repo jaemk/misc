@@ -33,6 +33,16 @@ let d2_part1_real () =
     "part 1 real" 1648020
     (Advent.D02.input () |> Advent.D02.parse |> Advent.D02.part1)
 
+let d2_part2_sample1 () =
+  Alcotest.(check int)
+    "sample 2" 900
+    (Advent.D02.part2 @@ Advent.D02.parse sample)
+
+let d2_part2_real () =
+  Alcotest.(check int)
+    "part 2 real" 1759818555
+    (Advent.D02.input () |> Advent.D02.parse |> Advent.D02.part2)
+
 let collect_tests () =
   let open Alcotest in
   [
@@ -41,5 +51,6 @@ let collect_tests () =
         test_case "Parse" `Quick d2_parse;
         test_case "Part 1 sample 1" `Quick d2_part1_sample1;
         test_case "Part 1 real" `Quick d2_part1_real;
+        test_case "Part 2 sample 1" `Quick d2_part2_sample1;
       ] );
   ]
