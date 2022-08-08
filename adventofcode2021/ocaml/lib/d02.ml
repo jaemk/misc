@@ -31,11 +31,21 @@ let parse s =
          let amnt = List.hd amnt |> int_of_string in
          create_move dir amnt)
 
-let part1 _ = 1
+let part1 moves =
+  let pos = ref 0 in
+  let dep = ref 0 in
+  moves
+  |> List.iter (fun m ->
+         match m.dir with
+         | Forward -> pos := !pos + m.amnt
+         | Up -> dep := !dep - m.amnt
+         | Down -> dep := !dep + m.amnt);
+  !pos * !dep
+
 let part2 _ = 2
 
 let run () =
-  let data = input () in
+  let data = input () |> parse in
   Printf.printf "** Day 2 **\n";
   let p1 = part1 data in
   Printf.printf "Part 1: %d\n" p1;
