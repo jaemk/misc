@@ -1,5 +1,7 @@
 let () =
-  let tests = D01.collect_tests () @ D02.collect_tests () in
+  let tests =
+    D01.collect_tests () @ D02.collect_tests () @ D03.collect_tests ()
+  in
 
   let open Alcotest in
   run "advent" tests
