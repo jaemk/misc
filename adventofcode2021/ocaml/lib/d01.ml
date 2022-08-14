@@ -34,7 +34,7 @@ let part2 data =
 let run () =
   let data = input () in
   Printf.printf "** Day 1 **\n";
-  let p1 = part1 data in
-  Printf.printf "Part 1: %d\n" p1;
-  let p2 = part2 data in
-  Printf.printf "Part 2: %d\n" p2
+  let p1, elapsed = Utils.time_ms (fun () -> part1 data) in
+  Printf.printf "Part 1: %d (%.2f ms)\n" p1 elapsed;
+  let p2, elapsed = Utils.time_ms (fun () -> part2 data) in
+  Printf.printf "Part 2: %d (%.2f ms)\n" p2 elapsed
