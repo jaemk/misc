@@ -3,6 +3,7 @@ mod utils;
 mod d01;
 mod d02;
 mod d03;
+mod d04;
 
 type Error = Box<dyn std::error::Error>;
 type Result<T> = std::result::Result<T, Error>;
@@ -11,6 +12,7 @@ async fn run(day: Option<&str>) -> Result<()> {
     day!(day, "1", d01::run().await?);
     day!(day, "2", d02::run().await?);
     day!(day, "3", d03::run().await?);
+    day!(day, "4", d04::run().await?);
     Ok(())
 }
 

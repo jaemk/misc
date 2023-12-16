@@ -1,6 +1,5 @@
 use crate::{utils, Result};
 
-
 #[derive(Clone)]
 struct Part {
     number: u64,
